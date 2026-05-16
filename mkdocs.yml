@@ -1,0 +1,96 @@
+site_name: kiok
+site_url: https://cloudcheflabs.github.io/kiok-docs
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - header.autohide
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+      primary: custom
+      accent: purple
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+      primary: custom
+      accent: lime
+  logo: images/logo/kiok-logo.png
+  favicon: images/logo/kiok-logo.png
+
+
+nav:
+  - "Home": index.md
+  - "Architecture":
+      - "kiok Architecture": architecture/architecture.md
+  - "Installation":
+      - "Download & Install": installation/installation.md
+      - "Getting Started": installation/getting-started.md
+  - "Features":
+      - "Authoring DAGs": features/dag-authoring.md
+      - "Distributed Architecture": features/distributed-architecture.md
+      - "Scheduler & Triggers": features/scheduler.md
+      - "Worker-Driver Execution": features/execution.md
+      - "Task Types": features/task-types.md
+      - "Git Sync": features/git-sync.md
+      - "DAG Bundles": features/bundles.md
+      - "Job Logs": features/job-logs.md
+      - "Encryption & Key Management": features/kms.md
+      - "Identity & Access Management": features/iam.md
+      - "Authentication & Authorization": features/auth-authz.md
+      - "Connections": features/connections.md
+      - "Monitoring & Metrics": features/monitoring.md
+      - "Backup & Restore": features/backup.md
+      - "Configuration Management": features/configuration.md
+      - "Network & Internal Communication": features/network.md
+  - "Operations":
+      - "Cluster Operations": operations/operations.md
+
+
+extra:
+  generator: false
+  version:
+    provider: mike
+    default: 1.0.0
+
+
+extra_css:
+  - stylesheets/extra.css
+
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.mark
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+copyright: |
+  &copy; <script>document.write(new Date().getFullYear())</script> Cloud Chef Labs, Inc. All rights reserved. <a href="mailto:admin@cloudchef-labs.com">admin@cloudchef-labs.com</a>

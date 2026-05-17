@@ -1017,10 +1017,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#storage" class="md-nav__link">
+  <a href="#registering-a-connection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Storage
+        Registering a connection
       
     </span>
   </a>
@@ -1028,13 +1028,63 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#referencing-a-connection" class="md-nav__link">
+  <a href="#referencing-a-connection-from-a-dag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Referencing a connection
+        Referencing a connection from a DAG
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1271,24 +1321,143 @@
 
 
 <h1 id="connections">Connections</h1>
-<p>A <strong>connection</strong> is a named, encrypted bag of credentials and endpoint settings. Connections keep secrets out of DAG definitions, git-sync configuration, and the backup configuration — so DAG files stay safe to commit to a public repository.</p>
+<p>A <strong>connection</strong> is a named, encrypted bag of credentials and endpoint settings. Connections keep secrets out of DAG definitions, git-sync configuration, and the backup configuration — so a DAG file stays safe to commit to a public repository.</p>
 <h2 id="what-connections-hold">What connections hold</h2>
-<p>Each connection has an id and a set of key/value properties. Typical uses:</p>
+<p>Each connection has an id, a type label, and a set of key/value properties. Typical uses:</p>
 <ul>
 <li><strong>Git credentials</strong> — an SSH <code>privateKey</code>, or <code>username</code> + <code>password</code>/token, for a private repository synced by <a href="../git-sync/">Git Sync</a>.</li>
 <li><strong>S3 credentials</strong> — <code>endpoint</code>, <code>region</code>, <code>bucket</code>, <code>accessKey</code>, <code>secretKey</code>, <code>pathStyle</code> — for a <a href="../backup/">Backup &amp; Restore</a> destination.</li>
-<li>Any other endpoint or credential a task needs to reach an external system.</li>
+<li><strong>Database / API credentials</strong> — anything a task needs to reach an external system.</li>
 </ul>
-<h2 id="storage">Storage</h2>
-<p>Connections live in a dedicated KMS-encrypted RocksDB store on the leader, synchronised to followers. Credentials are never written to config files or returned in plaintext by the API.</p>
-<h2 id="referencing-a-connection">Referencing a connection</h2>
-<p>Configuration and task bodies reference a connection <strong>indirectly</strong>, never by embedding the secret:</p>
-<ul>
-<li><code>${conn.&lt;id&gt;.&lt;key&gt;}</code> — substitutes one property of a connection;</li>
-<li><code>${secret.&lt;name&gt;}</code> — substitutes a named secret.</li>
-</ul>
-<p>kiok resolves the placeholder at execution time. Because the DAG definition only ever contains the placeholder, the same DAG file is safe in a public git repo — the actual credential exists only in the encrypted connection store.</p>
-<p>Manage connections from the admin UI's <strong>Settings → Connections</strong> page.</p>
+<h2 id="registering-a-connection">Registering a connection</h2>
+<p>Open <strong>Settings → Connections</strong> in the admin UI and fill in <strong>Add / update connection</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connection id</td>
+<td>Unique id you reference from DAGs (e.g. <code>analytics_db</code>)</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>A label — <code>s3</code> / <code>git</code> / <code>secret</code> / <code>jdbc</code> / <code>kafka</code> / <code>generic</code>. Organisational only; it does not change behaviour</td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Free text</td>
+</tr>
+<tr>
+<td>Properties</td>
+<td>One <code>key=value</code> per line</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example — a database connection</strong> <code>analytics_db</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>host=db.internal
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>port=5432
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>username=reporter
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>password=p4ssw0rd-...
+</code></pre></div>
+<p><strong>Example — a standalone secret</strong> <code>api_token</code> (type <code>secret</code>) — give it a single property named <code>value</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>value=ghp_xxxxxxxxxxxxxxxx
+</code></pre></div>
+<p>Connections are stored in a dedicated <strong>KMS-encrypted RocksDB store</strong> on the leader and synchronised to followers. The API never returns the values in plaintext.</p>
+<h2 id="referencing-a-connection-from-a-dag">Referencing a connection from a DAG</h2>
+<p>A DAG references a connection <strong>indirectly</strong> — it carries only the reference, never the secret. Two forms:</p>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Resolves to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>${conn.&lt;id&gt;.&lt;key&gt;}</code></td>
+<td>One property of a connection — e.g. <code>${conn.analytics_db.password}</code></td>
+</tr>
+<tr>
+<td><code>${secret.&lt;name&gt;}</code></td>
+<td>The <code>value</code> property of connection <code>&lt;name&gt;</code> — <code>${secret.api_token}</code> is shorthand for <code>${conn.api_token.value}</code></td>
+</tr>
+</tbody>
+</table>
+<p>References work <strong>inside a task's <code>script</code> body and inside any task <code>config</code> value</strong>. A worker substitutes them in-memory <strong>immediately before running the task</strong> — the real value exists only transiently in the worker process, never in stored metadata, git, or the admin UI. A reference to an unknown connection or property fails the task.</p>
+<blockquote>
+<p>Whatever format you author the DAG in, you write the <strong>literal reference string</strong> <code>${conn...}</code> / <code>${secret...}</code>. Do not interpolate it with your language's own string substitution — kiok resolves it at run time.</p>
+</blockquote>
+<h2 id="examples">Examples</h2>
+<p>The same DAG below — a DB export that then calls an API — is shown in all three authoring formats. Each references the <code>analytics_db</code> connection and the <code>api_token</code> secret registered above.</p>
+<h3 id="yaml">YAML</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">dag</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db_export</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">4</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nt">tasks</span><span class="p">:</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dump</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">      </span><span class="no">#!/bin/bash</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="no">export PGPASSWORD=&quot;${conn.analytics_db.password}&quot;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="no">psql -h &quot;${conn.analytics_db.host}&quot; -p &quot;${conn.analytics_db.port}&quot; \</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">           </span><span class="no">-U &quot;${conn.analytics_db.username}&quot; \</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">           </span><span class="no">-c &quot;\copy report TO &#39;/tmp/report.csv&#39; CSV&quot;</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notify</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">requires</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">dump</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://api.example.com/ingest</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">      </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;token&quot;:&quot;${secret.api_token}&quot;,&quot;status&quot;:&quot;done&quot;}&#39;</span>
+</code></pre></div>
+<h3 id="python">Python</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiok</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dag</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">dag</span> <span class="o">=</span> <span class="n">Dag</span><span class="p">(</span><span class="s2">&quot;db_export&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;0 4 * * *&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;dump&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>         <span class="n">script</span><span class="o">=</span><span class="s1">&#39;#!/bin/bash</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>                <span class="s1">&#39;export PGPASSWORD=&quot;$</span><span class="si">{conn.analytics_db.password}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                <span class="s1">&#39;psql -h &quot;$</span><span class="si">{conn.analytics_db.host}</span><span class="s1">&quot; -p &quot;$</span><span class="si">{conn.analytics_db.port}</span><span class="s1">&quot; &#39;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                <span class="s1">&#39;-U &quot;$</span><span class="si">{conn.analytics_db.username}</span><span class="s1">&quot; &#39;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>                <span class="s1">&#39;-c &quot;</span><span class="se">\\</span><span class="s1">copy report TO </span><span class="se">\&#39;</span><span class="s1">/tmp/report.csv</span><span class="se">\&#39;</span><span class="s1"> CSV&quot;&#39;</span><span class="p">)</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># The ${...} text is a literal kiok reference — not a Python f-string.</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;notify&quot;</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dump&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>         <span class="n">script</span><span class="o">=</span><span class="s1">&#39;import urllib.request, json</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>                <span class="s1">&#39;req = urllib.request.Request(</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                <span class="s1">&#39;    &quot;https://api.example.com/ingest&quot;,</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                <span class="s1">&#39;    data=json.dumps({&quot;status&quot;: &quot;done&quot;}).encode(),</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>                <span class="s1">&#39;    headers={&quot;Authorization&quot;: &quot;Bearer $</span><span class="si">{secret.api_token}</span><span class="s1">&quot;})</span><span class="se">\n</span><span class="s1">&#39;</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>                <span class="s1">&#39;print(urllib.request.urlopen(req).status)&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="java">Java</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DbExportDag</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">KiokDag</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nd">@Override</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Dag</span><span class="w"> </span><span class="nf">define</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="n">Dag</span><span class="w"> </span><span class="n">dag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dag</span><span class="p">(</span><span class="s">&quot;db_export&quot;</span><span class="p">).</span><span class="na">schedule</span><span class="p">(</span><span class="s">&quot;0 4 * * *&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">).</span><span class="na">shell</span><span class="p">(</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">            </span><span class="s">&quot;#!/bin/bash\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">            </span><span class="s">&quot;export PGPASSWORD=\&quot;${conn.analytics_db.password}\&quot;\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">            </span><span class="s">&quot;psql -h \&quot;${conn.analytics_db.host}\&quot; -p \&quot;${conn.analytics_db.port}\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">            </span><span class="s">&quot;     -U \&quot;${conn.analytics_db.username}\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">            </span><span class="s">&quot;     -c \&quot;\\copy report TO &#39;/tmp/report.csv&#39; CSV\&quot;&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;notify&quot;</span><span class="p">).</span><span class="na">requires</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">           </span><span class="p">.</span><span class="na">http</span><span class="p">(</span><span class="s">&quot;https://api.example.com/ingest&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;POST&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{\&quot;token\&quot;:\&quot;${secret.api_token}\&quot;,\&quot;status\&quot;:\&quot;done\&quot;}&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dag</span><span class="p">;</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">}</span>
+</code></pre></div>
+<p>In every case the registered DAG — the <code>DagSpec</code> stored in kiok — contains only the literal <code>${conn.analytics_db.password}</code> and <code>${secret.api_token}</code> strings. The credentials never leave the encrypted connection store until a worker resolves them for that single task execution.</p>
 
 
 

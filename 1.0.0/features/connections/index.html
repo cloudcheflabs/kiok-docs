@@ -1038,6 +1038,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#sdk-reference-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK reference helpers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1338,9 +1399,7 @@
 </tbody>
 </table>
 <p>References work <strong>inside a task's <code>script</code> body and inside any task <code>config</code> value</strong>. A worker substitutes them in-memory <strong>immediately before running the task</strong> — the real value exists only transiently in the worker process, never in stored metadata, git, or the admin UI. A reference to an unknown connection or property fails the task.</p>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
 <blockquote>
-<h1 id="whatever-format-you-author-the-dag-in-you-write-the-literal-reference-string-conn-secret-do-not-interpolate-it-with-your-languages-own-string-substitution-kiok-resolves-it-at-run-time">Whatever format you author the DAG in, you write the <strong>literal reference string</strong> <code>${conn...}</code> / <code>${secret...}</code>. Do not interpolate it with your language's own string substitution — kiok resolves it at run time.</h1>
 <p>The reference is resolved at <strong>task-execution time</strong>, not when the DAG is authored or compiled. You cannot read a credential's actual value from YAML or from Python/Java SDK code — by design, so the secret never enters the stored DAG definition.</p>
 </blockquote>
 <h2 id="sdk-reference-helpers">SDK reference helpers</h2>
@@ -1367,34 +1426,10 @@
 </tbody>
 </table>
 <p>Both return the same literal kiok resolves at run time — e.g. <code>${conn.analytics_db.password}</code>.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>master</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
 <h2 id="examples">Examples</h2>
 <p>The same DAG below — a DB export that then calls an API — is shown in all three authoring formats. Each references the <code>analytics_db</code> connection and the <code>api_token</code> secret registered above.</p>
 <h3 id="yaml">YAML</h3>
-<h1 id="head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h1>
 <p>YAML carries the <code>${...}</code> reference literally:</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>master
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">dag</span><span class="p">:</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db_export</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">4</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
@@ -1404,117 +1439,64 @@
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">      </span><span class="no">#!/bin/bash</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="no">export PGPASSWORD=&quot;${conn.analytics_db.password}&quot;</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="l l-Scalar l-Scalar-Plain">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">psql -h &quot;${conn.analytics_db.host}&quot; -p &quot;${conn.analytics_db.port}&quot; \</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">           </span><span class="l l-Scalar l-Scalar-Plain">-U &quot;${conn.analytics_db.username}&quot; \</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">           </span><span class="l l-Scalar l-Scalar-Plain">-c &quot;\copy report TO &#39;/tmp/report.csv&#39; CSV&quot;</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="l l-Scalar l-Scalar-Plain">=======</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">psql -h &quot;${conn.analytics_db.host}&quot; -U &quot;${conn.analytics_db.username}&quot; \</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">           </span><span class="l l-Scalar l-Scalar-Plain">-c &quot;\copy report TO STDOUT CSV&quot;</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="p p-Indicator">&gt;</span><span class="err">&gt;&gt;&gt;&gt;&gt;&gt; master</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="no">- id: notify</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="no">type: http</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="no">requires: [dump]</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="no">config:</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">      </span><span class="no">url: https://api.example.com/ingest</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">      </span><span class="no">method: POST</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">      </span><span class="no">body: &#39;{&quot;token&quot;:&quot;${secret.api_token}&quot;,&quot;status&quot;:&quot;done&quot;}&#39;</span>
-</code></pre></div></p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="no">psql -h &quot;${conn.analytics_db.host}&quot; -U &quot;${conn.analytics_db.username}&quot; \</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">           </span><span class="no">-c &quot;\copy report TO STDOUT CSV&quot;</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notify</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">requires</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">dump</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://api.example.com/ingest</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">      </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;token&quot;:&quot;${secret.api_token}&quot;,&quot;status&quot;:&quot;done&quot;}&#39;</span>
+</code></pre></div>
 <h3 id="python">Python</h3>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiok</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dag</span>
+<p>Use the <code>conn</code> / <code>secret</code> helpers from the <code>kiok</code> SDK:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiok</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dag</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">secret</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">dag</span> <span class="o">=</span> <span class="n">Dag</span><span class="p">(</span><span class="s2">&quot;db_export&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;0 4 * * *&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;dump&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>         <span class="n">script</span><span class="o">=</span><span class="s1">&#39;#!/bin/bash</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>                <span class="s1">&#39;export PGPASSWORD=&quot;$</span><span class="si">{conn.analytics_db.password}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                <span class="s1">&#39;psql -h &quot;$</span><span class="si">{conn.analytics_db.host}</span><span class="s1">&quot; -p &quot;$</span><span class="si">{conn.analytics_db.port}</span><span class="s1">&quot; &#39;</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                <span class="s1">&#39;-U &quot;$</span><span class="si">{conn.analytics_db.username}</span><span class="s1">&quot; &#39;</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>                <span class="s1">&#39;-c &quot;</span><span class="se">\\</span><span class="s1">copy report TO </span><span class="se">\&#39;</span><span class="s1">/tmp/report.csv</span><span class="se">\&#39;</span><span class="s1"> CSV&quot;&#39;</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;dump&quot;</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;#!/bin/bash</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s2">export PGPASSWORD=&quot;</span><span class="si">{</span><span class="n">conn</span><span class="p">(</span><span class="s1">&#39;analytics_db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;password&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s2">psql -h &quot;</span><span class="si">{</span><span class="n">conn</span><span class="p">(</span><span class="s1">&#39;analytics_db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;host&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot; </span><span class="se">\\</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s2">     -U &quot;</span><span class="si">{</span><span class="n">conn</span><span class="p">(</span><span class="s1">&#39;analytics_db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;username&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot; </span><span class="se">\\</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s2">     -c &quot;</span><span class="se">\\</span><span class="s2">copy report TO STDOUT CSV&quot;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># The ${...} text is a literal kiok reference — not a Python f-string.</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;notify&quot;</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dump&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>         <span class="n">script</span><span class="o">=</span><span class="s1">&#39;import urllib.request, json</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>                <span class="s1">&#39;req = urllib.request.Request(</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                <span class="s1">&#39;    &quot;https://api.example.com/ingest&quot;,</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                <span class="s1">&#39;    data=json.dumps({&quot;status&quot;: &quot;done&quot;}).encode(),</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>                <span class="s1">&#39;    headers={&quot;Authorization&quot;: &quot;Bearer $</span><span class="si">{secret.api_token}</span><span class="s1">&quot;})</span><span class="se">\n</span><span class="s1">&#39;</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>                <span class="s1">&#39;print(urllib.request.urlopen(req).status)&#39;</span><span class="p">)</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="o">=======</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="n">Use</span> <span class="n">the</span> <span class="err">`</span><span class="n">conn</span><span class="err">`</span> <span class="o">/</span> <span class="err">`</span><span class="n">secret</span><span class="err">`</span> <span class="n">helpers</span> <span class="kn">from</span><span class="w"> </span><span class="nn">the</span> <span class="err">`</span><span class="n">kiok</span><span class="err">`</span> <span class="n">SDK</span><span class="p">:</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="err">```</span><span class="n">python</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiok</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dag</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">secret</span>
-<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>
-<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="n">dag</span> <span class="o">=</span> <span class="n">Dag</span><span class="p">(</span><span class="s2">&quot;db_export&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;0 4 * * *&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>
-<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;dump&quot;</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;#!/bin/bash</span>
-<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="s2">export PGPASSWORD=&quot;</span><span class="si">{</span><span class="n">conn</span><span class="p">(</span><span class="s1">&#39;analytics_db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;password&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="s2">psql -h &quot;</span><span class="si">{</span><span class="n">conn</span><span class="p">(</span><span class="s1">&#39;analytics_db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;host&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot; </span><span class="se">\\</span>
-<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="s2">     -U &quot;</span><span class="si">{</span><span class="n">conn</span><span class="p">(</span><span class="s1">&#39;analytics_db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;username&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot; </span><span class="se">\\</span>
-<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="s2">     -c &quot;</span><span class="se">\\</span><span class="s2">copy report TO STDOUT CSV&quot;</span>
-<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>
-<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;notify&quot;</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dump&quot;</span><span class="p">],</span> <span class="n">script</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="s2">import urllib.request</span>
-<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="s2">req = urllib.request.Request(</span>
-<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="s2">    &quot;https://api.example.com/ingest&quot;,</span>
-<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="s2">    headers=</span><span class="se">{{</span><span class="s2">&quot;Authorization&quot;: &quot;Bearer </span><span class="si">{</span><span class="n">secret</span><span class="p">(</span><span class="s1">&#39;api_token&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="se">}}</span><span class="s2">)</span>
-<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="s2">print(urllib.request.urlopen(req).status)</span>
-<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="n">master</span>
-</code></pre></div></p>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;notify&quot;</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dump&quot;</span><span class="p">],</span> <span class="n">script</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s2">import urllib.request</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s2">req = urllib.request.Request(</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="s2">    &quot;https://api.example.com/ingest&quot;,</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="s2">    headers=</span><span class="se">{{</span><span class="s2">&quot;Authorization&quot;: &quot;Bearer </span><span class="si">{</span><span class="n">secret</span><span class="p">(</span><span class="s1">&#39;api_token&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="se">}}</span><span class="s2">)</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="s2">print(urllib.request.urlopen(req).status)</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="java">Java</h3>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="o">=======</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">Use</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">Conn</span><span class="err">`</span><span class="w"> </span><span class="n">helper</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">kiok</span><span class="err">`</span><span class="w"> </span><span class="n">SDK</span><span class="p">:</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="err">```</span><span class="n">java</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.Conn</span><span class="p">;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.Dag</span><span class="p">;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.KiokDag</span><span class="p">;</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span><span class="w"> </span><span class="n">master</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DbExportDag</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">KiokDag</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nd">@Override</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Dag</span><span class="w"> </span><span class="nf">define</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="n">Dag</span><span class="w"> </span><span class="n">dag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dag</span><span class="p">(</span><span class="s">&quot;db_export&quot;</span><span class="p">).</span><span class="na">schedule</span><span class="p">(</span><span class="s">&quot;0 4 * * *&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">).</span><span class="na">shell</span><span class="p">(</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">            </span><span class="s">&quot;#!/bin/bash\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="o">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span><span class="w"> </span><span class="n">HEAD</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">            </span><span class="s">&quot;export PGPASSWORD=\&quot;${conn.analytics_db.password}\&quot;\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">            </span><span class="s">&quot;psql -h \&quot;${conn.analytics_db.host}\&quot; -p \&quot;${conn.analytics_db.port}\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">            </span><span class="s">&quot;     -U \&quot;${conn.analytics_db.username}\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">            </span><span class="s">&quot;     -c \&quot;\\copy report TO &#39;/tmp/report.csv&#39; CSV\&quot;&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="o">=======</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">            </span><span class="s">&quot;export PGPASSWORD=\&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;password&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot;\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">            </span><span class="s">&quot;psql -h \&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;host&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">            </span><span class="s">&quot;     -U \&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;username&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">            </span><span class="s">&quot;     -c \&quot;\\copy report TO STDOUT CSV\&quot;&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span><span class="w"> </span><span class="n">master</span>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;notify&quot;</span><span class="p">).</span><span class="na">requires</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">           </span><span class="p">.</span><span class="na">http</span><span class="p">(</span><span class="s">&quot;https://api.example.com/ingest&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;POST&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="o">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span><span class="w"> </span><span class="n">HEAD</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{\&quot;token\&quot;:\&quot;${secret.api_token}\&quot;,\&quot;status\&quot;:\&quot;done\&quot;}&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="o">=======</span>
-<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{\&quot;token\&quot;:\&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">secret</span><span class="p">(</span><span class="s">&quot;api_token&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot;}&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="o">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span><span class="w"> </span><span class="n">master</span>
-<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>
-<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dag</span><span class="p">;</span>
-<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="p">}</span>
-</code></pre></div></p>
+<p>Use the <code>Conn</code> helper from the <code>kiok</code> SDK:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.Conn</span><span class="p">;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.Dag</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.KiokDag</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DbExportDag</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">KiokDag</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nd">@Override</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Dag</span><span class="w"> </span><span class="nf">define</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="n">Dag</span><span class="w"> </span><span class="n">dag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dag</span><span class="p">(</span><span class="s">&quot;db_export&quot;</span><span class="p">).</span><span class="na">schedule</span><span class="p">(</span><span class="s">&quot;0 4 * * *&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">).</span><span class="na">shell</span><span class="p">(</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">            </span><span class="s">&quot;#!/bin/bash\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">            </span><span class="s">&quot;export PGPASSWORD=\&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;password&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot;\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">            </span><span class="s">&quot;psql -h \&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;host&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">            </span><span class="s">&quot;     -U \&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;username&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot; \\\n&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">            </span><span class="s">&quot;     -c \&quot;\\copy report TO STDOUT CSV\&quot;&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;notify&quot;</span><span class="p">).</span><span class="na">requires</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">           </span><span class="p">.</span><span class="na">http</span><span class="p">(</span><span class="s">&quot;https://api.example.com/ingest&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;method&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;POST&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">           </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{\&quot;token\&quot;:\&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">secret</span><span class="p">(</span><span class="s">&quot;api_token&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot;}&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dag</span><span class="p">;</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="p">}</span>
+</code></pre></div>
 <p>In every case the registered DAG — the <code>DagSpec</code> stored in kiok — contains only the literal <code>${conn.analytics_db.password}</code> and <code>${secret.api_token}</code> strings. The credentials never leave the encrypted connection store until a worker resolves them for that single task execution.</p>
 
 

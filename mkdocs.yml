@@ -50,6 +50,7 @@ nav:
       - "Encryption & Key Management": features/kms.md
       - "Identity & Access Management": features/iam.md
       - "Authentication & Authorization": features/auth-authz.md
+      - "Admin Password Recovery": features/admin-password-recovery.md
       - "Connections": features/connections.md
       - "Monitoring & Metrics": features/monitoring.md
       - "Backup & Restore": features/backup.md

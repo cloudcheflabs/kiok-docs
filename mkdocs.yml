@@ -58,6 +58,9 @@ nav:
       - "Network & Internal Communication": features/network.md
   - "Operations":
       - "Cluster Operations": operations/operations.md
+  - "Tutorials":
+      - "Overview": tutorials/index.md
+      - "Spark + Iceberg via SSH-to-Master": tutorials/spark-iceberg-via-ssh.md
 
 
 extra:

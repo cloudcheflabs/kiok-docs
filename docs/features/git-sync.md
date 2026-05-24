@@ -22,9 +22,32 @@ On each interval (`kiok.gitsync.interval.ms`, default 60s) the leader checks out
 
 - `*.yaml` / `*.yml` — YAML DAG definitions;
 - `*.py` — Python-authored DAGs (compiled with `python3 -m kiok.compile`);
-- `*.jar` — Java DAG jars (every `KiokDag` class is compiled).
+- `*.java` — Java-authored DAGs, batch-compiled in-process against kiok-sdk on the master's classpath;
+- `*.sh` — shell-script DAGs: filename stem becomes the DAG id, file body becomes a single task named `run`.
 
 Each compiled DAG is upserted into the metadata store with `origin: git`, tagged with the repository and source path. A DAG that already exists is updated in place; its run history is preserved.
+
+### Recommended layout
+
+The scanner is location-agnostic — it picks up files by extension wherever they sit under the configured subpath — but the recommended convention mirrors the standard Maven/Gradle source tree:
+
+```
+<repo>/
+├── src/main/yaml/     # *.yaml DAGs
+├── src/main/script/   # also a fine place for *.yaml; *.sh shell DAGs live here
+├── src/main/python/   # *.py DAGs (kiok Python SDK)
+└── src/main/java/     # *.java DAGs (kiok Java SDK)
+```
+
+The repo holds **source only** — there is no build step on the operator side. kiok's leader handles every compile in-process when it pulls the repo.
+
+### Java source compilation
+
+For `.java` sources, the leader uses the JDK's in-process `javax.tools.JavaCompiler` (kiok master must run on a JDK, not a JRE — kiok's packaged distribution already ships with one). The compiler's classpath is auto-derived from the master's own `lib/` directory, so a user-authored DAG can reference the kiok SDK (`com.cloudcheflabs.kiok.sdk.{Dag, Task, KiokDag, Conn}`) without any build configuration on the repo side.
+
+Multiple `.java` files are compiled in a single javac invocation so cross-file references resolve naturally — a DAG class can import a helper from a sibling source file. Each compiled `KiokDag` subclass is then loaded with an isolated `URLClassLoader` and its `define()` method invoked once.
+
+The original `.java` source text — not a "compiled from N files" marker — is stored as the DAG's `source` field, so the admin UI's **Source** tab shows operators the actual Java code they authored, with the resulting `DagSpec` (the in-memory structure the scheduler executes) rendered just below it.
 
 ## Prune on delete
 

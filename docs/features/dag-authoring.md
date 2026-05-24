@@ -67,7 +67,7 @@ kiok compiles a Python DAG by running `python3 -m kiok.compile <file>`, which im
 
 ## Java
 
-For type-safe authoring with IDE support and compile-time checking, implement the `KiokDag` interface with the kiok Java SDK. kiok loads every `KiokDag` class it finds in a bundle jar and calls `define()`:
+For type-safe authoring with IDE support and compile-time checking, implement the `KiokDag` interface with the kiok Java SDK. kiok batch-compiles every `.java` source it finds in a git repo or bundle zip — no separate build step on the operator side — loads every `KiokDag` class, and calls `define()`:
 
 ```java
 public class DailyEtlDag implements KiokDag {
@@ -84,6 +84,26 @@ public class DailyEtlDag implements KiokDag {
 ```
 
 The `Dag` and `Task` builders are fluent, and a loop over a list builds a fan-out graph exactly as the Python example does.
+
+### Credentials in code — the `Conn` helper
+
+A Java DAG references a stored connection's properties with the `Conn` helper, matching the Python `conn(id, key)` and YAML `${conn.<id>.<key>}` forms — the resolver substitutes the real value in-memory at task-exec time, so the source code itself stays free of secrets:
+
+```java
+import com.cloudcheflabs.kiok.sdk.Conn;
+
+dag.task("dump")
+   .shell("psql -U \"" + Conn.ref("analytics_db", "username") + "\" "
+        + "-d analytics -c 'COPY users TO STDOUT'");
+```
+
+`Conn.ref("id", "key")` returns the literal `${conn.id.key}` reference string; `Conn.secret("name")` is the standalone-secret shorthand. See [Connections](connections.md).
+
+### How the source compile works
+
+The kiok leader runs the JDK's in-process `javax.tools.JavaCompiler` against the kiok SDK already on its own classpath, so a user-authored `.java` DAG needs no build configuration on the repo side. Multiple sources are compiled in one javac invocation, so cross-file references (a DAG class importing a helper from a sibling file) resolve naturally.
+
+The original `.java` text is what the admin UI's **Source** tab shows for that DAG, with the resulting `DagSpec` (what the scheduler actually executes) rendered just below it.
 
 ## Why code over YAML
 

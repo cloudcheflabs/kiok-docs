@@ -1980,7 +1980,7 @@ encode their argument as JSON inside the map — identical wire shape to the
 YAML and Python variants.</p>
 <h2 id="step-4-register-and-trigger-one-of-the-three">Step 4 — Register and trigger one of the three</h2>
 <p>Register the YAML one (the Python and Java DAGs go through git-sync or a
-bundle upload — see the <a href="../spark-iceberg-via-ssh/#step-5--deploy-via-git-sync">SSH-to-Master tutorial</a>
+bundle upload — see the <a href="../spark-iceberg-via-ssh/#step-5-deploy-via-git-sync">SSH-to-Master tutorial</a>
 for the deploy patterns):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>curl<span class="w"> </span>-sS<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="nv">$KIOK</span>/api/v1/dags<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$KTOK</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/yaml&#39;</span><span class="w"> </span><span class="se">\</span>

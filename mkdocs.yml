@@ -61,6 +61,7 @@ nav:
   - "Tutorials":
       - "Overview": tutorials/index.md
       - "Spark + Iceberg via SSH-to-Master": tutorials/spark-iceberg-via-ssh.md
+      - "Spark via Apache Livy": tutorials/spark-via-livy.md
 
 
 extra:

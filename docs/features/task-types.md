@@ -15,6 +15,10 @@ Runs an inline shell script. The script body is written to a file, made executab
     echo "extracting"
 ```
 
+### One-file shorthand: a bare `.sh` DAG
+
+For the common single-task case, drop a plain `.sh` file under the git repo (or inside a bundle zip) and kiok registers it as a one-task DAG automatically — no YAML / Python / Java wrapper needed. The filename stem (lowercased, non-alphanumeric → `-`) becomes the DAG id; the file body becomes the script of the single task named `run`. Manual-trigger only; if you need a schedule, author the same workload as YAML with a `schedule:` instead.
+
 ## `python`
 
 Runs an inline Python script with the Worker's `python3` (`kiok.python.path`). Useful for data manipulation without a shell wrapper.

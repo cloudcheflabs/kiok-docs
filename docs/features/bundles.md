@@ -8,7 +8,12 @@ A bundle zip holds any mix of:
 
 - `*.yaml` / `*.yml` — YAML DAG definitions;
 - `*.py` — Python-authored DAGs (compiled with `python3 -m kiok.compile`);
-- `*.jar` — a Java DAG jar (every `KiokDag` class is compiled).
+- `*.java` — Java-authored DAGs, batch-compiled in-process against kiok-sdk on the master's classpath;
+- `*.sh` — shell-script DAGs (filename stem → DAG id, file body → single shell task named `run`).
+
+The same recommended layout as [Git Sync](git-sync.md) — `src/main/{yaml,script,python,java}/` — applies inside the zip too. The scanner is location-agnostic (it walks the whole archive and picks files by extension), so the directory layout is operator-facing convention rather than a hard requirement.
+
+A bundle therefore holds **source only** — there is no build step on the operator side; kiok's leader compiles every DAG in-process when it processes the upload, exactly as it does for git-sync.
 
 Upload it from the admin UI's **Settings → DAG Bundles** page. Each compiled DAG is registered with `origin: bundle`, tagged with the bundle name and the source path inside the zip.
 

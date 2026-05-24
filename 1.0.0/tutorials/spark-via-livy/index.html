@@ -1724,13 +1724,13 @@ tutorial assumes the e2e stack below, so set:</p>
   end
   subgraph compose[docker compose stack]
     zk[zookeeper]
-    km[kiok master&lt;br/&gt;:18080]
+    km["kiok master&lt;br/&gt;:18080"]
     kw[kiok worker]
-    livy[Apache Livy 0.7.1&lt;br/&gt;:18998&lt;br/&gt;spark.master=local[*]]
+    livy["Apache Livy 0.7.1&lt;br/&gt;:18998&lt;br/&gt;spark.master=local[*]"]
   end
   op -- REST --&gt; km
   km &lt;--&gt;|JWT, NIO| kw
-  kw -- POST /batches&lt;br/&gt;GET /batches/{id}/state&lt;br/&gt;GET /batches/{id}/log --&gt; livy
+  kw -- "POST /batches&lt;br/&gt;GET /batches/{id}/state&lt;br/&gt;GET /batches/{id}/log" --&gt; livy
   zk -.- km
   zk -.- kw</code></pre>
 <h2 id="step-1-build-the-livy-image-and-bring-the-stack-up">Step 1 — Build the Livy image and bring the stack up</h2>

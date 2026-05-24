@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -880,6 +880,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#livy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        livy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#common-task-fields" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1448,6 +1459,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/spark-via-livy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark via Apache Livy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1473,7 +1512,7 @@
 
 
 <h1 id="task-types">Task Types</h1>
-<p>A task is one node in a DAG. kiok runs three task types; all three are authored the same way in YAML, Python, or Java.</p>
+<p>A task is one node in a DAG. kiok runs four task types; all four are authored the same way in YAML, Python, or Java.</p>
 <h2 id="shell"><code>shell</code></h2>
 <p>Runs an inline shell script. The script body is written to a file, made executable, and run by the Worker; stdout and stderr are captured and streamed back.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extract</span>
@@ -1503,6 +1542,21 @@
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;status&quot;:&quot;done&quot;}&#39;</span>
 </code></pre></div>
+<h2 id="livy"><code>livy</code></h2>
+<p>Submits a Spark batch via Apache Livy's REST API and tails the batch log until it terminates. Unlike <code>shell</code> / <code>python</code> / <code>http</code>, a <code>livy</code> task shepherds an <strong>external</strong> job whose identity (the Livy batch id) is recorded on the <code>TaskRun.externalId</code> field — which lets a kiok worker restart <strong>resume</strong> polling against the same Spark batch instead of submitting a duplicate.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_spark</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">livy</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">livy.url</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;http://livy:8998&quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">livy.file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;s3a://my-bucket/jobs/etl.jar&quot;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">livy.className</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;com.example.Etl&quot;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">livy.args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;--date&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;2026-05-25&quot;</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">livy.conf</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> spark.sql.shuffle.partitions</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;200&quot;</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nt">livy.driverMemory</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;2g&quot;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nt">livy.executorMemory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4g&quot;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nt">livy.numExecutors</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;8&quot;</span>
+</code></pre></div>
+<p>The full Spark stdout (<code>INFO TaskSetManager … (N/M)</code>, the workload's own <code>print(...)</code>, <code>SparkContext is stopping</code>, …) streams into kiok's per-task log view as it arrives. See the <a href="../../tutorials/spark-via-livy/">Spark via Apache Livy</a> tutorial for a self-contained <code>docker compose</code> walkthrough, the YAML / Python / Java authoring of the same task, the full <code>livy.*</code> configuration reference, and a worker-restart resume demo.</p>
 <h2 id="common-task-fields">Common task fields</h2>
 <table>
 <thead>
@@ -1518,7 +1572,7 @@
 </tr>
 <tr>
 <td><code>type</code></td>
-<td><code>shell</code>, <code>python</code>, or <code>http</code></td>
+<td><code>shell</code>, <code>python</code>, <code>http</code>, or <code>livy</code></td>
 </tr>
 <tr>
 <td><code>script</code></td>
@@ -1534,7 +1588,7 @@
 </tr>
 <tr>
 <td><code>config</code></td>
-<td>Type-specific settings (e.g. <code>url</code>, <code>method</code>, <code>body</code> for <code>http</code>)</td>
+<td>Type-specific settings (e.g. <code>url</code>/<code>method</code>/<code>body</code> for <code>http</code>; <code>livy.*</code> keys for <code>livy</code>)</td>
 </tr>
 </tbody>
 </table>

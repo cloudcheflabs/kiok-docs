@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -1398,6 +1398,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="spark-via-livy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark via Apache Livy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1427,6 +1455,7 @@
 <h2 id="available-tutorials">Available tutorials</h2>
 <ul>
 <li><a href="spark-iceberg-via-ssh/">Spark + Iceberg via SSH-to-Master</a> — submit a PySpark client-mode job and a Java uberjar cluster-mode job from a kiok DAG, by <code>ssh</code>-ing into a Spark master that lives on a different host. Covers credential injection via the <code>Conn</code> helper, the <code>src/main/{script,python,java}/</code> source layout, git-sync from a real GitHub repo, and the bundle-upload alternative.</li>
+<li><a href="spark-via-livy/">Spark via Apache Livy</a> — drive Spark batches through Livy's REST API: <code>POST /batches</code> to submit, poll state + tail log by batch id, surface the full Spark stdout (TaskSetManager progress, "Pi is roughly …", SparkContext shutdown) into kiok's task-log view. Includes a self-contained <code>docker compose</code> stack (kiok + Livy + embedded Spark), the YAML / Python / Java authoring of the same task, and a <strong>worker-restart resume</strong> demo that proves the in-flight Spark job is not abandoned when the kiok worker JVM dies.</li>
 </ul>
 <h2 id="prerequisites-common-to-every-tutorial">Prerequisites common to every tutorial</h2>
 <ul>

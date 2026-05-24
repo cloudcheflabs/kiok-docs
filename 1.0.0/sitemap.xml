@@ -96,4 +96,8 @@
          <loc>https://cloudcheflabs.github.io/kiok-docs/1.0.0/tutorials/spark-iceberg-via-ssh/</loc>
          <lastmod>2026-05-24</lastmod>
     </url>
+    <url>
+         <loc>https://cloudcheflabs.github.io/kiok-docs/1.0.0/tutorials/spark-via-livy/</loc>
+         <lastmod>2026-05-24</lastmod>
+    </url>
 </urlset>

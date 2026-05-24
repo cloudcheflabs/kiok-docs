@@ -385,7 +385,7 @@ YAML and Python variants.
 ## Step 4 — Register and trigger one of the three
 
 Register the YAML one (the Python and Java DAGs go through git-sync or a
-bundle upload — see the [SSH-to-Master tutorial](spark-iceberg-via-ssh.md#step-5--deploy-via-git-sync)
+bundle upload — see the [SSH-to-Master tutorial](spark-iceberg-via-ssh.md#step-5-deploy-via-git-sync)
 for the deploy patterns):
 
 ```bash

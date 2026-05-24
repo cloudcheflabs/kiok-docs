@@ -88,13 +88,13 @@ flowchart LR
   end
   subgraph compose[docker compose stack]
     zk[zookeeper]
-    km[kiok master<br/>:18080]
+    km["kiok master<br/>:18080"]
     kw[kiok worker]
-    livy[Apache Livy 0.7.1<br/>:18998<br/>spark.master=local[*]]
+    livy["Apache Livy 0.7.1<br/>:18998<br/>spark.master=local[*]"]
   end
   op -- REST --> km
   km <-->|JWT, NIO| kw
-  kw -- POST /batches<br/>GET /batches/{id}/state<br/>GET /batches/{id}/log --> livy
+  kw -- "POST /batches<br/>GET /batches/{id}/state<br/>GET /batches/{id}/log" --> livy
   zk -.- km
   zk -.- kw
 ```

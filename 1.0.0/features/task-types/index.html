@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -304,6 +304,26 @@
   
   
   Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
 
         </a>
       </li>
@@ -818,6 +838,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="shell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-file-shorthand-a-bare-sh-dag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One-file shorthand: a bare .sh DAG
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1303,6 +1340,121 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/spark-iceberg-via-ssh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark + Iceberg via SSH-to-Master
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1331,6 +1483,8 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="no">set -e</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="no">echo &quot;extracting&quot;</span>
 </code></pre></div>
+<h3 id="one-file-shorthand-a-bare-sh-dag">One-file shorthand: a bare <code>.sh</code> DAG</h3>
+<p>For the common single-task case, drop a plain <code>.sh</code> file under the git repo (or inside a bundle zip) and kiok registers it as a one-task DAG automatically — no YAML / Python / Java wrapper needed. The filename stem (lowercased, non-alphanumeric → <code>-</code>) becomes the DAG id; the file body becomes the script of the single task named <code>run</code>. Manual-trigger only; if you need a schedule, author the same workload as YAML with a <code>schedule:</code> instead.</p>
 <h2 id="python"><code>python</code></h2>
 <p>Runs an inline Python script with the Worker's <code>python3</code> (<code>kiok.python.path</code>). Useful for data manipulation without a shell wrapper.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">transform</span>

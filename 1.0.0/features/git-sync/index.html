@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -304,6 +304,26 @@
   
   
   Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
 
         </a>
       </li>
@@ -857,6 +877,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="What gets synced">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java-source-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java source compilation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1303,6 +1351,121 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/spark-iceberg-via-ssh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark + Iceberg via SSH-to-Master
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1360,9 +1523,23 @@
 <ul>
 <li><code>*.yaml</code> / <code>*.yml</code> — YAML DAG definitions;</li>
 <li><code>*.py</code> — Python-authored DAGs (compiled with <code>python3 -m kiok.compile</code>);</li>
-<li><code>*.jar</code> — Java DAG jars (every <code>KiokDag</code> class is compiled).</li>
+<li><code>*.java</code> — Java-authored DAGs, batch-compiled in-process against kiok-sdk on the master's classpath;</li>
+<li><code>*.sh</code> — shell-script DAGs: filename stem becomes the DAG id, file body becomes a single task named <code>run</code>.</li>
 </ul>
 <p>Each compiled DAG is upserted into the metadata store with <code>origin: git</code>, tagged with the repository and source path. A DAG that already exists is updated in place; its run history is preserved.</p>
+<h3 id="recommended-layout">Recommended layout</h3>
+<p>The scanner is location-agnostic — it picks up files by extension wherever they sit under the configured subpath — but the recommended convention mirrors the standard Maven/Gradle source tree:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;repo&gt;/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── src/main/yaml/     # *.yaml DAGs
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── src/main/script/   # also a fine place for *.yaml; *.sh shell DAGs live here
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── src/main/python/   # *.py DAGs (kiok Python SDK)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── src/main/java/     # *.java DAGs (kiok Java SDK)
+</code></pre></div>
+<p>The repo holds <strong>source only</strong> — there is no build step on the operator side. kiok's leader handles every compile in-process when it pulls the repo.</p>
+<h3 id="java-source-compilation">Java source compilation</h3>
+<p>For <code>.java</code> sources, the leader uses the JDK's in-process <code>javax.tools.JavaCompiler</code> (kiok master must run on a JDK, not a JRE — kiok's packaged distribution already ships with one). The compiler's classpath is auto-derived from the master's own <code>lib/</code> directory, so a user-authored DAG can reference the kiok SDK (<code>com.cloudcheflabs.kiok.sdk.{Dag, Task, KiokDag, Conn}</code>) without any build configuration on the repo side.</p>
+<p>Multiple <code>.java</code> files are compiled in a single javac invocation so cross-file references resolve naturally — a DAG class can import a helper from a sibling source file. Each compiled <code>KiokDag</code> subclass is then loaded with an isolated <code>URLClassLoader</code> and its <code>define()</code> method invoked once.</p>
+<p>The original <code>.java</code> source text — not a "compiled from N files" marker — is stored as the DAG's <code>source</code> field, so the admin UI's <strong>Source</strong> tab shows operators the actual Java code they authored, with the resulting <code>DagSpec</code> (the in-memory structure the scheduler executes) rendered just below it.</p>
 <h2 id="prune-on-delete">Prune on delete</h2>
 <p>When a DAG file is <strong>removed</strong> from the repository, git-sync prunes the corresponding DAG on the next sync — the DAG disappears from the cluster, matching the repo.</p>
 <p><strong>Run history survives the prune.</strong> History is keyed by the DAG's unique id (derived from repo + source path), not by the DAG record itself. So if the same file is later re-pushed — same name, same path — the DAG reappears and <strong>continues its existing run history</strong> rather than starting fresh. Deleting and re-adding a DAG through git is therefore safe and non-destructive.</p>

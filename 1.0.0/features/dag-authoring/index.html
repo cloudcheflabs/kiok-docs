@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -304,6 +304,26 @@
   
   
   Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
 
         </a>
       </li>
@@ -738,6 +758,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Java">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credentials-in-code-the-conn-helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credentials in code — the Conn helper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-the-source-compile-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the source compile works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1325,6 +1373,121 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/spark-iceberg-via-ssh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark + Iceberg via SSH-to-Master
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1394,7 +1557,7 @@
 </code></pre></div>
 <p>kiok compiles a Python DAG by running <code>python3 -m kiok.compile &lt;file&gt;</code>, which imports the module and emits each <code>Dag</code> as a <code>DagSpec</code>.</p>
 <h2 id="java">Java</h2>
-<p>For type-safe authoring with IDE support and compile-time checking, implement the <code>KiokDag</code> interface with the kiok Java SDK. kiok loads every <code>KiokDag</code> class it finds in a bundle jar and calls <code>define()</code>:</p>
+<p>For type-safe authoring with IDE support and compile-time checking, implement the <code>KiokDag</code> interface with the kiok Java SDK. kiok batch-compiles every <code>.java</code> source it finds in a git repo or bundle zip — no separate build step on the operator side — loads every <code>KiokDag</code> class, and calls <code>define()</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DailyEtlDag</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">KiokDag</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nd">@Override</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Dag</span><span class="w"> </span><span class="nf">define</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -1408,6 +1571,18 @@
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
 </code></pre></div>
 <p>The <code>Dag</code> and <code>Task</code> builders are fluent, and a loop over a list builds a fan-out graph exactly as the Python example does.</p>
+<h3 id="credentials-in-code-the-conn-helper">Credentials in code — the <code>Conn</code> helper</h3>
+<p>A Java DAG references a stored connection's properties with the <code>Conn</code> helper, matching the Python <code>conn(id, key)</code> and YAML <code>${conn.&lt;id&gt;.&lt;key&gt;}</code> forms — the resolver substitutes the real value in-memory at task-exec time, so the source code itself stays free of secrets:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.Conn</span><span class="p">;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">   </span><span class="p">.</span><span class="na">shell</span><span class="p">(</span><span class="s">&quot;psql -U \&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;username&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot; &quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;-d analytics -c &#39;COPY users TO STDOUT&#39;&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p><code>Conn.ref("id", "key")</code> returns the literal <code>${conn.id.key}</code> reference string; <code>Conn.secret("name")</code> is the standalone-secret shorthand. See <a href="../connections/">Connections</a>.</p>
+<h3 id="how-the-source-compile-works">How the source compile works</h3>
+<p>The kiok leader runs the JDK's in-process <code>javax.tools.JavaCompiler</code> against the kiok SDK already on its own classpath, so a user-authored <code>.java</code> DAG needs no build configuration on the repo side. Multiple sources are compiled in one javac invocation, so cross-file references (a DAG class importing a helper from a sibling file) resolve naturally.</p>
+<p>The original <code>.java</code> text is what the admin UI's <strong>Source</strong> tab shows for that DAG, with the resulting <code>DagSpec</code> (what the scheduler actually executes) rendered just below it.</p>
 <h2 id="why-code-over-yaml">Why code over YAML</h2>
 <p>YAML is declarative and perfect for a fixed, hand-sized workflow. Code wins when the DAG is <em>generated</em>:</p>
 <ul>

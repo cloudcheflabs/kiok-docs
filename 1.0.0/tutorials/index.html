@@ -8,31 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/execution/">
+        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/tutorials/">
       
       
-        <link rel="prev" href="../scheduler/">
+        <link rel="prev" href="../operations/operations/">
       
       
-        <link rel="next" href="../task-types/">
+        <link rel="next" href="spark-iceberg-via-ssh/">
       
       
         
       
       
-      <link rel="icon" href="../../images/logo/kiok-logo.png">
+      <link rel="icon" href="../images/logo/kiok-logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Worker-Driver Execution - kiok</title>
+        <title>Overview - kiok</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#worker-driver-execution" class="md-skip">
+        <a href="#tutorials" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +96,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="kiok" class="md-header__button md-logo" aria-label="kiok" data-md-component="logo">
+    <a href=".." title="kiok" class="md-header__button md-logo" aria-label="kiok" data-md-component="logo">
       
-  <img src="../../images/logo/kiok-logo.png" alt="logo">
+  <img src="../images/logo/kiok-logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Worker-Driver Execution
+              Overview
             
           </span>
         </div>
@@ -216,7 +216,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -237,7 +237,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../architecture/architecture/" class="md-tabs__link">
+        <a href="../architecture/architecture/" class="md-tabs__link">
           
   
   
@@ -257,7 +257,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../installation/installation/" class="md-tabs__link">
+        <a href="../installation/installation/" class="md-tabs__link">
           
   
   
@@ -273,13 +273,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../dag-authoring/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../features/dag-authoring/" class="md-tabs__link">
           
   
   
@@ -299,7 +297,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../operations/operations/" class="md-tabs__link">
+        <a href="../operations/operations/" class="md-tabs__link">
           
   
   
@@ -315,11 +313,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../tutorials/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -355,9 +355,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="kiok" class="md-nav__button md-logo" aria-label="kiok" data-md-component="logo">
+    <a href=".." title="kiok" class="md-nav__button md-logo" aria-label="kiok" data-md-component="logo">
       
-  <img src="../../images/logo/kiok-logo.png" alt="logo">
+  <img src="../images/logo/kiok-logo.png" alt="logo">
 
     </a>
     kiok
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -451,7 +451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/architecture/" class="md-nav__link">
+      <a href="../architecture/architecture/" class="md-nav__link">
         
   
   
@@ -538,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/installation/" class="md-nav__link">
+      <a href="../installation/installation/" class="md-nav__link">
         
   
   
@@ -566,7 +566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/getting-started/" class="md-nav__link">
+      <a href="../installation/getting-started/" class="md-nav__link">
         
   
   
@@ -598,31 +598,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -640,7 +635,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -658,7 +653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dag-authoring/" class="md-nav__link">
+      <a href="../features/dag-authoring/" class="md-nav__link">
         
   
   
@@ -686,7 +681,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../distributed-architecture/" class="md-nav__link">
+      <a href="../features/distributed-architecture/" class="md-nav__link">
         
   
   
@@ -714,7 +709,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../scheduler/" class="md-nav__link">
+      <a href="../features/scheduler/" class="md-nav__link">
         
   
   
@@ -739,37 +734,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Worker-Driver Execution
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../features/execution/" class="md-nav__link">
         
   
   
@@ -785,81 +753,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-a-run-executes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How a run executes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#task-slots" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task slots
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#driver-failover" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Driver failover
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#timeouts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Timeouts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#failure-semantics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Failure semantics
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -872,7 +765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../task-types/" class="md-nav__link">
+      <a href="../features/task-types/" class="md-nav__link">
         
   
   
@@ -900,7 +793,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../git-sync/" class="md-nav__link">
+      <a href="../features/git-sync/" class="md-nav__link">
         
   
   
@@ -928,7 +821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bundles/" class="md-nav__link">
+      <a href="../features/bundles/" class="md-nav__link">
         
   
   
@@ -956,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../job-logs/" class="md-nav__link">
+      <a href="../features/job-logs/" class="md-nav__link">
         
   
   
@@ -984,7 +877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kms/" class="md-nav__link">
+      <a href="../features/kms/" class="md-nav__link">
         
   
   
@@ -1012,7 +905,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../iam/" class="md-nav__link">
+      <a href="../features/iam/" class="md-nav__link">
         
   
   
@@ -1040,7 +933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../auth-authz/" class="md-nav__link">
+      <a href="../features/auth-authz/" class="md-nav__link">
         
   
   
@@ -1068,7 +961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../admin-password-recovery/" class="md-nav__link">
+      <a href="../features/admin-password-recovery/" class="md-nav__link">
         
   
   
@@ -1096,7 +989,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../connections/" class="md-nav__link">
+      <a href="../features/connections/" class="md-nav__link">
         
   
   
@@ -1124,7 +1017,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monitoring/" class="md-nav__link">
+      <a href="../features/monitoring/" class="md-nav__link">
         
   
   
@@ -1152,7 +1045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../backup/" class="md-nav__link">
+      <a href="../features/backup/" class="md-nav__link">
         
   
   
@@ -1180,7 +1073,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
+      <a href="../features/configuration/" class="md-nav__link">
         
   
   
@@ -1208,7 +1101,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../network/" class="md-nav__link">
+      <a href="../features/network/" class="md-nav__link">
         
   
   
@@ -1295,7 +1188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../operations/operations/" class="md-nav__link">
+      <a href="../operations/operations/" class="md-nav__link">
         
   
   
@@ -1327,26 +1220,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -1364,7 +1262,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1379,10 +1277,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../tutorials/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1398,6 +1323,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-tutorials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available tutorials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites-common-to-every-tutorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites common to every tutorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1410,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/spark-iceberg-via-ssh/" class="md-nav__link">
+      <a href="spark-iceberg-via-ssh/" class="md-nav__link">
         
   
   
@@ -1455,43 +1422,24 @@
 
 
 
-<h1 id="worker-driver-execution">Worker-Driver Execution</h1>
-<p>kiok runs a DAG with a <strong>worker-driver</strong> model: the leader Master is the logical coordinator, and one Worker becomes the <em>driver</em> of each run — it both walks the graph and executes the tasks.</p>
-<h2 id="how-a-run-executes">How a run executes</h2>
-<pre class="mermaid"><code>sequenceDiagram
-  participant S as Master (leader)
-  participant W as Worker (driver)
-  S-&gt;&gt;S: scheduler/trigger creates a run (PENDING)
-  S-&gt;&gt;W: assign whole run to a worker
-  loop until graph complete
-    W-&gt;&gt;W: compute ready tasks (deps satisfied)
-    W-&gt;&gt;W: execute task bodies (shell/python/http)
-    W-&gt;&gt;S: report task state + stream logs
-  end
-  W-&gt;&gt;S: report run terminal (SUCCESS/FAILED)</code></pre>
-<ol>
-<li>The scheduler or a manual trigger creates a run in state <code>PENDING</code>.</li>
-<li>The leader's <strong>task coordinator</strong> assigns the entire run to one Worker — its driver.</li>
-<li>The driver walks the DAG: it computes which tasks are <em>ready</em> (every upstream dependency succeeded), dispatches them into its local task slots, and runs the task bodies.</li>
-<li>As tasks finish, the driver reports task state back to the leader and streams stdout/stderr.</li>
-<li>When every task reaches a terminal state, the driver reports the run terminal.</li>
-</ol>
-<p>Assigning the <em>whole run</em> to one driver — rather than scheduling each task centrally — keeps graph-walking decisions local and cheap, and keeps the leader off the per-task hot path.</p>
-<h2 id="task-slots">Task slots</h2>
-<p>Each Worker advertises a fixed number of <strong>task slots</strong> (<code>kiok.worker.task.slots</code>, default 8) — the number of task bodies it will run concurrently. A driver dispatches ready tasks into its slots; when the graph has more ready tasks than free slots, the rest queue.</p>
-<p>Add Workers to raise total execution capacity. The leader spreads runs across Workers, so more Workers means more runs driven in parallel.</p>
-<h2 id="driver-failover">Driver failover</h2>
-<p>A driver Worker can die mid-run — crash, host failure, network partition. The leader's task coordinator tracks Worker health (<code>kiok.worker.health.*</code>); when a driver is declared dead:</p>
-<ol>
-<li>The coordinator detects the run has lost its driver.</li>
-<li>The run is reassigned to a healthy Worker.</li>
-<li>The new driver resumes the graph from the run's last reported state — completed tasks are not re-run.</li>
-</ol>
-<p>Failover needs no operator action. A run survives any single Worker loss as long as one healthy Worker remains.</p>
-<h2 id="timeouts">Timeouts</h2>
-<p>Each task has an execution timeout — <code>timeoutMs</code> on the task, the DAG default, or the cluster default (<code>kiok.scheduler.default.task.timeout.ms</code>, 30 min). A task that exceeds it is killed and marked <code>FAILED</code>, and the run fails fast rather than hanging.</p>
-<h2 id="failure-semantics">Failure semantics</h2>
-<p>If a task fails, its downstream tasks (which <code>require</code> it) cannot become ready, so they are skipped and the run ends <code>FAILED</code>. Tasks on independent branches still run to completion. The run's job list and graph view show exactly which task failed and why.</p>
+<h1 id="tutorials">Tutorials</h1>
+<p>End-to-end walkthroughs that exercise kiok against a real workload. Each tutorial uses concrete commands, real files, and authors <strong>the same DAG three times</strong> — once in YAML, once with the Python SDK, once with the Java SDK — so you can see how the three authoring formats map to the same internal <code>DagSpec</code> and end up running identically.</p>
+<h2 id="available-tutorials">Available tutorials</h2>
+<ul>
+<li><a href="spark-iceberg-via-ssh/">Spark + Iceberg via SSH-to-Master</a> — submit a PySpark client-mode job and a Java uberjar cluster-mode job from a kiok DAG, by <code>ssh</code>-ing into a Spark master that lives on a different host. Covers credential injection via the <code>Conn</code> helper, the <code>src/main/{script,python,java}/</code> source layout, git-sync from a real GitHub repo, and the bundle-upload alternative.</li>
+</ul>
+<h2 id="prerequisites-common-to-every-tutorial">Prerequisites common to every tutorial</h2>
+<ul>
+<li>A running kiok cluster — at least one Master and one Worker. Follow <a href="../installation/installation/">Installation</a> if you don't have one yet.</li>
+<li>The kiok master's admin endpoint reachable from where you run the <code>curl</code> examples below. The cluster's admin port and credentials are described in <a href="../installation/getting-started/">Getting Started</a>.</li>
+<li>A scratch shell — <code>bash</code>, <code>jq</code>, and <code>git</code> on the operator's machine.</li>
+</ul>
+<p>Set these once and reuse for every tutorial:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">KIOK</span><span class="o">=</span>http://&lt;kiok-master-host&gt;:18400<span class="w">      </span><span class="c1"># kiok admin endpoint</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">KTOK</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-sS<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="nv">$KIOK</span>/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;user&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;&lt;your-strong-pw&gt;&quot;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.accessToken<span class="k">)</span>
+</code></pre></div>
 
 
 
@@ -1549,10 +1497,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "header.autohide"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "1.0.0", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "header.autohide"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "1.0.0", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

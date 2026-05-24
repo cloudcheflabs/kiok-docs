@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -304,6 +304,26 @@
   
   
   Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
 
         </a>
       </li>
@@ -1303,6 +1323,121 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/spark-iceberg-via-ssh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark + Iceberg via SSH-to-Master
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1327,8 +1462,11 @@
 <ul>
 <li><code>*.yaml</code> / <code>*.yml</code> — YAML DAG definitions;</li>
 <li><code>*.py</code> — Python-authored DAGs (compiled with <code>python3 -m kiok.compile</code>);</li>
-<li><code>*.jar</code> — a Java DAG jar (every <code>KiokDag</code> class is compiled).</li>
+<li><code>*.java</code> — Java-authored DAGs, batch-compiled in-process against kiok-sdk on the master's classpath;</li>
+<li><code>*.sh</code> — shell-script DAGs (filename stem → DAG id, file body → single shell task named <code>run</code>).</li>
 </ul>
+<p>The same recommended layout as <a href="../git-sync/">Git Sync</a> — <code>src/main/{yaml,script,python,java}/</code> — applies inside the zip too. The scanner is location-agnostic (it walks the whole archive and picks files by extension), so the directory layout is operator-facing convention rather than a hard requirement.</p>
+<p>A bundle therefore holds <strong>source only</strong> — there is no build step on the operator side; kiok's leader compiles every DAG in-process when it processes the upload, exactly as it does for git-sync.</p>
 <p>Upload it from the admin UI's <strong>Settings → DAG Bundles</strong> page. Each compiled DAG is registered with <code>origin: bundle</code>, tagged with the bundle name and the source path inside the zip.</p>
 <h2 id="upload-and-overwrite">Upload and overwrite</h2>
 <p>A bundle is identified by the name you give it on upload. Re-uploading under the <strong>same name overwrites</strong> that bundle — its previous DAGs are dropped and replaced by the new archive's contents. This makes a bundle a single versioned unit you can re-publish.</p>

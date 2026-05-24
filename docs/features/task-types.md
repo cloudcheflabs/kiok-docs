@@ -1,6 +1,6 @@
 # Task Types
 
-A task is one node in a DAG. kiok runs three task types; all three are authored the same way in YAML, Python, or Java.
+A task is one node in a DAG. kiok runs four task types; all four are authored the same way in YAML, Python, or Java.
 
 ## `shell`
 
@@ -45,16 +45,36 @@ Performs an HTTP call — useful for triggering external systems or webhooks. Th
     body: '{"status":"done"}'
 ```
 
+## `livy`
+
+Submits a Spark batch via Apache Livy's REST API and tails the batch log until it terminates. Unlike `shell` / `python` / `http`, a `livy` task shepherds an **external** job whose identity (the Livy batch id) is recorded on the `TaskRun.externalId` field — which lets a kiok worker restart **resume** polling against the same Spark batch instead of submitting a duplicate.
+
+```yaml
+- id: nightly_spark
+  type: livy
+  config:
+    livy.url:  "http://livy:8998"
+    livy.file: "s3a://my-bucket/jobs/etl.jar"
+    livy.className: "com.example.Etl"
+    livy.args: ["--date", "2026-05-25"]
+    livy.conf: { spark.sql.shuffle.partitions: "200" }
+    livy.driverMemory:   "2g"
+    livy.executorMemory: "4g"
+    livy.numExecutors:   "8"
+```
+
+The full Spark stdout (`INFO TaskSetManager … (N/M)`, the workload's own `print(...)`, `SparkContext is stopping`, …) streams into kiok's per-task log view as it arrives. See the [Spark via Apache Livy](../tutorials/spark-via-livy.md) tutorial for a self-contained `docker compose` walkthrough, the YAML / Python / Java authoring of the same task, the full `livy.*` configuration reference, and a worker-restart resume demo.
+
 ## Common task fields
 
 | Field | Meaning |
 |---|---|
 | `id` | Task identifier, unique within the DAG |
-| `type` | `shell`, `python`, or `http` |
+| `type` | `shell`, `python`, `http`, or `livy` |
 | `script` | Inline body for `shell` / `python` tasks |
 | `requires` | List of upstream task ids that must succeed first |
 | `timeout` | Per-task execution timeout; overrides the DAG / cluster default |
-| `config` | Type-specific settings (e.g. `url`, `method`, `body` for `http`) |
+| `config` | Type-specific settings (e.g. `url`/`method`/`body` for `http`; `livy.*` keys for `livy`) |
 
 ## Referencing credentials
 

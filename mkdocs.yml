@@ -44,6 +44,7 @@ nav:
       - "Scheduler & Triggers": features/scheduler.md
       - "Worker-Driver Execution": features/execution.md
       - "Task Types": features/task-types.md
+      - "Date Placeholders": features/date-placeholders.md
       - "Git Sync": features/git-sync.md
       - "DAG Bundles": features/bundles.md
       - "Job Logs": features/job-logs.md

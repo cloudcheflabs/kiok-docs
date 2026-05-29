@@ -1,6 +1,9 @@
 # Backup &amp; Restore
 
-kiok can ship the entire cluster's state to an S3-compatible target, and restore it later. Backup is **manual-only** and opt-in — you enable it and trigger runs from the admin UI.
+kiok can ship the entire cluster's state to an S3-compatible target, and restore it later. Backup is opt-in (off by default) and runs in two trigger modes that share the same code path:
+
+- **Manual** — *Back up now* button in the admin UI, or `POST /api/v1/admin/backup`.
+- **Cron** — a 5-field UNIX cron expression evaluated by a leader-only scheduler. Set it from the admin UI or `PUT /api/v1/admin/backup/cron`.
 
 The destination is any AWS-compatible S3 endpoint: AWS S3, MinIO, ShannonStore, or similar. Pointing it at a separate system gives you a true offsite copy.
 
@@ -22,8 +25,30 @@ The **Backup &amp; Restore** page in the admin UI exposes:
 
 - **Enabled** — master switch (default: off). The live toggle is persisted in the metadata store.
 - **Backup S3 target** — either the default (the job-log S3 configuration) or a stored S3 [connection](connections.md) selected by id.
+- **Automatic backup schedule** — a 5-field UNIX cron expression (e.g. `0 2 * * *` for daily at 02:00). Same grammar as the DAG [scheduler](scheduler.md). Leave empty to disable.
 
 The page also has a **Back up now** button that triggers an immediate backup.
+
+### Cron scheduling
+
+The cron expression lives on the leader as a `BackupScheduler` daemon that ticks once per scheduler interval (the same cadence as the DAG cron scheduler) and fires `backupNow()` once when the cron has a fire time in `(lastChecked, now]`. The schedule is persisted under `backup.cron` in the metadata store, so a leader handoff or master restart re-arms the same cron.
+
+The first tick after the cron is set, or after a leader change, **arms from "now"** — kiok does not back-fire missed cron times on startup. Recovering a missed nightly backup three days late tends to surprise more than skipping it.
+
+The admin UI shows the next scheduled fire time next to an active cron. The two REST endpoints:
+
+```bash
+# Read the current cron and its next-fire timestamp
+curl -H "Authorization: Bearer $TOKEN" \
+  http://kiok-master:8080/api/v1/admin/backup/cron
+
+# Set or clear (null / empty)
+curl -X PUT -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"cron": "0 2 * * *"}' \
+  http://kiok-master:8080/api/v1/admin/backup/cron
+```
+
+An invalid cron expression is rejected with HTTP 400 — the parser's message is surfaced in the response body. Set `cron: null` or an empty string to clear.
 
 ## Incremental by Design
 

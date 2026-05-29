@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/date-placeholders/">
       
       
-        <link rel="prev" href="../task-types/">
+        <link rel="prev" href="../ontul-operator/">
       
       
         <link rel="next" href="../git-sync/">
@@ -795,6 +795,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../ontul-operator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontul Operator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -941,10 +969,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resolving-in-code-instead" class="md-nav__link">
+  <a href="#when-a-static-date-is-what-you-want" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resolving in code instead
+        When a static date is what you want
       
     </span>
   </a>
@@ -1553,8 +1581,11 @@
 <h1 id="date-placeholders">Date Placeholders</h1>
 <p>kiok evaluates <code>#{ ... }</code> tokens inside every task's <code>script</code> and every value in its <code>config</code> map immediately before the task runs. The six functions match the <a href="https://cloudcheflabs.github.io/chango-docs/latest/user-guide/query-exec/#date-functions">chango query-exec date functions</a> verbatim, so a SQL snippet that worked in chango copies over unchanged.</p>
 <h2 id="why">Why</h2>
-<p>YAML and Python/Java SDK DAGs all compile to the same <code>DagSpec</code>, but YAML has no place to compute "yesterday" the way code can. For daily-scheduled jobs whose source table partitions slide forward each day — typically <code>MERGE INTO</code> queries against an Iceberg landing table — the SQL needs to refer to the current run date <em>at run time</em>, not at registration time. <code>#{ nowMinusFormatted(...) }</code> is the substitution kiok performs in the worker right before submit.</p>
-<p>Java/Python SDK DAGs typically compute dates in code; their tasks contain no <code>#{ ... }</code> tokens and the substitution pass is a no-op for them. There's no penalty for mixing — you can have one DAG with placeholders and another without.</p>
+<p>A kiok DAG — YAML, Python, or Java — is compiled to a static <code>DagSpec</code> <strong>once</strong> (at git-sync / registration), and the scheduler then fires every run from that stored spec. For daily-scheduled jobs whose source-table partitions slide forward each day — typically <code>MERGE INTO</code> queries against an Iceberg landing table — the SQL must refer to <em>this run's</em> date, not the date the DAG was compiled. <code>#{ nowMinusFormatted(...) }</code> is the substitution kiok performs in the worker right before each submit, so the filter slides forward on every run with no re-registration.</p>
+<div class="admonition danger">
+<p class="admonition-title">Do not compute the run date in Python/Java <code>define()</code></p>
+<p>It is tempting to write <code>LocalDate.now().minusDays(1)</code> in a Java DAG (or <code>date.today()</code> in Python) instead of a <code>#{ … }</code> placeholder. <strong>For a scheduled DAG this is a bug.</strong> Code in a Java <code>define()</code> / a Python DAG module runs at <em>compile</em> time — when the leader git-syncs the source — not on each run. A code-computed date therefore freezes to whenever the source was last compiled, and every daily run reuses that one date. (This is the same trap as putting <code>datetime.now()</code> in an Airflow DAG file.) The placeholder is a value <em>in the stored spec</em>, so it works identically whatever the authoring form — <strong>use <code>#{ … }</code> from YAML, Java, and Python alike</strong> when the date must track the run.</p>
+</div>
 <h2 id="functions">Functions</h2>
 <table>
 <thead>
@@ -1652,16 +1683,17 @@
 </ul>
 <p>In that order: <code>${conn.*}</code> / <code>${secret.*}</code> are resolved first (so a credential whose stored value happens to contain <code>#{ ... }</code> is <em>not</em> re-substituted), then date placeholders.</p>
 <p>Unknown function names or arity mismatches throw — a typo in a placeholder lands as an obvious task-failure rather than running with a garbled SQL filter.</p>
-<h2 id="resolving-in-code-instead">Resolving in code instead</h2>
-<p>If you author the DAG in Python or Java and prefer to compute dates locally, just don't use <code>#{ ... }</code>. The Java SDK example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">String</span><span class="w"> </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">().</span><span class="na">minusDays</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="na">toString</span><span class="p">();</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;merge_orders&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">   </span><span class="p">.</span><span class="na">trino</span><span class="p">(</span><span class="n">GATEWAY_URL</span><span class="p">,</span><span class="w"> </span><span class="n">USER</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s">       MERGE INTO ... USING (SELECT ... WHERE day = DATE &#39;%s&#39;) ...</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s">       &quot;&quot;&quot;</span><span class="p">.</span><span class="na">formatted</span><span class="p">(</span><span class="n">day</span><span class="p">))</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">   </span><span class="p">.</span><span class="na">trinoPassword</span><span class="p">(</span><span class="s">&quot;${conn.trinoGw.password}&quot;</span><span class="p">);</span>
+<h2 id="when-a-static-date-is-what-you-want">When a static date <em>is</em> what you want</h2>
+<p>There is one legitimate case for computing a date in code: a <strong>one-shot or manually-triggered</strong> DAG — a backfill for a specific day, say — where the date should be fixed at authoring time and never slide. Then computing it in Java/Python (or just hard-coding the literal) is correct, precisely because <code>define()</code> runs once:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Backfill DAG for a single, fixed day — registered, run once, discarded.</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">String</span><span class="w"> </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;2026-05-01&quot;</span><span class="p">;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;backfill_merge&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">   </span><span class="p">.</span><span class="na">trino</span><span class="p">(</span><span class="n">GATEWAY_URL</span><span class="p">,</span><span class="w"> </span><span class="n">USER</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s">       MERGE INTO ... USING (SELECT ... WHERE day = DATE &#39;%s&#39;) ...</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s">       &quot;&quot;&quot;</span><span class="p">.</span><span class="na">formatted</span><span class="p">(</span><span class="n">day</span><span class="p">))</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">   </span><span class="p">.</span><span class="na">trinoPassword</span><span class="p">(</span><span class="s">&quot;${conn.trinoGw.password}&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p>Both styles produce the same <code>DagSpec</code>. The substitution is purely a YAML-ergonomics feature.</p>
+<p>The rule of thumb: <strong>scheduled + sliding date → <code>#{ … }</code></strong> (so each run re-evaluates it); <strong>one-shot + fixed date → a literal in code</strong>. What you must <em>not</em> do is pair a recurring <code>schedule:</code> with a code-computed <code>now()</code> — see the warning under <a href="#why">Why</a>.</p>
 
 
 

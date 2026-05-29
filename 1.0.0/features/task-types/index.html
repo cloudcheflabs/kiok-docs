@@ -14,7 +14,7 @@
         <link rel="prev" href="../execution/">
       
       
-        <link rel="next" href="../date-placeholders/">
+        <link rel="next" href="../ontul-operator/">
       
       
         
@@ -978,6 +978,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../ontul-operator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontul Operator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../date-placeholders/" class="md-nav__link">
         
   
@@ -1698,6 +1726,10 @@
 <li><strong><code>CLASS</code></strong> — <code>ontul.className</code> plus a <code>ontul.deps</code> array of JAR paths.</li>
 <li><strong><code>PYTHON</code></strong> — <code>ontul.scriptPath</code> plus optional <code>ontul.deps</code>.</li>
 </ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This section is a summary. For the full operator guide — S3-hosted vs locally-staged artifacts, the three authoring forms, the ontul job sources, and the complete config reference — see <a href="../ontul-operator/">Ontul Operator</a>.</p>
+</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_rollup</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
@@ -1828,7 +1860,7 @@
 <h2 id="referencing-credentials">Referencing credentials</h2>
 <p>Task bodies must never embed secrets. Reference a stored credential indirectly — <code>${conn.&lt;id&gt;.&lt;key&gt;}</code> for a connection field, <code>${secret.&lt;name&gt;}</code> for a named secret — and kiok resolves it at execution time from the encrypted <a href="../connections/">connection store</a>. The DAG definition stays safe to commit to a public git repository.</p>
 <h2 id="date-placeholders-in-script-and-config">Date placeholders in script and config</h2>
-<p>The same resolution pass that swaps <code>${conn...}</code> / <code>${secret...}</code> also evaluates <code>#{ ... }</code> date functions — <code>nowFormatted</code>, <code>nowMinusFormatted</code>, <code>nowPlusInMillis</code>, etc. — so a daily-scheduled YAML query can use yesterday's date without authoring the DAG in Python or Java. See <a href="../date-placeholders/">Date placeholders</a> for the full function list and worked examples.</p>
+<p>The same resolution pass that swaps <code>${conn...}</code> / <code>${secret...}</code> also evaluates <code>#{ ... }</code> date functions — <code>nowFormatted</code>, <code>nowMinusFormatted</code>, <code>nowPlusInMillis</code>, etc. — so a daily-scheduled query targets the right partition on every run. Use these placeholders for run-relative dates <strong>in all three authoring forms</strong> (YAML, Java, Python): a kiok DAG is compiled once and the spec is re-evaluated per run, so a date computed in Java/Python <code>define()</code> would freeze at compile time. See <a href="../date-placeholders/">Date placeholders</a> for the full function list, worked examples, and the one case where a code-computed date is correct.</p>
 
 
 

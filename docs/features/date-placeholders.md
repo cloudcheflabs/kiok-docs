@@ -4,9 +4,10 @@ kiok evaluates `#{ ... }` tokens inside every task's `script` and every value in
 
 ## Why
 
-YAML and Python/Java SDK DAGs all compile to the same `DagSpec`, but YAML has no place to compute "yesterday" the way code can. For daily-scheduled jobs whose source table partitions slide forward each day — typically `MERGE INTO` queries against an Iceberg landing table — the SQL needs to refer to the current run date *at run time*, not at registration time. `#{ nowMinusFormatted(...) }` is the substitution kiok performs in the worker right before submit.
+A kiok DAG — YAML, Python, or Java — is compiled to a static `DagSpec` **once** (at git-sync / registration), and the scheduler then fires every run from that stored spec. For daily-scheduled jobs whose source-table partitions slide forward each day — typically `MERGE INTO` queries against an Iceberg landing table — the SQL must refer to *this run's* date, not the date the DAG was compiled. `#{ nowMinusFormatted(...) }` is the substitution kiok performs in the worker right before each submit, so the filter slides forward on every run with no re-registration.
 
-Java/Python SDK DAGs typically compute dates in code; their tasks contain no `#{ ... }` tokens and the substitution pass is a no-op for them. There's no penalty for mixing — you can have one DAG with placeholders and another without.
+!!! danger "Do not compute the run date in Python/Java `define()`"
+    It is tempting to write `LocalDate.now().minusDays(1)` in a Java DAG (or `date.today()` in Python) instead of a `#{ … }` placeholder. **For a scheduled DAG this is a bug.** Code in a Java `define()` / a Python DAG module runs at *compile* time — when the leader git-syncs the source — not on each run. A code-computed date therefore freezes to whenever the source was last compiled, and every daily run reuses that one date. (This is the same trap as putting `datetime.now()` in an Airflow DAG file.) The placeholder is a value *in the stored spec*, so it works identically whatever the authoring form — **use `#{ … }` from YAML, Java, and Python alike** when the date must track the run.
 
 ## Functions
 
@@ -92,17 +93,18 @@ In that order: `${conn.*}` / `${secret.*}` are resolved first (so a credential w
 
 Unknown function names or arity mismatches throw — a typo in a placeholder lands as an obvious task-failure rather than running with a garbled SQL filter.
 
-## Resolving in code instead
+## When a static date *is* what you want
 
-If you author the DAG in Python or Java and prefer to compute dates locally, just don't use `#{ ... }`. The Java SDK example:
+There is one legitimate case for computing a date in code: a **one-shot or manually-triggered** DAG — a backfill for a specific day, say — where the date should be fixed at authoring time and never slide. Then computing it in Java/Python (or just hard-coding the literal) is correct, precisely because `define()` runs once:
 
 ```java
-String day = LocalDate.now().minusDays(1).toString();
-dag.task("merge_orders")
+// Backfill DAG for a single, fixed day — registered, run once, discarded.
+String day = "2026-05-01";
+dag.task("backfill_merge")
    .trino(GATEWAY_URL, USER, """
        MERGE INTO ... USING (SELECT ... WHERE day = DATE '%s') ...
        """.formatted(day))
    .trinoPassword("${conn.trinoGw.password}");
 ```
 
-Both styles produce the same `DagSpec`. The substitution is purely a YAML-ergonomics feature.
+The rule of thumb: **scheduled + sliding date → `#{ … }`** (so each run re-evaluates it); **one-shot + fixed date → a literal in code**. What you must *not* do is pair a recurring `schedule:` with a code-computed `now()` — see the warning under [Why](#why).

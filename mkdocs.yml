@@ -44,6 +44,7 @@ nav:
       - "Scheduler & Triggers": features/scheduler.md
       - "Worker-Driver Execution": features/execution.md
       - "Task Types": features/task-types.md
+      - "Ontul Operator": features/ontul-operator.md
       - "Date Placeholders": features/date-placeholders.md
       - "Git Sync": features/git-sync.md
       - "DAG Bundles": features/bundles.md
@@ -81,6 +82,8 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
   - admonition
   - pymdownx.arithmatex:
       generic: true

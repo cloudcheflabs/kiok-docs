@@ -14,14 +14,14 @@
         <link rel="prev" href="../execution/">
       
       
-        <link rel="next" href="../git-sync/">
+        <link rel="next" href="../date-placeholders/">
       
       
         
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -891,6 +891,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#trino" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trino
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ontul" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ontul
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ontul">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spark-style-s3-staging-for-class-python-deps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spark-style S3 staging for CLASS / PYTHON deps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#common-task-fields" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -912,10 +951,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#date-placeholders-in-script-and-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Date placeholders in script and config
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../date-placeholders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Date Placeholders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1512,7 +1590,7 @@
 
 
 <h1 id="task-types">Task Types</h1>
-<p>A task is one node in a DAG. kiok runs four task types; all four are authored the same way in YAML, Python, or Java.</p>
+<p>A task is one node in a DAG. kiok runs six task types; all of them are authored the same way in YAML, Python, or Java.</p>
 <h2 id="shell"><code>shell</code></h2>
 <p>Runs an inline shell script. The script body is written to a file, made executable, and run by the Worker; stdout and stderr are captured and streamed back.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extract</span>
@@ -1557,6 +1635,161 @@
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nt">livy.numExecutors</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;8&quot;</span>
 </code></pre></div>
 <p>The full Spark stdout (<code>INFO TaskSetManager … (N/M)</code>, the workload's own <code>print(...)</code>, <code>SparkContext is stopping</code>, …) streams into kiok's per-task log view as it arrives. See the <a href="../../tutorials/spark-via-livy/">Spark via Apache Livy</a> tutorial for a self-contained <code>docker compose</code> walkthrough, the YAML / Python / Java authoring of the same task, the full <code>livy.*</code> configuration reference, and a worker-restart resume demo.</p>
+<h2 id="trino"><code>trino</code></h2>
+<p>Runs the task's <code>script</code> as a SQL statement against any Trino coordinator — or a chango trino gateway protected by HTTP Basic auth. The worker uses the Trino REST <code>/v1/statement</code> protocol: POST the SQL, follow <code>nextUri</code> until terminal, stream rows + state transitions into the task log. Cancel issues a <code>DELETE /v1/query/{id}</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_merge</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;https://trino-gw.chango.example/&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;${conn.trinoGw.username}&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">trino.password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${conn.trinoGw.password}&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">trino.catalog</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;iceberg&quot;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">trino.schema</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;warehouse&quot;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="no">MERGE INTO warehouse.orders t</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="no">USING (</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="no">SELECT id, customer_id, total</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="no">FROM staging.orders</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">      </span><span class="no">WHERE date(updated_at) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="no">) s</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="no">ON t.id = s.id</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="no">WHEN MATCHED THEN UPDATE SET total = s.total</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="no">WHEN NOT MATCHED THEN INSERT (id, customer_id, total) VALUES (s.id, s.customer_id, s.total)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trino.url</code></td>
+<td>Base URL of the coordinator or gateway (required)</td>
+</tr>
+<tr>
+<td><code>trino.user</code></td>
+<td><code>X-Trino-User</code> header; usually <code>${conn.&lt;id&gt;.username}</code> (required)</td>
+</tr>
+<tr>
+<td><code>trino.password</code></td>
+<td>Basic-auth password — typically <code>${conn.&lt;id&gt;.password}</code> for a chango gateway</td>
+</tr>
+<tr>
+<td><code>trino.catalog</code> / <code>trino.schema</code></td>
+<td>Default catalog / schema for the session</td>
+</tr>
+<tr>
+<td><code>trino.source</code></td>
+<td><code>X-Trino-Source</code> identifier; defaults to <code>kiok</code></td>
+</tr>
+<tr>
+<td><code>trino.pollIntervalMs</code></td>
+<td>nextUri poll cadence; default 500</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>#{ nowMinusFormatted(...) }</code> token in the SQL is resolved at run time — see <a href="../date-placeholders/">Date placeholders</a>.</p>
+<h2 id="ontul"><code>ontul</code></h2>
+<p>Submits a job to an <a href="https://cloudcheflabs.github.io/ontul-docs">ontul</a> cluster via its REST API and tails the job status + log until terminal. Three ontul job shapes are supported via <code>ontul.jobType</code>:</p>
+<ul>
+<li><strong><code>BATCH</code></strong> (default) — <code>script</code> carries the SQL.</li>
+<li><strong><code>CLASS</code></strong> — <code>ontul.className</code> plus a <code>ontul.deps</code> array of JAR paths.</li>
+<li><strong><code>PYTHON</code></strong> — <code>ontul.scriptPath</code> plus optional <code>ontul.deps</code>.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_rollup</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;BATCH&quot;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="no">INSERT INTO warehouse.daily_rollup</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="no">SELECT date(event_ts), customer_id, sum(amount)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="no">FROM warehouse.events</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="no">WHERE date(event_ts) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="no">GROUP BY 1, 2</span>
+</code></pre></div>
+<h3 id="spark-style-s3-staging-for-class-python-deps">Spark-style S3 staging for CLASS / PYTHON deps</h3>
+<p><code>ontul.deps</code> and <code>ontul.scriptPath</code> accept either pre-existing cluster paths or <strong>local file paths on the kiok worker</strong>. When you set <code>ontul.depsConnectionId</code>, the worker uploads the local files to S3 under a content-addressed key (<code>&lt;sha256&gt;-&lt;filename&gt;</code>) before submitting — HEAD-first so an unchanged jar costs one HEAD instead of one PUT. The S3 URI is what ontul sees; ontul's worker then downloads it via its own <code>S3DepFetcher</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrichment_class</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;CLASS&quot;</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">ontul.className</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;com.example.RollupEnrichment&quot;</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="c1"># Mixed local + s3 paths — locals get staged, s3:// passes through.</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">ontul.deps</span><span class="p">:</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/home/ci/build/libs/rollup-enrichment-1.0.jar&quot;</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;s3://shared-deps/common-utils-2.1.jar&quot;</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">ontul.depsConnectionId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ss-staging&quot;</span><span class="w">     </span><span class="c1"># kiok-side S3 connection for upload</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="nt">ontul.depsS3Prefix</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;staging/ontul-deps&quot;</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="c1"># The ontul worker needs the same connection id to fetch the s3:// URI.</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="c1"># ontul.jobConfig is forwarded verbatim as ontul&#39;s job-level `config`.</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="nt">ontul.jobConfig</span><span class="p">:</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">      </span><span class="nt">ontul.deps.s3.connectionId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ss-staging&quot;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontul.url</code></td>
+<td>Ontul master base URL (required)</td>
+</tr>
+<tr>
+<td><code>ontul.token</code></td>
+<td>Bearer token; typically <code>${secret.ontulToken}</code></td>
+</tr>
+<tr>
+<td><code>ontul.jobType</code></td>
+<td><code>BATCH</code> (default) / <code>STREAMING</code> / <code>CLASS</code> / <code>PYTHON</code></td>
+</tr>
+<tr>
+<td><code>ontul.jobName</code></td>
+<td>Display name for the ontul job (defaults to the task id)</td>
+</tr>
+<tr>
+<td><code>ontul.className</code></td>
+<td>Java entrypoint (CLASS)</td>
+</tr>
+<tr>
+<td><code>ontul.scriptPath</code></td>
+<td>Python script path (PYTHON)</td>
+</tr>
+<tr>
+<td><code>ontul.deps</code></td>
+<td>JSON / YAML list of dependency paths — locals get staged when <code>depsConnectionId</code> is set</td>
+</tr>
+<tr>
+<td><code>ontul.args</code></td>
+<td>Map of program args forwarded to the ontul submit body</td>
+</tr>
+<tr>
+<td><code>ontul.jobConfig</code></td>
+<td>Map forwarded verbatim as ontul's <code>config</code> (use it for <code>ontul.deps.s3.connectionId</code>)</td>
+</tr>
+<tr>
+<td><code>ontul.depsConnectionId</code></td>
+<td>kiok ConnectionStore S3 connection id used to upload local deps</td>
+</tr>
+<tr>
+<td><code>ontul.depsS3Prefix</code></td>
+<td>Key prefix or <code>s3://other-bucket/prefix</code> (default <code>staging/ontul-deps</code>)</td>
+</tr>
+<tr>
+<td><code>ontul.pollIntervalMs</code></td>
+<td>status/log poll cadence; default 2000</td>
+</tr>
+</tbody>
+</table>
+<p>The kiok side handles upload; the ontul side handles download. Both use the same content-addressed key, so re-running an unchanged jar is a no-op on both ends. For the ontul-side download to work, the <em>same</em> connection id must exist in the ontul Connection Store with the same S3 endpoint/credentials — see the <a href="https://cloudcheflabs.github.io/ontul-docs/latest/features/backup-restore/">ontul docs</a> for setting up that store. The <code>ontul.jobType=CLASS</code> job ends with kiok task <code>SUCCESS</code> only after ontul's worker has successfully fetched the jar and run its <code>main(...)</code>.</p>
 <h2 id="common-task-fields">Common task fields</h2>
 <table>
 <thead>
@@ -1572,11 +1805,11 @@
 </tr>
 <tr>
 <td><code>type</code></td>
-<td><code>shell</code>, <code>python</code>, <code>http</code>, or <code>livy</code></td>
+<td><code>shell</code>, <code>python</code>, <code>http</code>, <code>livy</code>, <code>trino</code>, or <code>ontul</code></td>
 </tr>
 <tr>
 <td><code>script</code></td>
-<td>Inline body for <code>shell</code> / <code>python</code> tasks</td>
+<td>Inline body for <code>shell</code> / <code>python</code> tasks, SQL for <code>trino</code>, SQL for <code>ontul</code> BATCH/STREAMING</td>
 </tr>
 <tr>
 <td><code>requires</code></td>
@@ -1588,12 +1821,14 @@
 </tr>
 <tr>
 <td><code>config</code></td>
-<td>Type-specific settings (e.g. <code>url</code>/<code>method</code>/<code>body</code> for <code>http</code>; <code>livy.*</code> keys for <code>livy</code>)</td>
+<td>Type-specific settings (e.g. <code>url</code>/<code>method</code>/<code>body</code> for <code>http</code>; <code>livy.*</code> / <code>trino.*</code> / <code>ontul.*</code> keys)</td>
 </tr>
 </tbody>
 </table>
 <h2 id="referencing-credentials">Referencing credentials</h2>
 <p>Task bodies must never embed secrets. Reference a stored credential indirectly — <code>${conn.&lt;id&gt;.&lt;key&gt;}</code> for a connection field, <code>${secret.&lt;name&gt;}</code> for a named secret — and kiok resolves it at execution time from the encrypted <a href="../connections/">connection store</a>. The DAG definition stays safe to commit to a public git repository.</p>
+<h2 id="date-placeholders-in-script-and-config">Date placeholders in script and config</h2>
+<p>The same resolution pass that swaps <code>${conn...}</code> / <code>${secret...}</code> also evaluates <code>#{ ... }</code> date functions — <code>nowFormatted</code>, <code>nowMinusFormatted</code>, <code>nowPlusInMillis</code>, etc. — so a daily-scheduled YAML query can use yesterday's date without authoring the DAG in Python or Java. See <a href="../date-placeholders/">Date placeholders</a> for the full function list and worked examples.</p>
 
 
 

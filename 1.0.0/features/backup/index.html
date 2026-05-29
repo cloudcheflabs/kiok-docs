@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../images/logo/kiok-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -798,6 +798,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../date-placeholders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Date Placeholders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../git-sync/" class="md-nav__link">
         
   
@@ -1128,6 +1156,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cron-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cron scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1484,7 +1529,11 @@
 
 
 <h1 id="backup-restore">Backup &amp; Restore</h1>
-<p>kiok can ship the entire cluster's state to an S3-compatible target, and restore it later. Backup is <strong>manual-only</strong> and opt-in — you enable it and trigger runs from the admin UI.</p>
+<p>kiok can ship the entire cluster's state to an S3-compatible target, and restore it later. Backup is opt-in (off by default) and runs in two trigger modes that share the same code path:</p>
+<ul>
+<li><strong>Manual</strong> — <em>Back up now</em> button in the admin UI, or <code>POST /api/v1/admin/backup</code>.</li>
+<li><strong>Cron</strong> — a 5-field UNIX cron expression evaluated by a leader-only scheduler. Set it from the admin UI or <code>PUT /api/v1/admin/backup/cron</code>.</li>
+</ul>
 <p>The destination is any AWS-compatible S3 endpoint: AWS S3, MinIO, ShannonStore, or similar. Pointing it at a separate system gives you a true offsite copy.</p>
 <h2 id="what-gets-backed-up">What Gets Backed Up</h2>
 <p>A backup run captures five stores under one shared backup id, so a single restore reassembles a consistent point in time:</p>
@@ -1501,8 +1550,23 @@
 <ul>
 <li><strong>Enabled</strong> — master switch (default: off). The live toggle is persisted in the metadata store.</li>
 <li><strong>Backup S3 target</strong> — either the default (the job-log S3 configuration) or a stored S3 <a href="../connections/">connection</a> selected by id.</li>
+<li><strong>Automatic backup schedule</strong> — a 5-field UNIX cron expression (e.g. <code>0 2 * * *</code> for daily at 02:00). Same grammar as the DAG <a href="../scheduler/">scheduler</a>. Leave empty to disable.</li>
 </ul>
 <p>The page also has a <strong>Back up now</strong> button that triggers an immediate backup.</p>
+<h3 id="cron-scheduling">Cron scheduling</h3>
+<p>The cron expression lives on the leader as a <code>BackupScheduler</code> daemon that ticks once per scheduler interval (the same cadence as the DAG cron scheduler) and fires <code>backupNow()</code> once when the cron has a fire time in <code>(lastChecked, now]</code>. The schedule is persisted under <code>backup.cron</code> in the metadata store, so a leader handoff or master restart re-arms the same cron.</p>
+<p>The first tick after the cron is set, or after a leader change, <strong>arms from "now"</strong> — kiok does not back-fire missed cron times on startup. Recovering a missed nightly backup three days late tends to surprise more than skipping it.</p>
+<p>The admin UI shows the next scheduled fire time next to an active cron. The two REST endpoints:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Read the current cron and its next-fire timestamp</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>http://kiok-master:8080/api/v1/admin/backup/cron
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Set or clear (null / empty)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;cron&quot;: &quot;0 2 * * *&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>http://kiok-master:8080/api/v1/admin/backup/cron
+</code></pre></div>
+<p>An invalid cron expression is rejected with HTTP 400 — the parser's message is surfaced in the response body. Set <code>cron: null</code> or an empty string to clear.</p>
 <h2 id="incremental-by-design">Incremental by Design</h2>
 <p>Each store is content-hashed (SHA-256). If a store's bytes are unchanged since the last backup, it is <strong>not re-uploaded</strong> — the new backup's manifest simply points at the backup id that already holds it. A backup taken with no cluster activity uploads almost nothing.</p>
 <p>Each backup writes a <code>manifest.json</code> recording, per store, its hash and which backup id holds its bytes — so the incremental chain is always resolvable from any single manifest.</p>

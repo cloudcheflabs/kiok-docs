@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/scheduler/">
+        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/date-placeholders/">
       
       
-        <link rel="prev" href="../distributed-architecture/">
+        <link rel="prev" href="../task-types/">
       
       
-        <link rel="next" href="../execution/">
+        <link rel="next" href="../git-sync/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Scheduler & Triggers - kiok</title>
+        <title>Date Placeholders - kiok</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#scheduler-triggers" class="md-skip">
+        <a href="#date-placeholders" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Scheduler & Triggers
+              Date Placeholders
             
           </span>
         </div>
@@ -711,37 +711,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Scheduler & Triggers
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../scheduler/" class="md-nav__link">
         
   
   
@@ -757,81 +730,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#cron-schedules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cron schedules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manual-triggers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Manual triggers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#catchup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Catchup
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#concurrency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Concurrency
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-lifecycle" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run lifecycle
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -897,10 +795,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../date-placeholders/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Date Placeholders
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -916,6 +841,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#daily-merge-into-against-an-iceberg-landing-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Daily MERGE INTO against an Iceberg landing table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-a-spark-batch-with-the-current-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Naming a Spark batch with the current date
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#window-relative-to-the-current-minute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Window relative to the current minute
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-gets-substituted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What gets substituted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resolving-in-code-instead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolving in code instead
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1511,32 +1550,118 @@
 
 
 
-<h1 id="scheduler-triggers">Scheduler &amp; Triggers</h1>
-<p>kiok decides <em>when</em> a DAG runs. A DAG can fire on a cron schedule, be triggered on demand, or both.</p>
-<h2 id="cron-schedules">Cron schedules</h2>
-<p>A DAG carries an optional 5-field cron expression:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">dag</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_etl</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">   </span><span class="c1"># every day at 02:00</span>
+<h1 id="date-placeholders">Date Placeholders</h1>
+<p>kiok evaluates <code>#{ ... }</code> tokens inside every task's <code>script</code> and every value in its <code>config</code> map immediately before the task runs. The six functions match the <a href="https://cloudcheflabs.github.io/chango-docs/latest/user-guide/query-exec/#date-functions">chango query-exec date functions</a> verbatim, so a SQL snippet that worked in chango copies over unchanged.</p>
+<h2 id="why">Why</h2>
+<p>YAML and Python/Java SDK DAGs all compile to the same <code>DagSpec</code>, but YAML has no place to compute "yesterday" the way code can. For daily-scheduled jobs whose source table partitions slide forward each day — typically <code>MERGE INTO</code> queries against an Iceberg landing table — the SQL needs to refer to the current run date <em>at run time</em>, not at registration time. <code>#{ nowMinusFormatted(...) }</code> is the substitution kiok performs in the worker right before submit.</p>
+<p>Java/Python SDK DAGs typically compute dates in code; their tasks contain no <code>#{ ... }</code> tokens and the substitution pass is a no-op for them. There's no penalty for mixing — you can have one DAG with placeholders and another without.</p>
+<h2 id="functions">Functions</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Returns</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nowInMillis()</code></td>
+<td>epoch milliseconds</td>
+<td><code>1748520896000</code></td>
+</tr>
+<tr>
+<td><code>nowFormatted("yyyy-MM-dd")</code></td>
+<td>current time, formatted</td>
+<td><code>2026-05-29</code></td>
+</tr>
+<tr>
+<td><code>nowPlusInMillis(y, mo, d, h, mi, w)</code></td>
+<td>epoch ms after adding the six units</td>
+<td><code>1748607296000</code></td>
+</tr>
+<tr>
+<td><code>nowPlusFormatted(y, mo, d, h, mi, w, "fmt")</code></td>
+<td>formatted, after adding</td>
+<td><code>2026-05-30</code></td>
+</tr>
+<tr>
+<td><code>nowMinusInMillis(y, mo, d, h, mi, w)</code></td>
+<td>epoch ms after subtracting</td>
+<td><code>1748434496000</code></td>
+</tr>
+<tr>
+<td><code>nowMinusFormatted(y, mo, d, h, mi, w, "fmt")</code></td>
+<td>formatted, after subtracting</td>
+<td><code>2026-05-28</code></td>
+</tr>
+</tbody>
+</table>
+<p>Argument order is fixed: <strong>years, months, days, hours, minutes, weeks</strong>. No seconds slot — match the chango grammar exactly.</p>
+<p>The format string accepts everything <code>java.time.format.DateTimeFormatter</code> does. kiok rewrites any run of <code>Y</code> to <code>y</code> silently because <code>YYYY-MM-dd</code> is what every chango example uses and almost nobody wants ISO week-based year — if you do, write <code>uuuu</code>.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="daily-merge-into-against-an-iceberg-landing-table">Daily MERGE INTO against an Iceberg landing table</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merge_orders</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;https://trino-gw.example/&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;${conn.trinoGw.username}&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">trino.password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${conn.trinoGw.password}&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">trino.catalog</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;iceberg&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">trino.schema</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;warehouse&quot;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="no">MERGE INTO warehouse.orders t</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="no">USING (</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="no">SELECT id, customer_id, total, updated_at</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="no">FROM staging.orders</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="no">WHERE date(updated_at) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="no">) s</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="no">ON t.id = s.id</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="no">WHEN MATCHED THEN UPDATE SET total = s.total, updated_at = s.updated_at</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="no">WHEN NOT MATCHED THEN INSERT (id, customer_id, total, updated_at)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">                     </span><span class="no">VALUES (s.id, s.customer_id, s.total, s.updated_at)</span>
 </code></pre></div>
-<p>A leader-only scheduler loop ticks at a short interval (<code>kiok.scheduler.tick.interval.ms</code>, default 1s) and, for each DAG whose next fire time is due, creates a new run. Because scheduling runs only on the leader, a DAG never double-fires when the cluster has multiple Masters.</p>
-<p>Omit <code>schedule</code> for a <strong>manual-only</strong> DAG — it never fires on its own and runs only when triggered.</p>
-<h2 id="manual-triggers">Manual triggers</h2>
-<p>Any DAG — scheduled or not — can be triggered on demand from the admin UI's <strong>Run</strong> button, the REST API, or the CLI:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>daily_etl<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>daily_etl<span class="w"> </span>--args<span class="w"> </span><span class="nv">date</span><span class="o">=</span><span class="m">2026</span>-05-16<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
+<p>Schedule this DAG at <code>0 3 * * *</code> and each daily run targets the previous day's partition automatically — no DAG re-registration, no template engine wrapper.</p>
+<h3 id="naming-a-spark-batch-with-the-current-date">Naming a Spark batch with the current date</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spark_etl</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">livy</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">livy.url</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;http://livy:8998&quot;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">livy.file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;s3a://my-jobs/etl-1.0.jar&quot;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">livy.name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;etl_#{</span><span class="nv"> </span><span class="s">nowFormatted(\&quot;yyyyMMdd\&quot;)</span><span class="nv"> </span><span class="s">}&quot;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">livy.args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;--date&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;#{</span><span class="nv"> </span><span class="s">nowFormatted(\&quot;yyyy-MM-dd\&quot;)</span><span class="nv"> </span><span class="s">}&quot;</span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<p>Trigger arguments are passed into the run and made available to its tasks.</p>
-<h2 id="catchup">Catchup</h2>
-<p>When a DAG is registered (or the cluster was down across one or more scheduled fire times), <code>catchup</code> decides what happens to the missed intervals:</p>
+<p>The substitution runs on every value in the config map (not just on <code>script</code>), so <code>livy.name</code> and the entries in <code>livy.args</code> both get their <code>#{ ... }</code> resolved before kiok issues the Livy POST.</p>
+<h3 id="window-relative-to-the-current-minute">Window relative to the current minute</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">late_arrivals</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;...&quot;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${conn.trino.username}&quot;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="no">SELECT *</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="no">FROM events.late_inbox</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="no">WHERE arrived_at &lt; TIMESTAMP &#39;#{ nowMinusFormatted(0, 0, 0, 0, 50, 0, &quot;yyyy-MM-dd HH:mm:ss.SSS&quot;) }&#39;</span>
+</code></pre></div>
+<p>50 minutes ago, formatted to millisecond precision. Useful for scheduled cleanup that wants a "settled" cutoff and not the wall clock.</p>
+<h2 id="what-gets-substituted">What gets substituted</h2>
+<p>The DAG-run driver runs the substitution pass on:</p>
 <ul>
-<li><code>catchup: false</code> (default) — skip missed intervals; the DAG resumes from the next upcoming fire time.</li>
-<li><code>catchup: true</code> — create a run for each missed interval so the schedule is backfilled.</li>
+<li><strong>Task <code>script</code></strong> — the inline body for <code>shell</code> / <code>python</code> / <code>trino</code> / <code>ontul</code> jobs.</li>
+<li><strong>Every value in <code>config</code></strong> — including <code>livy.name</code>, <code>livy.args</code> (as a JSON-encoded string in the underlying spec), <code>ontul.deps</code>, etc.</li>
 </ul>
-<h2 id="concurrency">Concurrency</h2>
-<p><code>kiok.scheduler.max.global.concurrency</code> caps how many task assignments are in flight cluster-wide, so a burst of scheduled runs cannot overwhelm the Workers. Tasks beyond the cap wait until a slot frees.</p>
-<h2 id="run-lifecycle">Run lifecycle</h2>
-<p>A run moves through <code>PENDING → RUNNING → SUCCESS</code> / <code>FAILED</code> (or <code>CANCELLED</code>). Each task within it has its own state. The leader's task coordinator hands the run to a Worker, which drives it to completion — see <a href="../execution/">Worker-Driver Execution</a>.</p>
+<p>In that order: <code>${conn.*}</code> / <code>${secret.*}</code> are resolved first (so a credential whose stored value happens to contain <code>#{ ... }</code> is <em>not</em> re-substituted), then date placeholders.</p>
+<p>Unknown function names or arity mismatches throw — a typo in a placeholder lands as an obvious task-failure rather than running with a garbled SQL filter.</p>
+<h2 id="resolving-in-code-instead">Resolving in code instead</h2>
+<p>If you author the DAG in Python or Java and prefer to compute dates locally, just don't use <code>#{ ... }</code>. The Java SDK example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">String</span><span class="w"> </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">().</span><span class="na">minusDays</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="na">toString</span><span class="p">();</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;merge_orders&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">   </span><span class="p">.</span><span class="na">trino</span><span class="p">(</span><span class="n">GATEWAY_URL</span><span class="p">,</span><span class="w"> </span><span class="n">USER</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s">       MERGE INTO ... USING (SELECT ... WHERE day = DATE &#39;%s&#39;) ...</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s">       &quot;&quot;&quot;</span><span class="p">.</span><span class="na">formatted</span><span class="p">(</span><span class="n">day</span><span class="p">))</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">   </span><span class="p">.</span><span class="na">trinoPassword</span><span class="p">(</span><span class="s">&quot;${conn.trinoGw.password}&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>Both styles produce the same <code>DagSpec</code>. The substitution is purely a YAML-ergonomics feature.</p>
 
 
 

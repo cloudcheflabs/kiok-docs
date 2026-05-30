@@ -1880,7 +1880,7 @@
 </tr>
 <tr>
 <td><code>ontul.token</code></td>
-<td>Bearer token; typically <code>${secret.ontulToken}</code></td>
+<td>Ontul <strong>user token</strong> (the long-lived <code>OTOK…</code> value issued with an ontul access key, i.e. <code>ONTUL_USER_TOKEN</code>); typically <code>${secret.ontulToken}</code>. Sent as <code>Authorization: Token &lt;token&gt;</code> — an opaque, non-expiring credential, <strong>not</strong> a short-lived JWT, so it needs no periodic refresh</td>
 </tr>
 <tr>
 <td><code>ontul.jobType</code></td>
@@ -1926,7 +1926,7 @@
 </table>
 <h2 id="credentials-and-date-handling">Credentials and date handling</h2>
 <ul>
-<li><strong>Bearer token</strong> — never inline it. Use <code>${secret.ontulToken}</code> (or <code>${conn.&lt;id&gt;.&lt;key&gt;}</code>); kiok resolves it from the encrypted <a href="../connections/">connection store</a> in the worker, just before submit. The stored <code>DagSpec</code>, git history, and admin UI Source view never hold the raw value.</li>
+<li><strong>Ontul user token</strong> — never inline it. Use <code>${secret.ontulToken}</code> (or <code>${conn.&lt;id&gt;.&lt;key&gt;}</code>); kiok resolves it from the encrypted <a href="../connections/">connection store</a> in the worker, just before submit. The stored <code>DagSpec</code>, git history, and admin UI Source view never hold the raw value. The value is the ontul user token (<code>OTOK…</code>) sent as <code>Authorization: Token &lt;token&gt;</code>; obtain it from ontul via <code>POST /admin/iam/keys</code> (the <code>token</code> field returned alongside <code>accessKeyId</code>/<code>secretAccessKey</code>).</li>
 <li><strong>Dates</strong> — the <code>#{ … }</code> placeholders in <code>script</code>, in every <code>config</code> value, and inside the <code>ontul.args</code> map are resolved per run. See <a href="../date-placeholders/">Date Placeholders</a>.</li>
 </ul>
 

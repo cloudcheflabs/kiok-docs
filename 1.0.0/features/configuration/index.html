@@ -1216,10 +1216,241 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-settings" class="md-nav__link">
+  <a href="#base" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key settings
+        Base
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#zookeeper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ZooKeeper
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#master" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Master
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-protocol-custom-nio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Protocol (custom NIO)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KMS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#iam" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IAM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metadata-dags-runs-schedules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata (DAGs, runs, schedules)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connections-git-creds-s3-creds-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connections (git creds, S3 creds, etc.)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rpc-timeouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RPC Timeouts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worker-health-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worker Health Check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#git-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Sync
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#job-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Job Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metrics-collector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics Collector
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s3-multipart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S3 Multipart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-http-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task: HTTP runner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-shell-python-task-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python (shell + python task execution)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client-sdk-properties-kiokuser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client / SDK properties (kiok.user.*)
       
     </span>
   </a>
@@ -1518,76 +1749,706 @@
 
 
 <h1 id="configuration-management">Configuration Management</h1>
-<p>kiok resolves configuration through a priority chain, so the same distribution runs unchanged across laptops, containers, and production hosts.</p>
+<p>kiok resolves configuration through a priority chain, so the same distribution runs unchanged across laptops, containers, and production hosts. The bundled <code>kiok.properties</code> ships every key with its default and an explanatory comment; this page mirrors that file as a complete reference.</p>
 <h2 id="priority-order">Priority order</h2>
-<p>Highest to lowest:</p>
+<p>Every key is resolved highest-to-lowest:</p>
 <ol>
-<li><strong>System properties</strong> — <code>-D</code> flags passed on the command line, e.g. <code>-Dkiok.master.admin.port=8080</code>.</li>
-<li><strong>Environment variables</strong> — the property name uppercased with dots replaced by underscores: <code>kiok.master.admin.port</code> → <code>KIOK_MASTER_ADMIN_PORT</code>.</li>
-<li><strong>Bundled defaults</strong> — the <code>kiok.properties</code> defaults shipped inside the distribution.</li>
+<li><strong>System property</strong> — a <code>-D</code> flag on the command line, e.g. <code>-Dkiok.master.admin.port=8080</code>.</li>
+<li><strong>Environment variable</strong> — the property name uppercased with dots replaced by underscores: <code>kiok.master.admin.port</code> → <code>KIOK_MASTER_ADMIN_PORT</code>.</li>
+<li><strong>Properties file</strong> — the <code>kiok.properties</code> defaults shipped inside the distribution (classpath), then any external <code>--config</code> file.</li>
+<li><strong>Hard-coded default</strong> — the fallback baked into <code>KiokConfig</code>.</li>
 </ol>
 <p>A value set at a higher level overrides the same key set lower down.</p>
 <h2 id="variable-substitution">Variable substitution</h2>
-<p>Properties may reference other properties with <code>${...}</code> — for example the RocksDB stores all derive from one base directory:</p>
+<p>Properties may reference other properties with <code>${...}</code>. Most on-disk stores derive from a single base directory, and <code>${user.dir}</code> expands to the process working directory:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="na">kiok.base.data.dir</span><span class="o">=</span><span class="s">./data</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">kiok.metadata.rocksdb.path</span><span class="o">=</span><span class="s">${kiok.base.data.dir}/metadata</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="na">kiok.log.path</span><span class="o">=</span><span class="s">${user.dir}/logs</span>
 </code></pre></div>
-<h2 id="key-settings">Key settings</h2>
+<div class="admonition note">
+<p class="admonition-title">Optional keys</p>
+<p>Keys marked <strong>optional</strong> below are commented out (or blank) in the shipped file. They take effect only when you set them via the properties file, an environment variable, or a <code>-D</code> system property. The <code>kiok.user.*</code> client credentials are supplied by <strong>clients</strong> (the Java/Python SDKs and <code>submit.sh</code>) at submit time and are never read from the server-side file.</p>
+</div>
+<h2 id="base">Base</h2>
 <table>
 <thead>
 <tr>
 <th>Property</th>
-<th>Purpose</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.base.data.dir</code></td>
+<td><code>./data</code></td>
+<td>Root directory for all local on-disk node state. Most paths below default to a subdirectory of this. Point it at a persistent volume — ephemeral storage loses all node state on restart.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zookeeper">ZooKeeper</h2>
+<p>ZooKeeper backs master leader election and the node registry. Every master and worker in a cluster must point at the same ensemble.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>kiok.zk.serverList</code></td>
-<td>ZooKeeper connect string</td>
+<td><code>localhost:2181</code></td>
+<td>Comma-separated ZooKeeper connect string (<code>host:port,...</code>).</td>
 </tr>
 <tr>
-<td><code>kiok.master.admin.port</code></td>
-<td>Admin UI / REST API port (default 8080)</td>
+<td><code>kiok.zk.rootPath</code></td>
+<td><code>/kiok</code></td>
+<td>ZooKeeper namespace (chroot) for all kiok znodes, so multiple clusters can share one ensemble.</td>
 </tr>
 <tr>
-<td><code>kiok.master.internal.port</code></td>
-<td>Master internal protocol port (default 19999)</td>
+<td><code>kiok.zk.sessionTimeoutMs</code></td>
+<td><code>30000</code></td>
+<td>Session timeout (ms). On expiry, ephemeral znodes (e.g. leadership) drop and re-election triggers. Larger tolerates GC/network pauses but detects failures slower.</td>
 </tr>
 <tr>
-<td><code>kiok.worker.internal.port</code></td>
-<td>Worker internal protocol port (default 19998)</td>
-</tr>
-<tr>
-<td><code>kiok.worker.task.slots</code></td>
-<td>Concurrent task slots per Worker (default 8)</td>
-</tr>
-<tr>
-<td><code>kiok.scheduler.tick.interval.ms</code></td>
-<td>Scheduler evaluation interval</td>
-</tr>
-<tr>
-<td><code>kiok.scheduler.default.task.timeout.ms</code></td>
-<td>Default per-task timeout</td>
-</tr>
-<tr>
-<td><code>kiok.kms.master.key.env</code></td>
-<td>Env var holding the master key (<code>KIOK_MASTER_KEY</code>)</td>
-</tr>
-<tr>
-<td><code>kiok.gitsync.interval.ms</code></td>
-<td>Git Sync pull interval</td>
-</tr>
-<tr>
-<td><code>kiok.joblog.s3.*</code></td>
-<td>Job-log S3 archival destination</td>
-</tr>
-<tr>
-<td><code>kiok.python.path</code></td>
-<td>Python binary for <code>python</code> tasks</td>
+<td><code>kiok.zk.connectionTimeoutMs</code></td>
+<td><code>10000</code></td>
+<td>Maximum time (ms) to wait when first establishing the TCP connection to ZooKeeper.</td>
 </tr>
 </tbody>
 </table>
-<p>The bundled <code>kiok.properties</code> is the full reference — every key is listed there with its default and a comment.</p>
+<h2 id="master">Master</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.master.host</code></td>
+<td><code>0.0.0.0</code></td>
+<td>Bind address for the master's listeners. <code>0.0.0.0</code> listens on all interfaces; set a specific IP to restrict exposure.</td>
+</tr>
+<tr>
+<td><code>kiok.master.admin.port</code></td>
+<td><code>8080</code></td>
+<td>TCP port for the admin HTTP server (REST API + admin UI + auth). Operators and the admin UI connect here.</td>
+</tr>
+<tr>
+<td><code>kiok.master.admin.context.path</code></td>
+<td><code>/</code></td>
+<td>HTTP context-path prefix the admin server is mounted under. Set e.g. <code>/kiok</code> to serve behind a reverse-proxy path prefix.</td>
+</tr>
+<tr>
+<td><code>kiok.master.internal.port</code></td>
+<td><code>19999</code></td>
+<td>TCP port for the internal node-to-node binary NIO protocol. Workers and other masters connect here; keep it firewalled to the cluster.</td>
+</tr>
+<tr>
+<td><code>kiok.master.admin.worker.threads</code></td>
+<td><code>8</code></td>
+<td>Thread-pool size serving admin HTTP requests. Raise for higher concurrent admin/API load.</td>
+</tr>
+<tr>
+<td><code>kiok.master.admin.ui.static.path</code></td>
+<td><code>./admin-ui</code></td>
+<td>Filesystem path to the static admin UI assets served by the admin HTTP server.</td>
+</tr>
+<tr>
+<td><code>kiok.master.broadcast.timeout.ms</code></td>
+<td><code>5000</code></td>
+<td>Timeout (ms) for a leader's fan-out RPC to all registered nodes.</td>
+</tr>
+<tr>
+<td><code>kiok.master.leader.deference.window.ms</code></td>
+<td><code>3000</code></td>
+<td>Sticky-incumbent election: on restart a former leader defers joining the election this long if a prior leader still appears alive, so the incumbent reclaims leadership without a disruptive toggle. <code>0</code> disables.</td>
+</tr>
+<tr>
+<td><code>kiok.master.startup.leader.timeout.ms</code></td>
+<td><code>30000</code></td>
+<td>Startup gate (ms): how long a master waits at boot for leadership to resolve before proceeding (logs a warning and continues on timeout).</td>
+</tr>
+<tr>
+<td><code>kiok.master.startup.follower.timeout.ms</code></td>
+<td><code>60000</code></td>
+<td>Startup gate (ms): how long a follower master waits for the leader to become ready before fetching cluster state. Should exceed the leader's own startup time.</td>
+</tr>
+<tr>
+<td><code>kiok.master.startup.poll.interval.ms</code></td>
+<td><code>100</code></td>
+<td>Poll interval (ms) inside master startup wait-loops. Lower wakes faster but burns more idle CPU. Floored to 1 ms.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="worker">Worker</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.worker.host</code></td>
+<td><code>0.0.0.0</code></td>
+<td>Bind address for the worker's internal NIO listener. <code>0.0.0.0</code> = all interfaces.</td>
+</tr>
+<tr>
+<td><code>kiok.worker.internal.port</code></td>
+<td><code>19998</code></td>
+<td>TCP port for the worker's internal node-to-node binary NIO protocol. The leader connects here to assign DAG runs and push state.</td>
+</tr>
+<tr>
+<td><code>kiok.worker.shutdown.drain.timeout.seconds</code></td>
+<td><code>60</code></td>
+<td>Graceful-shutdown drain window (seconds): on shutdown the worker stops accepting new work and waits up to this long for in-flight tasks before forcing exit.</td>
+</tr>
+<tr>
+<td><code>kiok.worker.task.slots</code></td>
+<td><code>8</code></td>
+<td>Maximum tasks this worker runs concurrently (its task-slot capacity). Raising it increases per-worker throughput at the cost of CPU/memory/IO contention.</td>
+</tr>
+<tr>
+<td><code>kiok.worker.startup.leader.timeout.ms</code></td>
+<td><code>120000</code></td>
+<td>Startup gate (ms): how long a worker waits at boot for the master leader to become ready before fetching cluster state (logs a warning and continues on timeout).</td>
+</tr>
+<tr>
+<td><code>kiok.worker.startup.poll.interval.ms</code></td>
+<td><code>1000</code></td>
+<td>Poll interval (ms) inside the worker's await-leader-ready loop. Floored to 1 ms.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="internal-protocol-custom-nio">Internal Protocol (custom NIO)</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.internal.nio.worker.threads</code></td>
+<td><code>4</code></td>
+<td>I/O worker threads for each node's internal NIO server (used by both master and worker), sizing the event-loop pool handling node-to-node RPC.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kms">KMS</h2>
+<p>The built-in KMS performs envelope encryption of at-rest stores and, optionally, the internal protocol.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.kms.enabled</code></td>
+<td><code>true</code></td>
+<td>Master switch for the built-in KMS. When <code>true</code>, a <code>KIOK_MASTER_KEY</code> must be available to unseal it. Disabling turns off encryption of metadata/IAM/connection/job-log/backup data.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.rocksdb.path</code></td>
+<td><code>${kiok.base.data.dir}/kms</code></td>
+<td>RocksDB directory where the KMS persists wrapped data-encryption keys. Must be persistent and protected.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.master.key.env</code></td>
+<td><code>KIOK_MASTER_KEY</code></td>
+<td>Name of the environment variable holding the KMS master-key passphrase (the var name, not the key). Stretched via PBKDF2 to derive the key that unseals the KMS.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.pbkdf2.iterations</code></td>
+<td><code>200000</code></td>
+<td>PBKDF2 iteration count for deriving the KMS root key. Higher is stronger but slows unseal at startup; changing it after keys are written may break unsealing of existing data.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.encrypt.internal.protocol</code></td>
+<td><code>true</code></td>
+<td>When <code>true</code>, internal node-to-node NIO payloads are KMS-encrypted in transit. Set <code>false</code> only on a fully trusted network. Effective only when KMS is enabled.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.internal.protocol.key.id</code></td>
+<td><code>internal-protocol</code></td>
+<td>KMS key id used to encrypt/decrypt internal-protocol payloads. All nodes must agree on this id.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.fetch.max.retries</code></td>
+<td><code>60</code></td>
+<td>Worker state-fetch retry budget: attempts a worker makes to fetch KMS/IAM/connection/metadata snapshots from a ready master at startup before giving up.</td>
+</tr>
+<tr>
+<td><code>kiok.kms.fetch.retry.interval.ms</code></td>
+<td><code>1000</code></td>
+<td>Delay (ms) between worker state-fetch retry attempts.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="iam">IAM</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.iam.rocksdb.path</code></td>
+<td><code>${kiok.base.data.dir}/iam</code></td>
+<td>RocksDB directory for the IAM store (users, roles, credentials). Persistent; contents are envelope-encrypted by KMS.</td>
+</tr>
+<tr>
+<td><code>kiok.iam.admin.user</code></td>
+<td><code>admin</code></td>
+<td>Bootstrap admin username created on first startup if no users exist.</td>
+</tr>
+<tr>
+<td><code>kiok.iam.admin.password</code></td>
+<td><code>admin</code></td>
+<td>Bootstrap admin password seeded on first startup. <strong>Change this</strong> in any real deployment (or reset later via the admin recovery socket).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="metadata-dags-runs-schedules">Metadata (DAGs, runs, schedules)</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.metadata.rocksdb.path</code></td>
+<td><code>${kiok.base.data.dir}/metadata</code></td>
+<td>RocksDB directory storing DAG definitions, run history, task states, and schedules. Persistent.</td>
+</tr>
+<tr>
+<td><code>kiok.metadata.kms.key.id</code></td>
+<td><code>metadata-encryption</code></td>
+<td>KMS key id used to envelope-encrypt the metadata store at rest. Effective when KMS is enabled.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="connections-git-creds-s3-creds-etc">Connections (git creds, S3 creds, etc.)</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.connection.rocksdb.path</code></td>
+<td><code>${kiok.base.data.dir}/connections</code></td>
+<td>RocksDB directory for the connection store (named git/S3 credentials referenced by DAGs/operators by id). Persistent; contents are KMS-encrypted.</td>
+</tr>
+<tr>
+<td><code>kiok.connection.kms.key.id</code></td>
+<td><code>connection-encryption</code></td>
+<td>KMS key id used to envelope-encrypt the connection store at rest.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rpc-timeouts">RPC Timeouts</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.master.rpc.timeout.ms</code></td>
+<td><code>30000</code></td>
+<td>Default timeout (ms) for master-level RPCs.</td>
+</tr>
+<tr>
+<td><code>kiok.internal.rpc.timeout.ms</code></td>
+<td><code>10000</code></td>
+<td>Timeout (ms) for each internal node-to-node NIO request/response (state fetches, run assignments, metrics, leader pushes). Raise on slow/loaded networks.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="worker-health-check">Worker Health Check</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.worker.health.check.interval.ms</code></td>
+<td><code>10000</code></td>
+<td>Interval (ms) at which worker health/liveness is probed.</td>
+</tr>
+<tr>
+<td><code>kiok.worker.health.check.timeout.ms</code></td>
+<td><code>5000</code></td>
+<td>Per-probe timeout (ms) before a health check counts as a failure.</td>
+</tr>
+<tr>
+<td><code>kiok.worker.health.max.consecutive.failures</code></td>
+<td><code>3</code></td>
+<td>Consecutive failed health checks after which a worker is treated as unhealthy/dead and its work can be reassigned.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="scheduler">Scheduler</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.scheduler.tick.interval.ms</code></td>
+<td><code>1000</code></td>
+<td>Scheduler-loop tick interval (ms): how often pending schedules are evaluated and the run driver advances state. Lower is snappier but uses more CPU.</td>
+</tr>
+<tr>
+<td><code>kiok.scheduler.max.global.concurrency</code></td>
+<td><code>100</code></td>
+<td>Upper bound on globally concurrent task assignments cluster-wide, independent of per-worker slots.</td>
+</tr>
+<tr>
+<td><code>kiok.scheduler.default.task.timeout.ms</code></td>
+<td><code>1800000</code></td>
+<td>Default per-task execution timeout (ms; 30 min) applied when a DAG/task sets no timeout of its own.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="git-sync">Git Sync</h2>
+<p>When enabled, the leader periodically pulls DAG repositories so DAG definitions can be managed in git.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.gitsync.enabled</code></td>
+<td><code>false</code></td>
+<td>When <code>true</code>, the leader runs the git-sync loop pulling DAG repositories.</td>
+</tr>
+<tr>
+<td><code>kiok.gitsync.interval.ms</code></td>
+<td><code>60000</code></td>
+<td>Interval (ms) between git pulls when git sync is enabled.</td>
+</tr>
+<tr>
+<td><code>kiok.gitsync.repos</code></td>
+<td><em>(empty)</em></td>
+<td><strong>Optional.</strong> Comma-separated repos, each <code>&lt;name&gt;|&lt;url&gt;|&lt;branch&gt;|&lt;subpath&gt;</code>. Credentials, if needed, are looked up in the connection store by <code>&lt;name&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>kiok.gitsync.checkout.dir</code></td>
+<td><code>${kiok.base.data.dir}/gitsync</code></td>
+<td>Local directory where synced repositories are checked out.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="job-logs">Job Logs</h2>
+<p>Per-task logs buffer on the worker and leader, then optionally archive to S3.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.joblog.temp.rocksdb.path</code></td>
+<td><code>${kiok.base.data.dir}/joblog-temp</code></td>
+<td>RocksDB temp directory on the leader where per-task log bytes buffer before being flushed to S3.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.flush.interval.ms</code></td>
+<td><code>10000</code></td>
+<td>Interval (ms) at which the leader flushes buffered log parts to S3 via multipart upload (a final flush also occurs on task completion).</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.endpoint</code></td>
+<td><em>(blank)</em></td>
+<td><strong>Optional.</strong> S3 endpoint for archived logs. Leave blank to disable S3 archival.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.region</code></td>
+<td><code>us-east-1</code></td>
+<td><strong>Optional.</strong> S3 region for archived logs.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.bucket</code></td>
+<td><code>kiok-joblogs</code></td>
+<td><strong>Optional.</strong> S3 bucket for archived logs.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.prefix</code></td>
+<td><code>joblogs</code></td>
+<td>Key prefix (folder) under the bucket where job logs are written.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.path.style</code></td>
+<td><code>false</code></td>
+<td><strong>Optional.</strong> Use path-style addressing for non-AWS / MinIO-style endpoints.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.access.key</code></td>
+<td><em>(blank)</em></td>
+<td><strong>Optional.</strong> S3 access key for log archival.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.s3.secret.key</code></td>
+<td><em>(blank)</em></td>
+<td><strong>Optional.</strong> S3 secret key for log archival.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.worker.batch.bytes</code></td>
+<td><code>65536</code></td>
+<td>Worker-side max in-flight log bytes (64 KiB) accumulated for a task before force-pushing to the leader.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.worker.batch.interval.ms</code></td>
+<td><code>2000</code></td>
+<td>Worker-side max time (ms) to hold buffered task log bytes before pushing to the leader even if the byte threshold is not met.</td>
+</tr>
+<tr>
+<td><code>kiok.joblog.kms.key.id</code></td>
+<td><code>joblog-encryption</code></td>
+<td>KMS key id used to envelope-encrypt archived job logs at rest in S3.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="backup">Backup</h2>
+<p>Manual-only backup of metadata/KMS/IAM/connection state to S3, reusing the job-log S3 endpoint/bucket/credentials under a separate prefix.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.backup.enabled</code></td>
+<td><code>false</code></td>
+<td>Initial default only — the live on/off toggle is persisted in the metadata store and changed at runtime from the admin UI, not by editing this file.</td>
+</tr>
+<tr>
+<td><code>kiok.backup.s3.prefix</code></td>
+<td><code>backups</code></td>
+<td>Key prefix (folder) under the shared bucket where backup objects are written.</td>
+</tr>
+<tr>
+<td><code>kiok.backup.kms.key.id</code></td>
+<td><code>backup-encryption</code></td>
+<td>KMS key id used to envelope-encrypt backup objects at rest.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="logging">Logging</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.log.path</code></td>
+<td><code>${user.dir}/logs</code></td>
+<td>Directory for log output. Also read directly as a <code>-Dkiok.log.path</code> system property when configuring logging.</td>
+</tr>
+<tr>
+<td><code>kiok.log.file.name</code></td>
+<td><code>kiok.log</code></td>
+<td>Application log file name; must match what <code>logback.xml</code> expects.</td>
+</tr>
+<tr>
+<td><code>kiok.log.output.name</code></td>
+<td><em>(unset)</em></td>
+<td><strong>Optional.</strong> Per-role log file base name (e.g. <code>master</code> vs <code>worker</code>) so co-located processes write to distinct files.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="admin">Admin</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.admin.token.access.expiry.ms</code></td>
+<td><code>900000</code></td>
+<td>Lifetime (ms; 15 min) of issued JWT access tokens for the admin API. Shorter is more secure but refreshes more often.</td>
+</tr>
+<tr>
+<td><code>kiok.admin.token.refresh.expiry.ms</code></td>
+<td><code>86400000</code></td>
+<td>Lifetime (ms; 24 h) of issued JWT refresh tokens — how long a session can be silently renewed before re-login.</td>
+</tr>
+<tr>
+<td><code>kiok.admin.http.max.content.size.bytes</code></td>
+<td><code>10485760</code></td>
+<td>Maximum admin HTTP request body size (10 MiB). Raise to upload large DAG bundles via HTTP.</td>
+</tr>
+<tr>
+<td><code>kiok.admin.forward.timeout.ms</code></td>
+<td><code>30000</code></td>
+<td>Per-request HTTP timeout (ms) when a follower master transparently forwards a write to the current leader. Must comfortably exceed the leader's processing time.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="metrics-collector">Metrics Collector</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.metrics.collect.interval.seconds</code></td>
+<td><code>10</code></td>
+<td>Period (seconds) at which the master snapshots local + remote node metrics over the internal protocol.</td>
+</tr>
+<tr>
+<td><code>kiok.metrics.retention.seconds</code></td>
+<td><code>3600</code></td>
+<td>Retention window (seconds; 1 h) for the in-memory sliding metrics history. Larger keeps more history at more memory.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s3-multipart">S3 Multipart</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.s3.multipart.part.size.bytes</code></td>
+<td><code>8388608</code></td>
+<td>Part size (bytes; 8 MiB) for S3 multipart uploads used by both job-log archival and backups. Must be ≥ 5 MiB (S3's minimum); smaller values are rejected by S3.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="task-http-runner">Task: HTTP runner</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.task.http.connect.timeout.ms</code></td>
+<td><code>10000</code></td>
+<td>TCP connect timeout (ms) for the HTTP task runner. Bounds only connection establishment; the overall request is still bounded by the DAG/task execution timeout.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="python-shell-python-task-execution">Python (shell + python task execution)</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.python.path</code></td>
+<td><code>python3</code></td>
+<td>Path to the Python interpreter used to run python tasks and compile python DAGs. May be a bare command on <code>PATH</code> or an absolute path.</td>
+</tr>
+<tr>
+<td><code>kiok.python.lib.dir</code></td>
+<td><code>lib/python</code></td>
+<td>Directory containing the bundled Python SDK used when compiling python DAGs to a DagSpec.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="client-sdk-properties-kiokuser">Client / SDK properties (<code>kiok.user.*</code>)</h2>
+<p>These carry the caller's credentials/identity and are supplied by <strong>clients</strong> — the Java SDK, Python SDK, and <code>submit.sh</code> — at submit time via <code>-D</code> system properties or environment variables. They are <strong>not</strong> read from the server-side <code>kiok.properties</code> and are listed here for reference only. All are <strong>optional</strong> (supply whichever your authentication method requires).</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.user.accessKey</code></td>
+<td><em>(unset)</em></td>
+<td><strong>Optional.</strong> Client access key for access-key/secret-key authentication.</td>
+</tr>
+<tr>
+<td><code>kiok.user.secretKey</code></td>
+<td><em>(unset)</em></td>
+<td><strong>Optional.</strong> Client secret key paired with the access key.</td>
+</tr>
+<tr>
+<td><code>kiok.user.token</code></td>
+<td><em>(unset)</em></td>
+<td><strong>Optional.</strong> Client JWT bearer token.</td>
+</tr>
+<tr>
+<td><code>kiok.user.stsToken</code></td>
+<td><em>(unset)</em></td>
+<td><strong>Optional.</strong> Client STS / session token.</td>
+</tr>
+</tbody>
+</table>
 
 
 

@@ -154,7 +154,7 @@ Submits a job to an [ontul](https://cloudcheflabs.github.io/ontul-docs) cluster 
 | Key | Meaning |
 |---|---|
 | `ontul.url` | Ontul master base URL (required) |
-| `ontul.token` | Bearer token; typically `${secret.ontulToken}` |
+| `ontul.token` | Ontul user token (`OTOK…`, sent as `Authorization: Token`); typically `${secret.ontulToken}`. Opaque and long-lived — not a JWT |
 | `ontul.jobType` | `BATCH` (default) / `STREAMING` / `CLASS` / `PYTHON` |
 | `ontul.jobName` | Display name for the ontul job (defaults to the task id) |
 | `ontul.className` | Java entrypoint (CLASS) |

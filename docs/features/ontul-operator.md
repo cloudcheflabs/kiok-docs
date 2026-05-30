@@ -289,7 +289,7 @@ The packaged distribution ships all of these under `examples/` (`ontul_s3_jobs.y
 | Key | Meaning |
 |---|---|
 | `ontul.url` | Ontul master base URL, e.g. `https://ontul-master:9090` (required) |
-| `ontul.token` | Bearer token; typically `${secret.ontulToken}` |
+| `ontul.token` | Ontul **user token** (the long-lived `OTOK…` value issued with an ontul access key, i.e. `ONTUL_USER_TOKEN`); typically `${secret.ontulToken}`. Sent as `Authorization: Token <token>` — an opaque, non-expiring credential, **not** a short-lived JWT, so it needs no periodic refresh |
 | `ontul.jobType` | `BATCH` (default) / `STREAMING` / `CLASS` / `PYTHON` |
 | `ontul.jobName` | Display name for the ontul job (defaults to the task id) |
 | `ontul.className` | Java entrypoint — required for `CLASS` |
@@ -303,5 +303,5 @@ The packaged distribution ships all of these under `examples/` (`ontul_s3_jobs.y
 
 ## Credentials and date handling
 
-- **Bearer token** — never inline it. Use `${secret.ontulToken}` (or `${conn.<id>.<key>}`); kiok resolves it from the encrypted [connection store](connections.md) in the worker, just before submit. The stored `DagSpec`, git history, and admin UI Source view never hold the raw value.
+- **Ontul user token** — never inline it. Use `${secret.ontulToken}` (or `${conn.<id>.<key>}`); kiok resolves it from the encrypted [connection store](connections.md) in the worker, just before submit. The stored `DagSpec`, git history, and admin UI Source view never hold the raw value. The value is the ontul user token (`OTOK…`) sent as `Authorization: Token <token>`; obtain it from ontul via `POST /admin/iam/keys` (the `token` field returned alongside `accessKeyId`/`secretAccessKey`).
 - **Dates** — the `#{ … }` placeholders in `script`, in every `config` value, and inside the `ontul.args` map are resolved per run. See [Date Placeholders](date-placeholders.md).

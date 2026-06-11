@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/bundles/">
+        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/nic-fail-safety/">
       
       
-        <link rel="prev" href="../git-sync/">
+        <link rel="prev" href="../network/">
       
       
-        <link rel="next" href="../job-logs/">
+        <link rel="next" href="../../operations/operations/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>DAG Bundles - kiok</title>
+        <title>NIC Silent-Fail Safety - kiok</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dag-bundles" class="md-skip">
+        <a href="#nic-silent-fail-safety" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              DAG Bundles
+              NIC Silent-Fail Safety
             
           </span>
         </div>
@@ -879,37 +879,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    DAG Bundles
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../bundles/" class="md-nav__link">
         
   
   
@@ -925,81 +898,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-a-bundle-contains" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What a bundle contains
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upload-and-overwrite" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Upload and overwrite
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compile-error-reporting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compile error reporting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#storage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Storage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#identity-and-history" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Identity and history
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1289,10 +1187,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../nic-fail-safety/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NIC Silent-Fail Safety
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1308,6 +1233,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-the-legacy-nio-loop-is-dangerous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the legacy NIO loop is dangerous
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changed-in-the-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changed in the client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changed-in-the-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changed in the server
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-handling-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure-handling invariants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-it-on-your-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying it on your stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1567,32 +1578,85 @@
 
 
 
-<h1 id="dag-bundles">DAG Bundles</h1>
-<p>A <strong>bundle</strong> is a zip archive of DAG definitions uploaded directly to the cluster. Bundles are the deployment path for clusters that cannot reach a git server — fully air-gapped environments — and for one-off DAG sets that don't warrant a repository.</p>
-<h2 id="what-a-bundle-contains">What a bundle contains</h2>
-<p>A bundle zip holds any mix of:</p>
+<h1 id="nic-silent-fail-safety">NIC Silent-Fail Safety</h1>
+<p>Kiok's internal NIO plane survives the trickiest failure mode in distributed systems: <strong>a peer whose NIC dies after the socket was opened, but ZooKeeper hasn't expired the session yet</strong>. From ZooKeeper's POV the node is alive. From every neighbour's POV its TCP connection is also alive — the kernel does not surface a half-open peer for tens of seconds, sometimes minutes, while it exhausts its retransmit budget. RPCs that route to that peer hang. Membership-driven failover doesn't fire because membership is still healthy.</p>
+<p>The 1.0.0 release closes this gap on <strong>both ends</strong> of every internal RPC — <code>InternalNioClient</code> (used by every master → worker and worker → master call) and <code>InternalNioServer</code> (the response side).</p>
+<h2 id="why-the-legacy-nio-loop-is-dangerous">Why the legacy NIO loop is dangerous</h2>
+<p>A blocking <code>SocketChannel</code>-based loop in three places hangs on a silently-dead peer:</p>
+<ol>
+<li><strong><code>connect()</code></strong> in blocking mode parks the caller inside the TCP three-way handshake until the OS retransmit budget drains. On Linux this is dictated by <code>tcp_syn_retries</code> and runs ~60–130 seconds by default.</li>
+<li><strong><code>channel.write()</code></strong> parks the caller the instant the kernel send buffer fills. For a peer that stopped draining, the buffer never frees up until the OS gives up — which is the <em>retransmit</em> budget, not the SYN budget. Linux <code>tcp_retries2</code> ranges from 5 to 15 minutes depending on tuning.</li>
+<li><strong><code>channel.read()</code></strong> in blocking mode is similar — no application-visible deadline.</li>
+</ol>
+<p>A single hung writer takes its calling thread out of service. If that thread is the master's heartbeat-sweep loop or a worker's coordinator-pull, the entire cluster appears wedged from outside even though only one peer is sick.</p>
+<h2 id="what-changed-in-the-client">What changed in the client</h2>
+<p><code>com.cloudcheflabs.kiok.protocol.internal.InternalNioClient</code>:</p>
 <ul>
-<li><code>*.yaml</code> / <code>*.yml</code> — YAML DAG definitions;</li>
-<li><code>*.py</code> — Python-authored DAGs (compiled with <code>python3 -m kiok.compile</code>);</li>
-<li><code>*.java</code> — Java-authored DAGs, batch-compiled in-process against kiok-sdk on the master's classpath;</li>
-<li><code>*.sh</code> — shell-script DAGs (filename stem → DAG id, file body → single shell task named <code>run</code>).</li>
+<li><strong>Non-blocking for its lifetime.</strong> <code>connect()</code> opens the channel in non-blocking mode, registers <code>OP_CONNECT</code> on a per-call <code>Selector</code>, and waits for completion bounded by a 10s deadline. Then the channel <strong>stays</strong> non-blocking — no <code>configureBlocking(true)</code> flip on return, which used to race the reader thread.</li>
+<li><strong>Selector-driven reader.</strong> <code>readLoop()</code> waits on <code>OP_READ</code> with a 200ms tick so an externally-set <code>connected=false</code> propagates within a tick. No more blocking <code>channel.read()</code> calls that the test harness can't shut down.</li>
+<li><strong>Bounded <code>sendRequest</code>.</strong> Writers serialise under a <code>writeLock</code>, open a per-call <code>Selector</code>, register <code>OP_WRITE</code>, and bound the write with a 10s deadline. On timeout, <code>connected.set(false)</code> flips so the pool re-mints the next time around. The same channel can sit in the reader's selector (<code>OP_READ</code>) while a per-call writer selector (<code>OP_WRITE</code>) is active — Java NIO supports multiple selector registrations per channel as long as each selector sees it at most once.</li>
+<li><strong>SO_KEEPALIVE + TCP_NODELAY</strong> enabled on every new socket so the OS itself eventually flags long-dead peers, independent of any application protocol.</li>
 </ul>
-<p>The same recommended layout as <a href="../git-sync/">Git Sync</a> — <code>src/main/{yaml,script,python,java}/</code> — applies inside the zip too. The scanner is location-agnostic (it walks the whole archive and picks files by extension), so the directory layout is operator-facing convention rather than a hard requirement.</p>
-<p>A bundle therefore holds <strong>source only</strong> — there is no build step on the operator side; kiok's leader compiles every DAG in-process when it processes the upload, exactly as it does for git-sync.</p>
-<p>Upload it from the admin UI's <strong>Settings → DAG Bundles</strong> page. Each compiled DAG is registered with <code>origin: bundle</code>, tagged with the bundle name and the source path inside the zip.</p>
-<h2 id="upload-and-overwrite">Upload and overwrite</h2>
-<p>A bundle is identified by the name you give it on upload. Re-uploading under the <strong>same name overwrites</strong> that bundle — its previous DAGs are dropped and replaced by the new archive's contents. This makes a bundle a single versioned unit you can re-publish.</p>
-<h2 id="compile-error-reporting">Compile error reporting</h2>
-<p>Entries in the zip are compiled independently. If one file fails to compile — a YAML schema error, a Python syntax error, a bad dependency — the rest of the bundle still loads, and the failure is <strong>recorded against the bundle</strong>:</p>
+<p>Both deadlines are overridable per JVM:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>-Dkiok.protocol.internal.connect.timeout.seconds=10
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>-Dkiok.protocol.internal.write.timeout.seconds=10
+</code></pre></div>
+<h2 id="what-changed-in-the-server">What changed in the server</h2>
+<p><code>com.cloudcheflabs.kiok.protocol.internal.InternalNioServer</code>:</p>
 <ul>
-<li>the bundle metadata keeps an <code>errors</code> list, one entry per failed file with the reason;</li>
-<li>the <strong>DAG Bundles</strong> page shows a count badge and an expandable list of the failures, so you can see exactly which file broke and why without digging through logs.</li>
+<li>The accept path already left client channels non-blocking — the server uses a Selector reactor.</li>
+<li>The <strong>response write</strong> path previously did a bare <code>while (buf.hasRemaining()) channel.write(buf);</code> under a <code>synchronized(channel)</code> block. In non-blocking mode <code>channel.write()</code> returns 0 the moment the send buffer is full — the old loop <strong>busy-spun forever</strong> on a wedged peer because there was no <code>Selector</code> to wait on writability.</li>
+<li>The new path factors response and error-response into a single <code>writeBoundedResponse()</code> helper that opens a per-call <code>Selector(OP_WRITE)</code> and bounds the loop with the same 10s deadline as the client. On timeout it throws <code>IOException</code> and the worker thread frees up.</li>
 </ul>
-<p>A bundle with three good DAGs and one broken file registers the three and reports the one.</p>
-<h2 id="storage">Storage</h2>
-<p>Bundle DAGs — like manually-registered DAGs — are <strong>persisted in the leader's metadata store</strong> (KMS-encrypted RocksDB). This differs from git DAGs, which are re-derived from the repository on every sync. Because bundle DAGs are persisted state, they are included in <a href="../backup/">Backup &amp; Restore</a>.</p>
-<h2 id="identity-and-history">Identity and history</h2>
-<p>A bundle DAG's unique id is derived from <code>&lt;bundle name&gt;/&lt;source path&gt;</code>, so re-uploading the same bundle keeps each DAG's id stable and <strong>continues its run history</strong>. Deleting a bundle removes its DAGs but leaves their run history intact.</p>
+<p>Same override:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>-Dkiok.protocol.internal.write.timeout.seconds=10
+</code></pre></div>
+<h2 id="failure-handling-invariants">Failure-handling invariants</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Old behaviour</th>
+<th>1.0.0 behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Peer NIC dies mid-handshake</td>
+<td><code>connect()</code> hangs for OS SYN budget (~60–130s)</td>
+<td><code>SocketTimeoutException</code> raised at 10s</td>
+</tr>
+<tr>
+<td>Peer NIC dies after socket established, mid-write</td>
+<td><code>channel.write()</code> hangs for OS retransmit budget (5–15 min)</td>
+<td><code>SocketTimeoutException</code> raised at 10s; caller sees a fast failure and can fall back</td>
+</tr>
+<tr>
+<td>Peer process paused (kernel still ACKs but app doesn't drain)</td>
+<td>Same as above — kernel send buffer fills, then writer blocks indefinitely</td>
+<td><code>Selector.select()</code> wakes on the 10s deadline; writer fails out cleanly</td>
+</tr>
+<tr>
+<td>Reader thread in a long blocking <code>read()</code> during shutdown</td>
+<td>Reader could not be interrupted cleanly</td>
+<td>200ms select tick — next loop iteration sees <code>connected=false</code> and exits</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verifying-it-on-your-stack">Verifying it on your stack</h2>
+<p><code>tests/test-nic-failure-channel-health.sh</code> (shipped with the 1.0.0 release) drives the failure on a 2-node compose:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>tests/docker-compose-kiok.yml<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>pause<span class="w"> </span>kiok-worker-2<span class="w">          </span><span class="c1"># silent NIC sim</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>./tests/test-nic-failure-channel-health.sh<span class="w">    </span><span class="c1"># expect PASS</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>docker<span class="w"> </span>unpause<span class="w"> </span>kiok-worker-2
+</code></pre></div>
+<p>The test hammers the surviving master's admin endpoint while one peer is paused. With the fix the master returns <code>200 OK</code> for every call within sub-second latencies; without it the master would block, often for minutes, on the dead peer's internal RPC.</p>
+<h2 id="operational-notes">Operational notes</h2>
+<ul>
+<li><strong>Defaults are conservative</strong>. 10 seconds is far below any realistic peer-to-peer round trip on a healthy cluster but above the worst-case TCP retransmit on a busy network. If you run with very low-latency expectations, tighten the deadlines via the JVM flags above.</li>
+<li><strong>No backwards-compatible setting reverts to the old blocking behaviour</strong>. There is no safe value here — the old behaviour was always a hang.</li>
+<li>The fix changes only the <em>internal</em> RPC plane. External clients (Arrow Flight, Postgres wire, S3 wire, HTTP admin, etc.) keep their existing transport-specific timeouts.</li>
+</ul>
 
 
 

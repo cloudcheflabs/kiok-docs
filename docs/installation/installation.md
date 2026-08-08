@@ -26,9 +26,9 @@ The archive ships with the layout below:
 
 | Path | Contents |
 |---|---|
-| `bin/` | Start/stop scripts for ZooKeeper, Master, and Worker; the `submit.sh` CLI |
+| `bin/` | `start-*.sh` / `stop-*.sh` for ZooKeeper, Master, and Worker; `status.sh`; the `submit.sh` DAG CLI; and `kiok-cli.sh` (local admin recovery — see [Admin Password Recovery](../features/admin-password-recovery.md)) |
 | `lib/` | All JARs needed to run the Master and Worker; `lib/python/` holds the kiok Python SDK |
-| `conf/` | `jvm.conf` and the embedded-ZooKeeper config under `conf/zk/` |
+| `conf/` | `kiok.properties` (the [configuration](../features/configuration.md) reference), `logback.xml`, `jvm.conf`, and the embedded-ZooKeeper config under `conf/zk/` |
 | `admin-ui/` | Built admin SPA, served by the Master's admin port |
 | `data/` | Default data directory (RocksDB stores, git checkouts, job-log buffers) |
 | `logs/` | Default log destination |

@@ -157,7 +157,7 @@ Per-task logs buffer on the worker and leader, then optionally archive to S3.
 | `kiok.joblog.flush.interval.ms` | `10000` | Interval (ms) at which the leader flushes buffered log parts to S3 via multipart upload (a final flush also occurs on task completion). |
 | `kiok.joblog.s3.endpoint` | *(blank)* | **Optional.** S3 endpoint for archived logs. Leave blank to disable S3 archival. |
 | `kiok.joblog.s3.region` | `us-east-1` | **Optional.** S3 region for archived logs. |
-| `kiok.joblog.s3.bucket` | `kiok-joblogs` | **Optional.** S3 bucket for archived logs. |
+| `kiok.joblog.s3.bucket` | *(blank)* | **Optional.** S3 bucket for archived logs (the shipped file's commented example is `kiok-joblogs`). Blank disables S3 archival. |
 | `kiok.joblog.s3.prefix` | `joblogs` | Key prefix (folder) under the bucket where job logs are written. |
 | `kiok.joblog.s3.path.style` | `false` | **Optional.** Use path-style addressing for non-AWS / MinIO-style endpoints. |
 | `kiok.joblog.s3.access.key` | *(blank)* | **Optional.** S3 access key for log archival. |

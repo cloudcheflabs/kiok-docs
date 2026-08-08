@@ -2,10 +2,13 @@
 
 ## Authentication
 
-kiok accepts two credential types on the admin API:
+Every request to the admin API is authenticated with a **JWT**.
 
-- **JWT** — sign in with a user/password to receive a short-lived access token and a longer-lived refresh token. The access token is presented as `Authorization: Token <jwt>`; it is refreshed transparently. Access and refresh expiry are configurable (`kiok.admin.token.*`).
-- **Access keys** — a long-lived access-key pair issued to a user, presented as `Authorization: AccessKey <ak>:<sk>`. Used by the Java/Python SDKs and `submit.sh` for non-interactive access. STS-style temporary credentials are also supported.
+- **Signing in** — `POST /api/v1/auth/login` with a `user` / `password` body returns a short-lived access token, a longer-lived refresh token, and flags (`isAdmin`, `requirePasswordChange`). `POST /api/v1/auth/refresh` exchanges a valid refresh token for a fresh access token. Access and refresh expiry are configurable (`kiok.admin.token.access.expiry.ms` / `kiok.admin.token.refresh.expiry.ms`).
+- **Presenting the token** — the access token is sent in the `Authorization` header, accepted under **either** scheme: `Authorization: Bearer <jwt>` or `Authorization: Token <jwt>`. The Java and Python SDKs (`KiokClient`) and `submit.sh --token` sign in this way and send `Token <jwt>`; the web admin UI sends `Bearer <jwt>`.
+
+!!! note "Access keys & STS"
+    Long-lived access-key pairs (an access-key id, a secret, and a user token) and STS-style temporary credentials can be **issued, downloaded, and revoked per user** through the IAM page — see [Identity &amp; Access Management](iam.md). The admin API request path itself validates the JWT above; obtain one with a user/password login.
 
 ## Authorization
 

@@ -1676,6 +1676,33 @@
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;status&quot;:&quot;done&quot;}&#39;</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Config key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>url</code></td>
+<td>Request URL (required)</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>HTTP method; defaults to <code>GET</code></td>
+</tr>
+<tr>
+<td><code>body</code></td>
+<td>Optional request body</td>
+</tr>
+<tr>
+<td><code>expectStatus</code></td>
+<td>Optional exact status code to require (e.g. <code>201</code>). When set, the task succeeds only on that status; otherwise <strong>any 2xx</strong> is a success and anything else fails the task</td>
+</tr>
+</tbody>
+</table>
+<p>The TCP connect timeout is bounded by <code>kiok.task.http.connect.timeout.ms</code> (default 10s); the overall request is bounded by the task/DAG timeout.</p>
 <h2 id="livy"><code>livy</code></h2>
 <p>Submits a Spark batch via Apache Livy's REST API and tails the batch log until it terminates. Unlike <code>shell</code> / <code>python</code> / <code>http</code>, a <code>livy</code> task shepherds an <strong>external</strong> job whose identity (the Livy batch id) is recorded on the <code>TaskRun.externalId</code> field — which lets a kiok worker restart <strong>resume</strong> polling against the same Spark batch instead of submitting a duplicate.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_spark</span>
@@ -1748,9 +1775,10 @@
 </table>
 <p>The <code>#{ nowMinusFormatted(...) }</code> token in the SQL is resolved at run time — see <a href="../date-placeholders/">Date placeholders</a>.</p>
 <h2 id="ontul"><code>ontul</code></h2>
-<p>Submits a job to an <a href="https://cloudcheflabs.github.io/ontul-docs">ontul</a> cluster via its REST API and tails the job status + log until terminal. Three ontul job shapes are supported via <code>ontul.jobType</code>:</p>
+<p>Submits a job to an <a href="https://cloudcheflabs.github.io/ontul-docs">ontul</a> cluster via its REST API and tails the job status + log until terminal. Four ontul job shapes are supported via <code>ontul.jobType</code>:</p>
 <ul>
 <li><strong><code>BATCH</code></strong> (default) — <code>script</code> carries the SQL.</li>
+<li><strong><code>STREAMING</code></strong> — <code>script</code> carries a streaming SQL statement (same body field as <code>BATCH</code>).</li>
 <li><strong><code>CLASS</code></strong> — <code>ontul.className</code> plus a <code>ontul.deps</code> array of JAR paths.</li>
 <li><strong><code>PYTHON</code></strong> — <code>ontul.scriptPath</code> plus optional <code>ontul.deps</code>.</li>
 </ul>

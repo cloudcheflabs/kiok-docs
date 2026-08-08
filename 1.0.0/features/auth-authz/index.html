@@ -1547,11 +1547,15 @@
 
 <h1 id="authentication-authorization">Authentication &amp; Authorization</h1>
 <h2 id="authentication">Authentication</h2>
-<p>kiok accepts two credential types on the admin API:</p>
+<p>Every request to the admin API is authenticated with a <strong>JWT</strong>.</p>
 <ul>
-<li><strong>JWT</strong> — sign in with a user/password to receive a short-lived access token and a longer-lived refresh token. The access token is presented as <code>Authorization: Token &lt;jwt&gt;</code>; it is refreshed transparently. Access and refresh expiry are configurable (<code>kiok.admin.token.*</code>).</li>
-<li><strong>Access keys</strong> — a long-lived access-key pair issued to a user, presented as <code>Authorization: AccessKey &lt;ak&gt;:&lt;sk&gt;</code>. Used by the Java/Python SDKs and <code>submit.sh</code> for non-interactive access. STS-style temporary credentials are also supported.</li>
+<li><strong>Signing in</strong> — <code>POST /api/v1/auth/login</code> with a <code>user</code> / <code>password</code> body returns a short-lived access token, a longer-lived refresh token, and flags (<code>isAdmin</code>, <code>requirePasswordChange</code>). <code>POST /api/v1/auth/refresh</code> exchanges a valid refresh token for a fresh access token. Access and refresh expiry are configurable (<code>kiok.admin.token.access.expiry.ms</code> / <code>kiok.admin.token.refresh.expiry.ms</code>).</li>
+<li><strong>Presenting the token</strong> — the access token is sent in the <code>Authorization</code> header, accepted under <strong>either</strong> scheme: <code>Authorization: Bearer &lt;jwt&gt;</code> or <code>Authorization: Token &lt;jwt&gt;</code>. The Java and Python SDKs (<code>KiokClient</code>) and <code>submit.sh --token</code> sign in this way and send <code>Token &lt;jwt&gt;</code>; the web admin UI sends <code>Bearer &lt;jwt&gt;</code>.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Access keys &amp; STS</p>
+<p>Long-lived access-key pairs (an access-key id, a secret, and a user token) and STS-style temporary credentials can be <strong>issued, downloaded, and revoked per user</strong> through the IAM page — see <a href="../iam/">Identity &amp; Access Management</a>. The admin API request path itself validates the JWT above; obtain one with a user/password login.</p>
+</div>
 <h2 id="authorization">Authorization</h2>
 <p>Every authenticated request is mapped to an <strong>action</strong> and a <strong>resource</strong>, then evaluated against all policies that apply to the caller — those attached to the user plus those inherited from its groups.</p>
 <ul>

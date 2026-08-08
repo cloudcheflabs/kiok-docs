@@ -1615,7 +1615,7 @@
 <p>Register the YAML from the admin UI (<strong>DAGs → Register</strong>), or from the bundled CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bin/submit.sh<span class="w"> </span>register<span class="w"> </span>hello_kiok.yaml<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
 </code></pre></div>
-<p><code>submit.sh</code> authenticates with either a JWT (<code>--token</code>, or <code>KIOK_USER_TOKEN</code>) or an access-key pair (<code>--accesskey</code> / <code>--secretkey</code>). It targets <code>localhost:8080</code> by default; override with <code>--master host:port</code>.</p>
+<p><code>submit.sh</code> authenticates with a JWT — pass it with <code>--token &lt;jwt&gt;</code> (or the <code>KIOK_USER_TOKEN</code> environment variable). Obtain the JWT from a user/password login (<code>POST /api/v1/auth/login</code>); the admin API validates this token on every request (see <a href="../../features/auth-authz/">Authentication &amp; Authorization</a>). <code>submit.sh</code> targets <code>localhost:8080</code> by default; override with <code>--master host:port</code>.</p>
 <h2 id="trigger-a-run">Trigger a Run</h2>
 <p>The DAG above has an hourly schedule, but you can also trigger it on demand — from the UI's <strong>Run</strong> button, or the CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>hello_kiok<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;

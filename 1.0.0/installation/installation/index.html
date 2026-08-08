@@ -1644,7 +1644,7 @@
 <tbody>
 <tr>
 <td><code>bin/</code></td>
-<td>Start/stop scripts for ZooKeeper, Master, and Worker; the <code>submit.sh</code> CLI</td>
+<td><code>start-*.sh</code> / <code>stop-*.sh</code> for ZooKeeper, Master, and Worker; <code>status.sh</code>; the <code>submit.sh</code> DAG CLI; and <code>kiok-cli.sh</code> (local admin recovery — see <a href="../../features/admin-password-recovery/">Admin Password Recovery</a>)</td>
 </tr>
 <tr>
 <td><code>lib/</code></td>
@@ -1652,7 +1652,7 @@
 </tr>
 <tr>
 <td><code>conf/</code></td>
-<td><code>jvm.conf</code> and the embedded-ZooKeeper config under <code>conf/zk/</code></td>
+<td><code>kiok.properties</code> (the <a href="../../features/configuration/">configuration</a> reference), <code>logback.xml</code>, <code>jvm.conf</code>, and the embedded-ZooKeeper config under <code>conf/zk/</code></td>
 </tr>
 <tr>
 <td><code>admin-ui/</code></td>

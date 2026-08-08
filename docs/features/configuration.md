@@ -99,6 +99,19 @@ The built-in KMS performs envelope encryption of at-rest stores and, optionally,
 | `kiok.iam.admin.user` | `admin` | Bootstrap admin username created on first startup if no users exist. |
 | `kiok.iam.admin.password` | `admin` | Bootstrap admin password seeded on first startup. **Change this** in any real deployment (or reset later via the admin recovery socket). |
 
+## Admin Recovery Socket
+
+Used by `bin/kiok-cli.sh` (`ping`, `iam:reset-password`). Local Unix domain socket
+only — never exposed on the network; the socket's mode `600` is the authentication.
+See [Admin Password Recovery](admin-password-recovery.md).
+
+| Property | Default | Description |
+|---|---|---|
+| `kiok.admin.socket.enabled` | `true` | Whether the master exposes the local recovery socket. `false` removes the local recovery path entirely. |
+| `kiok.admin.socket.path` | `${kiok.base.data.dir}/admin.sock` | Filesystem path of the socket. Must be on a local filesystem that supports Unix domain sockets (not a networked mount); recreated on every master start. |
+| `kiok.admin.socket.marker.file` | `master.socket` | Name of the file under `<kiok.home>/bin` where the master writes the socket path it actually bound to. `bin/kiok-cli.sh` prefers that published path over re-deriving one from this file, since `kiok.base.data.dir` can be overridden with `-D` at launch or edited after startup. Removed on shutdown. |
+| `kiok.iam.audit.dir` | `${kiok.base.data.dir}/iam-audit` | Directory holding the append-only audit log of socket operations (`reset.log`, mode `600`). The plaintext password is never written there. |
+
 ## Metadata (DAGs, runs, schedules)
 
 | Property | Default | Description |

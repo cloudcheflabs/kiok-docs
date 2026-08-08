@@ -1293,6 +1293,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#admin-recovery-socket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admin Recovery Socket
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#metadata-dags-runs-schedules" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2050,6 +2061,41 @@
 <td><code>kiok.iam.admin.password</code></td>
 <td><code>admin</code></td>
 <td>Bootstrap admin password seeded on first startup. <strong>Change this</strong> in any real deployment (or reset later via the admin recovery socket).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="admin-recovery-socket">Admin Recovery Socket</h2>
+<p>Used by <code>bin/kiok-cli.sh</code> (<code>ping</code>, <code>iam:reset-password</code>). Local Unix domain socket
+only — never exposed on the network; the socket's mode <code>600</code> is the authentication.
+See <a href="../admin-password-recovery/">Admin Password Recovery</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.admin.socket.enabled</code></td>
+<td><code>true</code></td>
+<td>Whether the master exposes the local recovery socket. <code>false</code> removes the local recovery path entirely.</td>
+</tr>
+<tr>
+<td><code>kiok.admin.socket.path</code></td>
+<td><code>${kiok.base.data.dir}/admin.sock</code></td>
+<td>Filesystem path of the socket. Must be on a local filesystem that supports Unix domain sockets (not a networked mount); recreated on every master start.</td>
+</tr>
+<tr>
+<td><code>kiok.admin.socket.marker.file</code></td>
+<td><code>master.socket</code></td>
+<td>Name of the file under <code>&lt;kiok.home&gt;/bin</code> where the master writes the socket path it actually bound to. <code>bin/kiok-cli.sh</code> prefers that published path over re-deriving one from this file, since <code>kiok.base.data.dir</code> can be overridden with <code>-D</code> at launch or edited after startup. Removed on shutdown.</td>
+</tr>
+<tr>
+<td><code>kiok.iam.audit.dir</code></td>
+<td><code>${kiok.base.data.dir}/iam-audit</code></td>
+<td>Directory holding the append-only audit log of socket operations (<code>reset.log</code>, mode <code>600</code>). The plaintext password is never written there.</td>
 </tr>
 </tbody>
 </table>

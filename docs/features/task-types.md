@@ -45,6 +45,15 @@ Performs an HTTP call — useful for triggering external systems or webhooks. Th
     body: '{"status":"done"}'
 ```
 
+| Config key | Meaning |
+|---|---|
+| `url` | Request URL (required) |
+| `method` | HTTP method; defaults to `GET` |
+| `body` | Optional request body |
+| `expectStatus` | Optional exact status code to require (e.g. `201`). When set, the task succeeds only on that status; otherwise **any 2xx** is a success and anything else fails the task |
+
+The TCP connect timeout is bounded by `kiok.task.http.connect.timeout.ms` (default 10s); the overall request is bounded by the task/DAG timeout.
+
 ## `livy`
 
 Submits a Spark batch via Apache Livy's REST API and tails the batch log until it terminates. Unlike `shell` / `python` / `http`, a `livy` task shepherds an **external** job whose identity (the Livy batch id) is recorded on the `TaskRun.externalId` field — which lets a kiok worker restart **resume** polling against the same Spark batch instead of submitting a duplicate.
@@ -103,9 +112,10 @@ The `#{ nowMinusFormatted(...) }` token in the SQL is resolved at run time — s
 
 ## `ontul`
 
-Submits a job to an [ontul](https://cloudcheflabs.github.io/ontul-docs) cluster via its REST API and tails the job status + log until terminal. Three ontul job shapes are supported via `ontul.jobType`:
+Submits a job to an [ontul](https://cloudcheflabs.github.io/ontul-docs) cluster via its REST API and tails the job status + log until terminal. Four ontul job shapes are supported via `ontul.jobType`:
 
 - **`BATCH`** (default) — `script` carries the SQL.
+- **`STREAMING`** — `script` carries a streaming SQL statement (same body field as `BATCH`).
 - **`CLASS`** — `ontul.className` plus a `ontul.deps` array of JAR paths.
 - **`PYTHON`** — `ontul.scriptPath` plus optional `ontul.deps`.
 

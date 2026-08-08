@@ -53,7 +53,7 @@ Register the YAML from the admin UI (**DAGs → Register**), or from the bundled
 bin/submit.sh register hello_kiok.yaml --token <jwt>
 ```
 
-`submit.sh` authenticates with either a JWT (`--token`, or `KIOK_USER_TOKEN`) or an access-key pair (`--accesskey` / `--secretkey`). It targets `localhost:8080` by default; override with `--master host:port`.
+`submit.sh` authenticates with a JWT — pass it with `--token <jwt>` (or the `KIOK_USER_TOKEN` environment variable). Obtain the JWT from a user/password login (`POST /api/v1/auth/login`); the admin API validates this token on every request (see [Authentication &amp; Authorization](../features/auth-authz.md)). `submit.sh` targets `localhost:8080` by default; override with `--master host:port`.
 
 ## Trigger a Run
 

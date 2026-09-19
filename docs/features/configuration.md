@@ -146,6 +146,7 @@ See [Admin Password Recovery](admin-password-recovery.md).
 | Property | Default | Description |
 |---|---|---|
 | `kiok.scheduler.tick.interval.ms` | `1000` | Scheduler-loop tick interval (ms): how often pending schedules are evaluated and the run driver advances state. Lower is snappier but uses more CPU. |
+| `kiok.cluster.maintenance.retry.after.seconds` | `30` | How long a client is told to wait (`Retry-After`, seconds) before retrying a run trigger that was refused because the cluster is in maintenance mode. The window itself is a runtime switch stored in the replicated metadata store, not a property &mdash; toggle it from **Topology** in the admin UI or `POST /api/v1/admin/maintenance`. While it is on the scheduler creates no runs, pending runs are not dispatched, git sync does not register DAGs, and manual triggers are refused; runs already executing are not killed and cancel stays available. See [Cluster Maintenance Mode](cluster-maintenance.md). |
 | `kiok.scheduler.max.global.concurrency` | `100` | Upper bound on globally concurrent task assignments cluster-wide, independent of per-worker slots. |
 | `kiok.scheduler.default.task.timeout.ms` | `1800000` | Default per-task execution timeout (ms; 30 min) applied when a DAG/task sets no timeout of its own. |
 

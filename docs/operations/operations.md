@@ -83,9 +83,24 @@ DAGs reach the cluster three ways, all manageable from the admin UI:
 - **Git Sync** — the leader periodically pulls DAGs from configured git repositories. See [Git Sync](../features/git-sync.md).
 - **Bundles** — upload a zip of DAG definitions for air-gapped clusters. See [DAG Bundles](../features/bundles.md).
 
+### Maintenance windows
+
+**Topology → Enter Maintenance** holds the cluster still: the cron scheduler stops creating runs,
+pending runs stop being dispatched to Workers, git sync stops registering DAG definitions, and manual
+triggers are refused with `503`. Runs already executing keep going, cancel stays available, backups
+keep running, and every read and settings edit stays open.
+
+Use it around a restore or a key rotation. Note that **cron firings inside the window are skipped,
+not replayed** — plan windows between fire times and check the leader's `WARN` log afterwards for
+what was missed. See [Cluster Maintenance Mode](../features/cluster-maintenance.md).
+
 ### Backup & Restore
 
 Enable **Backup** from the admin UI to ship cluster state — metadata (DAGs, runs, bundles, git configs), KMS, IAM, connections, and job logs — to an S3 target. Restore re-imports a chosen snapshot. See [Backup &amp; Restore](../features/backup.md).
+
+A restore replaces every config key, the maintenance flag among them, so the window ends up however
+the backup had it. Check the banner afterwards rather than assuming the window you opened is still
+open.
 
 ### Driver failover
 

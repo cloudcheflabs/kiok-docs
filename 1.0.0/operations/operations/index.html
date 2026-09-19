@@ -1129,6 +1129,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../features/cluster-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster Maintenance Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../features/configuration/" class="md-nav__link">
         
   
@@ -1499,6 +1527,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#maintenance-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maintenance windows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#backup-restore" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1779,8 +1818,19 @@
 <li><strong>Git Sync</strong> — the leader periodically pulls DAGs from configured git repositories. See <a href="../../features/git-sync/">Git Sync</a>.</li>
 <li><strong>Bundles</strong> — upload a zip of DAG definitions for air-gapped clusters. See <a href="../../features/bundles/">DAG Bundles</a>.</li>
 </ul>
+<h3 id="maintenance-windows">Maintenance windows</h3>
+<p><strong>Topology → Enter Maintenance</strong> holds the cluster still: the cron scheduler stops creating runs,
+pending runs stop being dispatched to Workers, git sync stops registering DAG definitions, and manual
+triggers are refused with <code>503</code>. Runs already executing keep going, cancel stays available, backups
+keep running, and every read and settings edit stays open.</p>
+<p>Use it around a restore or a key rotation. Note that <strong>cron firings inside the window are skipped,
+not replayed</strong> — plan windows between fire times and check the leader's <code>WARN</code> log afterwards for
+what was missed. See <a href="../../features/cluster-maintenance/">Cluster Maintenance Mode</a>.</p>
 <h3 id="backup-restore">Backup &amp; Restore</h3>
 <p>Enable <strong>Backup</strong> from the admin UI to ship cluster state — metadata (DAGs, runs, bundles, git configs), KMS, IAM, connections, and job logs — to an S3 target. Restore re-imports a chosen snapshot. See <a href="../../features/backup/">Backup &amp; Restore</a>.</p>
+<p>A restore replaces every config key, the maintenance flag among them, so the window ends up however
+the backup had it. Check the banner afterwards rather than assuming the window you opened is still
+open.</p>
 <h3 id="driver-failover">Driver failover</h3>
 <p>If a Worker driving a run dies, the leader's task coordinator detects the lost worker and reassigns the run to a healthy Worker. No operator action is required — see <a href="../../features/execution/">Worker-Driver Execution</a>.</p>
 <h2 id="scaling">Scaling</h2>

@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/configuration/">
       
       
-        <link rel="prev" href="../backup/">
+        <link rel="prev" href="../cluster-maintenance/">
       
       
         <link rel="next" href="../network/">
@@ -1131,6 +1131,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster Maintenance Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2206,6 +2234,11 @@ See <a href="../admin-password-recovery/">Admin Password Recovery</a>.</p>
 <td><code>kiok.scheduler.tick.interval.ms</code></td>
 <td><code>1000</code></td>
 <td>Scheduler-loop tick interval (ms): how often pending schedules are evaluated and the run driver advances state. Lower is snappier but uses more CPU.</td>
+</tr>
+<tr>
+<td><code>kiok.cluster.maintenance.retry.after.seconds</code></td>
+<td><code>30</code></td>
+<td>How long a client is told to wait (<code>Retry-After</code>, seconds) before retrying a run trigger that was refused because the cluster is in maintenance mode. The window itself is a runtime switch stored in the replicated metadata store, not a property &mdash; toggle it from <strong>Topology</strong> in the admin UI or <code>POST /api/v1/admin/maintenance</code>. While it is on the scheduler creates no runs, pending runs are not dispatched, git sync does not register DAGs, and manual triggers are refused; runs already executing are not killed and cancel stays available. See <a href="../cluster-maintenance/">Cluster Maintenance Mode</a>.</td>
 </tr>
 <tr>
 <td><code>kiok.scheduler.max.global.concurrency</code></td>

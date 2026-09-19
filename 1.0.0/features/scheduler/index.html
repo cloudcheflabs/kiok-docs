@@ -796,10 +796,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#catchup" class="md-nav__link">
+  <a href="#missed-fire-times-are-skipped" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Catchup
+        Missed fire times are skipped
       
     </span>
   </a>
@@ -811,6 +811,17 @@
     <span class="md-ellipsis">
       
         Concurrency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pausing-the-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pausing the scheduler
       
     </span>
   </a>
@@ -1236,6 +1247,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../cluster-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster Maintenance Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../configuration/" class="md-nav__link">
         
   
@@ -1576,6 +1615,8 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">   </span><span class="c1"># every day at 02:00</span>
 </code></pre></div>
 <p>A leader-only scheduler loop ticks at a short interval (<code>kiok.scheduler.tick.interval.ms</code>, default 1s) and, for each DAG whose next fire time is due, creates a new run. Because scheduling runs only on the leader, a DAG never double-fires when the cluster has multiple Masters.</p>
+<p>At most one run is created per DAG per tick, and the tick advances the DAG's watermark whether or not
+it fired — which is why missed intervals are skipped rather than accumulated. See below.</p>
 <p>Omit <code>schedule</code> for a <strong>manual-only</strong> DAG — it never fires on its own and runs only when triggered.</p>
 <h2 id="manual-triggers">Manual triggers</h2>
 <p>Any DAG — scheduled or not — can be triggered on demand from the admin UI's <strong>Run</strong> button, the REST API, or the CLI:</p>
@@ -1583,14 +1624,32 @@
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>daily_etl<span class="w"> </span>--args<span class="w"> </span><span class="nv">date</span><span class="o">=</span><span class="m">2026</span>-05-16<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
 </code></pre></div>
 <p>Trigger arguments are passed into the run and made available to its tasks.</p>
-<h2 id="catchup">Catchup</h2>
-<p>When a DAG is registered (or the cluster was down across one or more scheduled fire times), <code>catchup</code> decides what happens to the missed intervals:</p>
-<ul>
-<li><code>catchup: false</code> (default) — skip missed intervals; the DAG resumes from the next upcoming fire time.</li>
-<li><code>catchup: true</code> — create a run for each missed interval so the schedule is backfilled.</li>
-</ul>
+<h2 id="missed-fire-times-are-skipped">Missed fire times are skipped</h2>
+<p>If the cluster is down across one or more scheduled fire times — or the schedule comes due while a
+<a href="../cluster-maintenance/">maintenance window</a> is open — <strong>those intervals are not run, and are not
+replayed afterwards</strong>. The DAG resumes from the next upcoming fire time.</p>
+<p>The same applies when a DAG is first registered: it arms from that moment and does not reach back
+over its own history.</p>
+<div class="admonition warning">
+<p class="admonition-title"><code>catchup: true</code> is accepted but does nothing</p>
+<p>The <code>catchup</code> field parses and is stored on the DAG, and the SDK exposes a setter for it, but
+<strong>no code reads it</strong> — there is no backfill path in the scheduler. Setting <code>catchup: true</code> does
+not create runs for missed intervals, and a DAG carrying it behaves exactly like one that does
+not.</p>
+<p>Do not rely on it to cover an outage. For intervals you cannot afford to lose, trigger them by
+hand once the cluster is back, or give the task an argument-driven date range
+(see <a href="../date-placeholders/">Date Placeholders</a>) so one run can cover the gap.</p>
+</div>
+<p>Firings skipped because of a maintenance window are logged at <code>WARN</code> on the leader, so there is at
+least a record of what was missed. Firings skipped because the cluster was down are not — the
+process that would have logged them was not running.</p>
 <h2 id="concurrency">Concurrency</h2>
 <p><code>kiok.scheduler.max.global.concurrency</code> caps how many task assignments are in flight cluster-wide, so a burst of scheduled runs cannot overwhelm the Workers. Tasks beyond the cap wait until a slot frees.</p>
+<h2 id="pausing-the-scheduler">Pausing the scheduler</h2>
+<p>Opening a <a href="../cluster-maintenance/">maintenance window</a> stops the scheduler creating runs, stops
+pending runs being dispatched to Workers, and refuses manual triggers — without killing runs already
+executing. It is the supported way to hold the cluster still while restoring a backup or rotating
+keys.</p>
 <h2 id="run-lifecycle">Run lifecycle</h2>
 <p>A run moves through <code>PENDING → RUNNING → SUCCESS</code> / <code>FAILED</code> (or <code>CANCELLED</code>). Each task within it has its own state. The leader's task coordinator hands the run to a Worker, which drives it to completion — see <a href="../execution/">Worker-Driver Execution</a>.</p>
 

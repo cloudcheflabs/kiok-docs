@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/backup/">
+        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/cluster-maintenance/">
       
       
-        <link rel="prev" href="../monitoring/">
+        <link rel="prev" href="../backup/">
       
       
-        <link rel="next" href="../cluster-maintenance/">
+        <link rel="next" href="../configuration/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Backup & Restore - kiok</title>
+        <title>Cluster Maintenance Mode - kiok</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#backup-restore" class="md-skip">
+        <a href="#cluster-maintenance-mode" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Backup & Restore
+              Cluster Maintenance Mode
             
           </span>
         </div>
@@ -1103,6 +1103,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup & Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1122,7 +1150,7 @@
   <span class="md-ellipsis">
     
   
-    Backup & Restore
+    Cluster Maintenance Mode
   
 
     
@@ -1140,7 +1168,7 @@
   <span class="md-ellipsis">
     
   
-    Backup & Restore
+    Cluster Maintenance Mode
   
 
     
@@ -1166,10 +1194,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-gets-backed-up" class="md-nav__link">
+  <a href="#why-this-one-is-different" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What Gets Backed Up
+        Why this one is different
       
     </span>
   </a>
@@ -1177,38 +1205,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#what-stops-and-what-does-not" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuration
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cron-scheduling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cron scheduling
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incremental-by-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Incremental by Design
+        What stops, and what does not
       
     </span>
   </a>
@@ -1216,10 +1216,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#restore" class="md-nav__link">
+  <a href="#missed-cron-firings-are-skipped-not-queued" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Restore
+        Missed cron firings are skipped, not queued
       
     </span>
   </a>
@@ -1227,10 +1227,76 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#disaster-recovery" class="md-nav__link">
+  <a href="#pending-runs-are-frozen-not-dropped" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Disaster Recovery
+        Pending runs are frozen, not dropped
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-setting-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the setting lives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#turning-it-on-and-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turning it on and off
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-refused-trigger-looks-like" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a refused trigger looks like
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -1241,34 +1307,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cluster-maintenance/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Cluster Maintenance Mode
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1612,67 +1650,170 @@
 
 
 
-<h1 id="backup-restore">Backup &amp; Restore</h1>
-<p>kiok can ship the entire cluster's state to an S3-compatible target, and restore it later. Backup is opt-in (off by default) and runs in two trigger modes that share the same code path:</p>
-<ul>
-<li><strong>Manual</strong> — <em>Back up now</em> button in the admin UI, or <code>POST /api/v1/admin/backup</code>.</li>
-<li><strong>Cron</strong> — a 5-field UNIX cron expression evaluated by a leader-only scheduler. Set it from the admin UI or <code>PUT /api/v1/admin/backup/cron</code>.</li>
-</ul>
-<p>The destination is any AWS-compatible S3 endpoint: AWS S3, MinIO, ShannonStore, or similar. Pointing it at a separate system gives you a true offsite copy.</p>
-<h2 id="what-gets-backed-up">What Gets Backed Up</h2>
-<p>A backup run captures five stores under one shared backup id, so a single restore reassembles a consistent point in time:</p>
-<ul>
-<li><strong>metadata</strong> — DAG definitions, run history, bundle metadata, and git-repo configuration.</li>
-<li><strong>kms</strong> — the KMS keystore.</li>
-<li><strong>iam</strong> — users, groups, policies, and access keys.</li>
-<li><strong>connections</strong> — the encrypted connection store.</li>
-<li><strong>joblog</strong> — per-task and per-run job logs.</li>
-</ul>
-<p>Job logs are included because, in the default no-S3-archival configuration, they live only in the leader's RocksDB — without backup, a leader disk loss would lose every completed run's log. Every store is KMS envelope-encrypted before it leaves the cluster.</p>
-<h2 id="configuration">Configuration</h2>
-<p>The <strong>Backup &amp; Restore</strong> page in the admin UI exposes:</p>
-<ul>
-<li><strong>Enabled</strong> — master switch (default: off). The live toggle is persisted in the metadata store.</li>
-<li><strong>Backup S3 target</strong> — either the default (the job-log S3 configuration) or a stored S3 <a href="../connections/">connection</a> selected by id.</li>
-<li><strong>Automatic backup schedule</strong> — a 5-field UNIX cron expression (e.g. <code>0 2 * * *</code> for daily at 02:00). Same grammar as the DAG <a href="../scheduler/">scheduler</a>. Leave empty to disable.</li>
-</ul>
-<p>The page also has a <strong>Back up now</strong> button that triggers an immediate backup.</p>
-<h3 id="cron-scheduling">Cron scheduling</h3>
-<p>The cron expression lives on the leader as a <code>BackupScheduler</code> daemon that ticks once per scheduler interval (the same cadence as the DAG cron scheduler) and fires <code>backupNow()</code> once when the cron has a fire time in <code>(lastChecked, now]</code>. The schedule is persisted under <code>backup.cron</code> in the metadata store, so a leader handoff or master restart re-arms the same cron.</p>
-<p>The first tick after the cron is set, or after a leader change, <strong>arms from "now"</strong> — kiok does not back-fire missed cron times on startup. Recovering a missed nightly backup three days late tends to surprise more than skipping it.</p>
-<p>The admin UI shows the next scheduled fire time next to an active cron. The two REST endpoints:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Read the current cron and its next-fire timestamp</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>http://kiok-master:8080/api/v1/admin/backup/cron
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Set or clear (null / empty)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;cron&quot;: &quot;0 2 * * *&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>http://kiok-master:8080/api/v1/admin/backup/cron
+<h1 id="cluster-maintenance-mode">Cluster Maintenance Mode</h1>
+<p>A cluster-wide switch that stops kiok starting work, so an operator can restore a backup, rotate keys, or replace Workers without a run beginning underneath them.</p>
+<h2 id="why-this-one-is-different">Why this one is different</h2>
+<p>In a request-driven service, closing the API closes the service. kiok is not request-driven. Four loops run on the leader and create work with nobody asking:</p>
+<table>
+<thead>
+<tr>
+<th>Loop</th>
+<th>What it does on its own</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cron scheduler</td>
+<td>creates runs when a DAG's schedule comes due</td>
+</tr>
+<tr>
+<td>Task coordinator</td>
+<td>hands pending runs to Workers</td>
+</tr>
+<tr>
+<td>Git sync</td>
+<td>pulls a repository and registers DAG definitions</td>
+</tr>
+<tr>
+<td>Backup scheduler</td>
+<td>ships cluster state to S3</td>
+</tr>
+</tbody>
+</table>
+<p>A maintenance mode that only refused HTTP requests would be decorative — the 2am cron would fire in the middle of your restore regardless. So this switch is read by <strong>the loops first</strong>, and the REST gate is the smaller half of it.</p>
+<h2 id="what-stops-and-what-does-not">What stops, and what does not</h2>
+<table>
+<thead>
+<tr>
+<th>Stopped</th>
+<th>Keeps running</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The cron scheduler — no runs are created</td>
+<td>Runs <strong>already executing</strong></td>
+</tr>
+<tr>
+<td>Dispatch — pending runs stay queued, Workers get nothing new</td>
+<td><code>POST /runs/{id}/cancel</code></td>
+</tr>
+<tr>
+<td>Git sync — no DAG definitions are registered</td>
+<td>Driver-failure detection and reassignment</td>
+</tr>
+<tr>
+<td><code>POST /dags/{id}/runs</code> — manual triggers get <code>503</code></td>
+<td>The backup scheduler</td>
+</tr>
+<tr>
+<td></td>
+<td>DAG registration and deletion, IAM, KMS, connections</td>
+</tr>
+<tr>
+<td></td>
+<td>Every read: DAG list, run state, task logs, topology, metrics</td>
+</tr>
+</tbody>
+</table>
+<p>Three of those deserve their reasoning, because a blunter switch would get them wrong.</p>
+<p><strong>Cancel stays open.</strong> The first thing an operator does after opening a window is stop the runs still executing. A switch that blocked <code>cancel</code> would be blocking the work it exists to enable.</p>
+<p><strong>Runs already executing are not killed.</strong> Opening a window is not an emergency stop. Killing live runs would turn a routine maintenance window into a pile of failed runs and half-written outputs; cancel the ones you need stopped, deliberately.</p>
+<p><strong>The backup scheduler keeps running.</strong> Taking a backup during a maintenance window is usually the <em>point</em>, not something to prevent.</p>
+<h2 id="missed-cron-firings-are-skipped-not-queued">Missed cron firings are skipped, not queued</h2>
+<p>A schedule that comes due inside the window <strong>does not fire, and is not replayed afterwards</strong>.</p>
+<p>This is a deliberate choice and the alternative is worse: a window left open overnight would release twelve hours of accumulated runs the instant it closed, which is an outage of its own — a stampede against the same Workers and the same downstream systems the window was protecting.</p>
+<p>Every skipped firing is logged at <code>WARN</code> on the leader:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>WARN  Scheduler - DAG daily_etl was due at 2026-09-19T02:00:00Z but the cluster is
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>      in maintenance mode -- skipping this firing
 </code></pre></div>
-<p>An invalid cron expression is rejected with HTTP 400 — the parser's message is surfaced in the response body. Set <code>cron: null</code> or an empty string to clear.</p>
-<h2 id="incremental-by-design">Incremental by Design</h2>
-<p>Each store is content-hashed (SHA-256). If a store's bytes are unchanged since the last backup, it is <strong>not re-uploaded</strong> — the new backup's manifest simply points at the backup id that already holds it. A backup taken with no cluster activity uploads almost nothing.</p>
-<p>Each backup writes a <code>manifest.json</code> recording, per store, its hash and which backup id holds its bytes — so the incremental chain is always resolvable from any single manifest.</p>
-<h2 id="restore">Restore</h2>
-<p>The same admin page lists every backup in S3, newest first. Each row has a <strong>Restore</strong> button.</p>
-<blockquote>
-<p>Restore is <strong>destructive</strong> — it overwrites current cluster state. The UI asks for confirmation first.</p>
-</blockquote>
-<p>The flow:</p>
-<ol>
-<li>The operator clicks <strong>Restore</strong> on a backup row and confirms.</li>
-<li>The leader reads that backup's <code>manifest.json</code>.</li>
-<li>For each of the five stores, it fetches the bytes (following the incremental pointer to whichever backup id actually holds them) and imports them — overwriting the live store.</li>
-<li>The restore completes; the cluster is now at the chosen snapshot.</li>
-</ol>
-<p>Because the <code>joblog</code> store is restored too, completed-run logs come back along with DAGs, runs, IAM, KMS, and connections.</p>
-<blockquote>
-<p>The <strong>Restore</strong> button is per-backup-row — it appears only once at least one backup exists in S3. On a cluster with no backups yet, the list shows "No backups" and there is nothing to restore. Enable backup and run <strong>Back up now</strong> first.</p>
-</blockquote>
-<h2 id="disaster-recovery">Disaster Recovery</h2>
-<p>The intended recovery scenario: a Master loses its local disk. Bring up a fresh Master pointed at the same ZooKeeper and master key, open the <strong>Backup &amp; Restore</strong> page, and restore the latest backup from S3 — DAGs, run history, IAM, KMS, connections, and job logs are all reinstated.</p>
-<p>Keeping the master key safe is essential: every backed-up store is envelope-encrypted, and without <code>KIOK_MASTER_KEY</code> the backup cannot be decrypted.</p>
+<p>That log exists because a silently missed schedule is the kind of thing an operator discovers weeks later, from the data being wrong. Check it after closing a window and re-trigger by hand what mattered.</p>
+<div class="admonition warning">
+<p class="admonition-title">Plan windows around your schedules</p>
+<p>Because firings are dropped, a long window across a busy schedule loses those runs permanently. Prefer a window between fire times, and for anything that must not be missed, trigger it manually once the window closes.</p>
+</div>
+<h2 id="pending-runs-are-frozen-not-dropped">Pending runs are frozen, not dropped</h2>
+<p>Runs that were already triggered when the window opened stay <code>PENDING</code> and dispatch when it closes.</p>
+<p>The queue cannot grow meanwhile — the scheduler creates nothing and manual triggers are refused — so what drains afterwards is whatever existed at the moment the window opened. Bounded, and legitimately owed an execution.</p>
+<h2 id="where-the-setting-lives">Where the setting lives</h2>
+<p>In the cluster metadata store — the encrypted RocksDB config store — under <code>cluster.maintenance.mode</code>, so it rides the same snapshot replication as DAG definitions and run records.</p>
+<p>ZooKeeper would have been the other candidate and is the wrong one: <strong>ZooKeeper holds node state</strong> (membership, leadership, readiness) while <strong>settings live in RocksDB</strong>. That split is the same across every Cloud Chef Labs product.</p>
+<p>Storing it is what makes it hold:</p>
+<ul>
+<li>A leader restarted mid-window reloads it on boot and comes back with the loops still paused.</li>
+<li>A follower that <strong>wins an election</strong> mid-window starts as a leader that is already paused, rather than one that begins scheduling because it was just elected. This is the case that a memory-only flag would get catastrophically wrong.</li>
+</ul>
+<p>Each master caches the value and re-reads it after every snapshot import, including after a backup restore — which replaces every config key, this one among them, so the window ends up however the backup had it. Check the banner after a restore rather than assuming the window you opened is still open.</p>
+<h2 id="turning-it-on-and-off">Turning it on and off</h2>
+<p>From the admin UI: <strong>Topology → Enter Maintenance</strong>. A confirmation appears first — it says what stops and what does not — and a banner stays on screen while the window is open.</p>
+<p>Or over REST:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-sf<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;user&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;…&quot;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.accessToken<span class="k">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># status — answered by whichever master receives it, from its own cache</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>curl<span class="w"> </span>-sf<span class="w"> </span>http://localhost:8080/api/v1/admin/maintenance<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># on</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>curl<span class="w"> </span>-sf<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/v1/admin/maintenance<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:true}&#39;</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># off</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>curl<span class="w"> </span>-sf<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/v1/admin/maintenance<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span>
+</code></pre></div>
+<p><code>POST</code> requires the <code>admin:Maintenance</code> action on <code>cluster</code> and is forwarded to the leader, which owns the store. <code>GET</code> is answered locally by any master, so you can confirm the window reached every master rather than only the one that was told to open it.</p>
+<h2 id="what-a-refused-trigger-looks-like">What a refused trigger looks like</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>HTTP/1.1 503 Service Unavailable
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Retry-After: 30
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Content-Type: application/json
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>{&quot;error&quot;:&quot;cluster is in maintenance mode; new runs are not accepted&quot;,
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a> &quot;maintenanceMode&quot;:true,&quot;retryAfterSeconds&quot;:30}
+</code></pre></div>
+<p><code>503</code> with <code>Retry-After</code> rather than <code>403</code>: the caller is not forbidden, the cluster is closed for now, and every HTTP client already knows to back off on that pair.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># How long a client is told to wait before retrying a refused trigger (seconds).</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="na">kiok.cluster.maintenance.retry.after.seconds</span><span class="o">=</span><span class="s">30</span>
+</code></pre></div>
+<p>The SDK and CLI paths are refused too — the check sits in the scheduler itself as well as at the REST layer, because a window that one entry point honours and another does not is worse than none.</p>
+<h2 id="when-to-use-it">When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Use it for</th>
+<th>Don't use it for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Restoring a backup over live DAG and run state</td>
+<td>Adding a Master or Worker (neither needs a window)</td>
+</tr>
+<tr>
+<td>KMS rotation</td>
+<td>A rolling upgrade (leader transitions are already handled)</td>
+</tr>
+<tr>
+<td>Replacing or draining Workers as a group</td>
+<td>A single Worker restart (driver failover covers it)</td>
+</tr>
+<tr>
+<td>Investigating a bad run without new ones piling in</td>
+<td>Any window long enough to drop schedules you need</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verifying-it">Verifying it</h2>
+<p><code>tests/maintenance-mode-e2e.sh</code> in the product repository runs the whole cycle against a compose cluster: a DAG on a one-minute cron <strong>fires normally first</strong>, the window opens and no run is created across a full cron period, a manual trigger is refused with <code>503</code> + <code>Retry-After</code>, cancel and reads and DAG registration keep working, the skipped firing is present in the log, the leader is restarted and comes back still paused, and then the window closes and the cron fires again.</p>
+<p>Proving the cron fires <em>before</em> opening the window is the part that makes the rest mean anything — without it, "no runs appeared" would pass against a scheduler that was broken all along. Proving it fires <em>again</em> afterwards matters for the mirror reason.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="../scheduler/">Scheduler &amp; Triggers</a> — how firing works normally, and what happens to missed intervals.</li>
+<li><a href="../backup/">Backup &amp; Restore</a> — the operation a window is most often opened for.</li>
+<li><a href="../execution/">Worker-Driver Execution</a> — why a run already executing is unaffected.</li>
+</ul>
 
 
 

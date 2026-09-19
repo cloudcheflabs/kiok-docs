@@ -30,28 +30,70 @@ bin/submit.sh trigger daily_etl --args date=2026-05-16 --token <jwt>
 
 Trigger arguments are passed into the run and made available to its tasks.
 
-## Missed fire times are skipped
+## Catchup — recovering intervals missed during an outage
 
-If the cluster is down across one or more scheduled fire times — or the schedule comes due while a
-[maintenance window](cluster-maintenance.md) is open — **those intervals are not run, and are not
-replayed afterwards**. The DAG resumes from the next upcoming fire time.
+`catchup` decides what happens to fire times that passed while the cluster was down.
 
-The same applies when a DAG is first registered: it arms from that moment and does not reach back
-over its own history.
+```yaml
+dag:
+  id: daily_etl
+  schedule: "0 2 * * *"
+  catchup: true          # default false
+```
 
-!!! warning "`catchup: true` is accepted but does nothing"
-    The `catchup` field parses and is stored on the DAG, and the SDK exposes a setter for it, but
-    **no code reads it** — there is no backfill path in the scheduler. Setting `catchup: true` does
-    not create runs for missed intervals, and a DAG carrying it behaves exactly like one that does
-    not.
+- **`catchup: false` (default)** — missed intervals are skipped. The DAG resumes from the next
+  upcoming fire time and never looks backwards.
+- **`catchup: true`** — on the first scheduler evaluation after a restart, the DAG creates one run
+  per interval that passed since its **last run**, each tagged `trigger=catchup` and stamped with
+  the interval it stands for (not with the moment it was created), so a backfilled run carries the
+  time its data belongs to and sorts into history where it belongs.
 
-    Do not rely on it to cover an outage. For intervals you cannot afford to lose, trigger them by
-    hand once the cluster is back, or give the task an argument-driven date range
-    (see [Date Placeholders](date-placeholders.md)) so one run can cover the gap.
+### Where it resumes from
 
-Firings skipped because of a maintenance window are logged at `WARN` on the leader, so there is at
-least a record of what was missed. Firings skipped because the cluster was down are not — the
-process that would have logged them was not running.
+The resume point is the DAG's **most recent run**, not a separately persisted watermark. That is the
+only definition that stays true across a restart: the runs are already durable, and "the last
+interval that actually produced a run" is exactly what an operator means by *where did we leave off*.
+
+A DAG that has **never run** arms from now even with `catchup: true`. Without a start date,
+backfilling a freshly registered DAG would have to reach back to an arbitrary point, so it does not
+try.
+
+### The backfill is capped
+
+A gap can be arbitrarily long — a cluster down for a week with an hourly DAG is 168 intervals — and
+releasing all of them at once is an outage of its own. `kiok.scheduler.catchup.max.runs` (default
+`24`) bounds it. When the gap is larger, the **most recent** intervals are run and the older ones are
+dropped with a `WARN` naming the range that was let go:
+
+```
+WARN  Scheduler - Catch-up capped at 24 run(s); dropping 144 older missed interval(s)
+      from 2026-09-12T01:00:00Z to 2026-09-18T00:00:00Z. Trigger them by hand if they matter.
+```
+
+Fresher data is worth more than stale data, which is why the recent end is kept. If the older
+intervals matter, trigger them by hand or give the task an argument-driven date range (see
+[Date Placeholders](date-placeholders.md)) so one run can cover the gap.
+
+### What catchup does not cover
+
+**A maintenance window.** Intervals that come due while a
+[maintenance window](cluster-maintenance.md) is open are skipped and never revisited, `catchup` or
+not. That is a deliberate operator action, not the unplanned outage catchup exists for — and a window
+kept open overnight would otherwise release twelve hours of runs the instant it closed. Those skipped
+firings are logged at `WARN` on the leader so there is a record of them.
+
+**Runs that were already created.** If a run existed but had not finished when the leader died, it is
+not a missed interval — the task coordinator recovers it on the next leadership change and reassigns
+it to a healthy worker. That path is independent of `catchup` and applies to every DAG. See
+[Worker-Driver Execution](execution.md).
+
+The distinction is whether a run record exists:
+
+| What happened | Recovered by |
+| --- | --- |
+| A run was created, then the leader died mid-execution | Run recovery — always, regardless of `catchup` |
+| The cluster was down, so no run was ever created | `catchup: true` only |
+| A maintenance window was open | Neither — skipped by design, logged at `WARN` |
 
 ## Concurrency
 

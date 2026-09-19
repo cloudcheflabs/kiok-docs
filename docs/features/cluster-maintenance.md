@@ -49,6 +49,11 @@ WARN  Scheduler - DAG daily_etl was due at 2026-09-19T02:00:00Z but the cluster 
 
 That log exists because a silently missed schedule is the kind of thing an operator discovers weeks later, from the data being wrong. Check it after closing a window and re-trigger by hand what mattered.
 
+`catchup: true` does **not** bring these back either. Catch-up exists for an unplanned outage, where
+the cluster was down and nobody chose to miss anything; a maintenance window is a deliberate operator
+action, and replaying it on exit is the stampede this design avoids. See
+[Scheduler &amp; Triggers](scheduler.md#what-catchup-does-not-cover).
+
 !!! warning "Plan windows around your schedules"
     Because firings are dropped, a long window across a busy schedule loses those runs permanently. Prefer a window between fire times, and for anything that must not be missed, trigger it manually once the window closes.
 

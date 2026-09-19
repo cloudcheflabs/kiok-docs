@@ -1728,6 +1728,10 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>      in maintenance mode -- skipping this firing
 </code></pre></div>
 <p>That log exists because a silently missed schedule is the kind of thing an operator discovers weeks later, from the data being wrong. Check it after closing a window and re-trigger by hand what mattered.</p>
+<p><code>catchup: true</code> does <strong>not</strong> bring these back either. Catch-up exists for an unplanned outage, where
+the cluster was down and nobody chose to miss anything; a maintenance window is a deliberate operator
+action, and replaying it on exit is the stampede this design avoids. See
+<a href="../scheduler/#what-catchup-does-not-cover">Scheduler &amp; Triggers</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Plan windows around your schedules</p>
 <p>Because firings are dropped, a long window across a busy schedule loses those runs permanently. Prefer a window between fire times, and for anything that must not be missed, trigger it manually once the window closes.</p>

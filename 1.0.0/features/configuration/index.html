@@ -2236,6 +2236,11 @@ See <a href="../admin-password-recovery/">Admin Password Recovery</a>.</p>
 <td>Scheduler-loop tick interval (ms): how often pending schedules are evaluated and the run driver advances state. Lower is snappier but uses more CPU.</td>
 </tr>
 <tr>
+<td><code>kiok.scheduler.catchup.max.runs</code></td>
+<td><code>24</code></td>
+<td>Upper bound on how many runs a single catch-up may create for one DAG after an outage. Only applies to DAGs with <code>catchup: true</code>. When the gap is larger, the <strong>most recent</strong> intervals are run and the older ones are dropped with a <code>WARN</code> naming the range &mdash; releasing an unbounded backlog at once is an outage of its own. See <a href="../scheduler/#catchup-recovering-intervals-missed-during-an-outage">Scheduler &amp; Triggers</a>.</td>
+</tr>
+<tr>
 <td><code>kiok.cluster.maintenance.retry.after.seconds</code></td>
 <td><code>30</code></td>
 <td>How long a client is told to wait (<code>Retry-After</code>, seconds) before retrying a run trigger that was refused because the cluster is in maintenance mode. The window itself is a runtime switch stored in the replicated metadata store, not a property &mdash; toggle it from <strong>Topology</strong> in the admin UI or <code>POST /api/v1/admin/maintenance</code>. While it is on the scheduler creates no runs, pending runs are not dispatched, git sync does not register DAGs, and manual triggers are refused; runs already executing are not killed and cancel stays available. See <a href="../cluster-maintenance/">Cluster Maintenance Mode</a>.</td>

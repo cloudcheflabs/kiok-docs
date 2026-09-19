@@ -56,6 +56,7 @@ nav:
       - "Connections": features/connections.md
       - "Monitoring & Metrics": features/monitoring.md
       - "Backup & Restore": features/backup.md
+      - "Cluster Maintenance Mode": features/cluster-maintenance.md
       - "Configuration Management": features/configuration.md
       - "Network & Internal Communication": features/network.md
       - "NIC Silent-Fail Safety": features/nic-fail-safety.md

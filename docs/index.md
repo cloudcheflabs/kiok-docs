@@ -13,7 +13,7 @@ title: " "
 <h2 align="center" style="margin-top: 1.5rem;">A workflow orchestrator — author, schedule, and run your DAGs</h2>
 
 <p align="center" style="font-size: 1.1rem; max-width: 760px; margin: 1.5rem auto; color: #555;">
-  kiok runs your DAGs on a master/worker cluster. Author a workflow in YAML, Python, or Java; schedule it with cron or trigger it by hand; watch every run in a built-in admin UI. Git-sync, air-gapped bundles, native KMS &amp; IAM, and encrypted state come built in — a single self-contained engine.
+  kiok runs your DAGs on a master/worker cluster. Author a workflow in YAML, Python, or Java; schedule it with cron or trigger it by hand; watch every run in a built-in admin UI. Git-sync, air-gapped bundles, native KMS &amp; IAM, single sign-on against your own identity provider, and encrypted state come built in — a single self-contained engine.
 </p>
 
 <p align="center" style="margin: 3rem 0;">

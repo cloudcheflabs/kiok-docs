@@ -98,6 +98,7 @@ The built-in KMS performs envelope encryption of at-rest stores and, optionally,
 | `kiok.iam.rocksdb.path` | `${kiok.base.data.dir}/iam` | RocksDB directory for the IAM store (users, roles, credentials). Persistent; contents are envelope-encrypted by KMS. |
 | `kiok.iam.admin.user` | `admin` | Bootstrap admin username created on first startup if no users exist. |
 | `kiok.iam.admin.password` | `admin` | Bootstrap admin password seeded on first startup. **Change this** in any real deployment (or reset later via the admin recovery socket). |
+| `kiok.auth.password.hash.iterations` | `600000` | PBKDF2-HMAC-SHA256 iteration count for local passwords. The count travels inside each stored hash, so raising it does not invalidate existing passwords — a password is rewritten at the new cost on its owner's next successful login. Lower it only for tests. |
 
 ## Admin Recovery Socket
 
@@ -111,6 +112,68 @@ See [Admin Password Recovery](admin-password-recovery.md).
 | `kiok.admin.socket.path` | `${kiok.base.data.dir}/admin.sock` | Filesystem path of the socket. Must be on a local filesystem that supports Unix domain sockets (not a networked mount); recreated on every master start. |
 | `kiok.admin.socket.marker.file` | `master.socket` | Name of the file under `<kiok.home>/bin` where the master writes the socket path it actually bound to. `bin/kiok-cli.sh` prefers that published path over re-deriving one from this file, since `kiok.base.data.dir` can be overridden with `-D` at launch or edited after startup. Removed on shutdown. |
 | `kiok.iam.audit.dir` | `${kiok.base.data.dir}/iam-audit` | Directory holding the append-only audit log of socket operations (`reset.log`, mode `600`). The plaintext password is never written there. |
+
+## Single Sign-On (OIDC / SAML / LDAP)
+
+Every key here can also be set from the console under **Settings → SSO**, which stores
+it in the replicated metadata store and applies it on every master with no restart.
+**Stored settings win over this file**: the file brings a cluster up, and the console is
+how it is changed afterwards — if the file won, a console change would be reverted by
+the next restart, silently. See [Single Sign-On](sso.md).
+
+### Identity mapping (all three providers)
+
+| Property | Default | Description |
+|---|---|---|
+| `kiok.sso.group.mappings` | *(empty)* | `idpGroup:localGroup,idpGroup2:localGroup2`. Empty uses provider group names as they are. Once set the mapping is **exhaustive** — a group not named here is dropped, so creating a group at the provider cannot grant access on this cluster by itself. |
+| `kiok.sso.allow.unmapped.groups` | `false` | Whether an identity whose groups all map to nothing may still sign in. Off deliberately: such a session has no policies and is denied every action, so admitting it produces someone signed in who can do nothing. |
+| `kiok.sso.federated.session.seconds` | `3600` | Lifetime of a federated session. Bounds how long access outlives a revocation at the provider, which this cluster is not told about. A federated session gets no refresh token for the same reason. |
+
+### OpenID Connect
+
+| Property | Default | Description |
+|---|---|---|
+| `kiok.sso.oidc.enabled` | `false` | Whether the console offers an OIDC button and the callback route accepts a code. |
+| `kiok.sso.oidc.issuer` | *(empty)* | Issuer URL. Endpoints and the signing key set are read from its discovery document, so they are not configured individually. |
+| `kiok.sso.oidc.client.id` | *(empty)* | Client id registered at the provider. |
+| `kiok.sso.oidc.client.secret` | *(empty)* | Client secret. Redacted when the settings are read back through the API. |
+| `kiok.sso.oidc.redirect.uri` | `http://localhost:8080/api/v1/auth/sso/oidc/callback` | Must match the registered redirect URI exactly, and must be the address browsers reach — the load balancer's, not one master's. |
+| `kiok.sso.oidc.scopes` | `openid profile email` | Scopes requested. Deliberately excludes `groups`: it is not a standard scope, and a provider that does not define it rejects the whole authorization request with `invalid_scope`. |
+| `kiok.sso.oidc.username.claim` | `preferred_username` | ID-token claim used as the caller's name. |
+| `kiok.sso.oidc.groups.claim` | `groups` | ID-token claim carrying group membership. |
+| `kiok.sso.oidc.audience` | *(empty)* | Expected audience; empty falls back to the client id. A token issued for another application is refused even though it is genuine and correctly signed. |
+
+### SAML 2.0
+
+| Property | Default | Description |
+|---|---|---|
+| `kiok.sso.saml.enabled` | `false` | Whether the console offers a SAML button and the ACS route accepts an assertion. |
+| `kiok.sso.saml.idp.entity.id` | *(empty)* | Provider's entity ID. Filled automatically when its metadata is imported from the console. |
+| `kiok.sso.saml.idp.sso.url` | *(empty)* | Provider's sign-on URL. Filled by metadata import. |
+| `kiok.sso.saml.idp.certificate` | *(empty)* | Base64 certificate every assertion signature is verified against. Filled by metadata import. |
+| `kiok.sso.saml.sp.entity.id` | `kiok` | This cluster's identity, as it appears in the SP metadata the provider imports. |
+| `kiok.sso.saml.sp.acs.url` | `http://localhost:8080/api/v1/auth/sso/saml/acs` | Assertion Consumer Service URL — again the address browsers reach. |
+| `kiok.sso.saml.sp.private.key` | *(empty)* | SP private key, for decrypting encrypted assertions and signing requests. Generated from the console; never returned by the API. |
+| `kiok.sso.saml.sp.certificate` | *(empty)* | SP certificate matching that key, published in the SP metadata. |
+| `kiok.sso.saml.nameid.format` | *(empty)* | Requested NameID format. Empty omits the request entirely and lets the provider issue what it is configured for — naming one breaks more integrations than it fixes. |
+| `kiok.sso.saml.sign.requests` | `false` | Sign authentication requests. Needs the SP keypair above; re-import the SP metadata at the provider afterwards. |
+| `kiok.sso.saml.username.attribute` | `uid` | Assertion attribute used as the caller's name; the NameID is the fallback. |
+| `kiok.sso.saml.groups.attribute` | `groups` | Assertion attribute carrying group membership. |
+
+### LDAP / Active Directory
+
+| Property | Default | Description |
+|---|---|---|
+| `kiok.sso.ldap.enabled` | `false` | Whether directory credentials are accepted at `/api/v1/auth/sso/ldap/login` and at the ordinary login route. |
+| `kiok.sso.ldap.url` | `ldap://ldap.example.com:389` | Directory URL. Use `ldaps://` or enable StartTLS below — otherwise the bind password crosses the network in the clear. |
+| `kiok.sso.ldap.bind.dn` | *(empty)* | Service account that searches for user entries. Authentication is search **then** bind: a user's DN cannot be constructed, since Active Directory puts people under `CN=John Doe,OU=Staff,…` where neither component is the login name. |
+| `kiok.sso.ldap.bind.password` | *(empty)* | Service account password. Redacted when read back through the API. |
+| `kiok.sso.ldap.user.base.dn` | *(empty)* | Subtree searched for user entries. |
+| `kiok.sso.ldap.user.filter` | `(uid={0})` | `{0}` is the login name, escaped per RFC 4515 before substitution. Active Directory usually wants `(sAMAccountName={0})`. |
+| `kiok.sso.ldap.group.base.dn` | *(empty)* | Subtree searched for groups. |
+| `kiok.sso.ldap.group.filter` | `(member={0})` | `{0}` is the user's DN. Membership is read from this search **and** from the user's `memberOf`, because directories disagree about which side records it. |
+| `kiok.sso.ldap.group.name.attribute` | `cn` | Attribute taken as the group's name before mapping. |
+| `kiok.sso.ldap.starttls` | `false` | Upgrade a plain `ldap://` connection with StartTLS. |
 
 ## Metadata (DAGs, runs, schedules)
 

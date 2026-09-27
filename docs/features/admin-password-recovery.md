@@ -45,6 +45,7 @@ rotation.
 | **Cluster sync** | automatic — leader pushes the new state to followers |
 | **Audit log** | `data/iam-audit/reset.log` (mode `600`, append-only) |
 | **Post-reset state** | `requirePasswordChange = true` (forced rotation on next login) |
+| **Stored form** | PBKDF2-HMAC-SHA256 — the reset writes the current hash format, never the plaintext |
 
 ## Quick start
 

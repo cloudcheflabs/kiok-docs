@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/dag-authoring/">
+        <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/sso/">
       
       
-        <link rel="prev" href="../../installation/getting-started/">
+        <link rel="prev" href="../auth-authz/">
       
       
-        <link rel="next" href="../distributed-architecture/">
+        <link rel="next" href="../admin-password-recovery/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Authoring DAGs - kiok</title>
+        <title>Single Sign-On (OIDC, SAML, LDAP) - kiok</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#authoring-dags" class="md-skip">
+        <a href="#single-sign-on-oidc-saml-ldap" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Authoring DAGs
+              Single Sign-On (OIDC, SAML, LDAP)
             
           </span>
         </div>
@@ -279,7 +279,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../dag-authoring/" class="md-tabs__link">
           
   
   
@@ -655,37 +655,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Authoring DAGs
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../dag-authoring/" class="md-nav__link">
         
   
   
@@ -701,131 +674,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#three-authoring-formats-one-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Three authoring formats, one model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#yaml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        YAML
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#python" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Python
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#java" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Java
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Java">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#credentials-in-code-the-conn-helper" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Credentials in code — the Conn helper
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-the-source-compile-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How the source compile works
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-code-over-yaml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why code over YAML
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dag-identity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DAG identity
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getting-dags-into-the-cluster" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Getting DAGs into the cluster
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1171,10 +1019,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../sso/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Single Sign-On (OIDC, SAML, LDAP)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1190,6 +1065,159 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-two-ways-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The two ways in
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-decides-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What decides permissions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What decides permissions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#group-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring it
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring it">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openid-connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenID Connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saml-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SAML 2.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap-active-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LDAP / Active Directory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behind-a-load-balancer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behind a load balancer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-passwords-are-stored-hashed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local passwords are stored hashed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revocation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1673,105 +1701,212 @@
 
 
 
-<h1 id="authoring-dags">Authoring DAGs</h1>
-<p>A <strong>DAG</strong> (directed acyclic graph) is a workflow: a set of tasks plus the dependency edges between them. kiok lets you author the <em>same</em> DAG three ways — YAML, Python code, or Java code — and all three compile to one internal definition, the <code>DagSpec</code>.</p>
-<h2 id="three-authoring-formats-one-model">Three authoring formats, one model</h2>
-<pre class="mermaid"><code>flowchart LR
-  Y["YAML file"] --&gt; C
-  P["Python code&lt;br/&gt;(kiok SDK)"] --&gt; C
-  J["Java code&lt;br/&gt;(kiok SDK)"] --&gt; C
-  C["DagSpec"] --&gt; S["metadata store&lt;br/&gt;(KMS-encrypted RocksDB)"]</code></pre>
-<p>Whichever format you choose, kiok validates the result (no cycles, no dangling <code>requires</code>, valid cron, non-empty task bodies) and stores the compiled <code>DagSpec</code>. The scheduler, the worker driver, and the admin UI all work off that single representation — they never see the original YAML/Python/Java.</p>
-<h2 id="yaml">YAML</h2>
-<p>The most direct format. A <code>dag:</code> header and a <code>tasks:</code> list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">dag</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_etl</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">   </span><span class="c1"># optional 5-field cron; omit for manual-only</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">catchup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">tasks</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extract</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="no">#!/bin/bash</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="no">echo extracting</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">requires</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">extract</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="no">#!/bin/bash</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="no">echo loading</span>
+<h1 id="single-sign-on-oidc-saml-ldap">Single Sign-On (OIDC, SAML, LDAP)</h1>
+<p>kiok can hand authentication to an external identity provider, so the scheduler stops
+being another place that holds passwords and becomes another thing your directory
+governs. Three providers are supported — OpenID Connect, SAML 2.0, and LDAP / Active
+Directory.</p>
+<p>This covers <strong>kiok's own control plane</strong>: the admin console and the admin REST API
+under <code>/api/v1</code>. It does not change how a DAG task authenticates to the system it
+talks to — a <code>trino</code> task still uses its connection's credentials, and an <code>ontul</code> task
+still uses Ontul's. Those live in <a href="../connections/">Connections</a>.</p>
+<h2 id="the-two-ways-in">The two ways in</h2>
+<p><strong>The admin console is a browser.</strong> It can be redirected, so it uses the flows built
+for that: OIDC Authorization Code with PKCE, or SAML 2.0 Web Browser SSO. The login
+page shows a button for each provider that is configured, and nothing for the ones
+that are not.</p>
+<p><strong>The admin REST API is not a browser.</strong> A script or an operator's tooling posts the
+credential it already holds and receives the token every other route accepts:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://kiok:8080/api/v1/auth/sso/ldap/login<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;user&quot;:&quot;alice&quot;,&quot;password&quot;:&quot;&lt;directory password&gt;&quot;}&#39;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># → {&quot;user&quot;:&quot;alice&quot;,&quot;accessToken&quot;:&quot;...&quot;,&quot;isAdmin&quot;:false,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1">#    &quot;federated&quot;:true,&quot;idp&quot;:&quot;LDAP&quot;,&quot;groups&quot;:[&quot;kiok-operators&quot;]}</span>
 </code></pre></div>
-<h2 id="python">Python</h2>
-<p>For a workflow whose shape is <em>computed</em> rather than hand-written, author it in Python with the kiok Python SDK. Every module-level <code>Dag</code> instance becomes a registered DAG:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kiok</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dag</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">REGIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;us-east&quot;</span><span class="p">,</span> <span class="s2">&quot;us-west&quot;</span><span class="p">,</span> <span class="s2">&quot;eu-central&quot;</span><span class="p">,</span> <span class="s2">&quot;ap-south&quot;</span><span class="p">]</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">dag</span> <span class="o">=</span> <span class="n">Dag</span><span class="p">(</span><span class="s2">&quot;regional_etl&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;0 3 * * *&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;setup&quot;</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="s2">&quot;#!/bin/bash</span><span class="se">\n</span><span class="s2">echo prepare&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># fan-out: one branch per region — a loop, not copy-pasted blocks</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">transforms</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">REGIONS</span><span class="p">:</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;extract_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;setup&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>             <span class="n">script</span><span class="o">=</span><span class="s2">&quot;#!/bin/bash</span><span class="se">\n</span><span class="s2">echo pull </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">r</span><span class="p">)</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;transform_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;extract_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">],</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>             <span class="n">script</span><span class="o">=</span><span class="s2">&quot;print(&#39;normalize </span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="n">r</span><span class="p">)</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;transform_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="c1"># fan-in: the dependency list is computed</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">dag</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="s2">&quot;merge&quot;</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="n">transforms</span><span class="p">,</span> <span class="n">script</span><span class="o">=</span><span class="s2">&quot;#!/bin/bash</span><span class="se">\n</span><span class="s2">echo merge&quot;</span><span class="p">)</span>
+<p>The ordinary login route (<code>POST /api/v1/auth/login</code>) accepts the same directory
+credentials, so an operator can simply type them into the form. The dedicated endpoint
+exists for a distinction the form cannot make: a caller the directory authenticated
+but whose groups map to nothing is a configuration problem, not a wrong password — it
+answers <strong>403</strong> with that explanation, while a wrong password is <strong>401</strong>. Reporting the
+first as the second sends someone to reset a password that was right.</p>
+<div class="admonition note">
+<p class="admonition-title">The wire field is <code>user</code></p>
+<p>kiok's login routes take <code>user</code>, not <code>username</code> — the same field the console and
+the existing API clients already send. The SSO routes follow the product rather
+than introducing a second spelling.</p>
+</div>
+<h2 id="what-decides-permissions">What decides permissions</h2>
+<p>Nothing about the provider does. A federated identity arrives carrying group names;
+those are mapped to groups <strong>on this cluster</strong>, and the policies attached to those
+groups authorize every request — the same evaluation an access key gets. See
+<a href="../iam/">Identity &amp; Access Management</a>.</p>
+<p><strong>No local user account is created.</strong> A federated caller has no password and nothing
+to persist; your directory is the record. Creating an account for everyone who ever
+signed in would put them all in the IAM list and in every replicated snapshot, and
+removing them from the directory would leave the copy behind still authorizing them.</p>
+<p>Instead a short-lived <strong>federated session</strong> is recorded, and it rides the IAM snapshot
+— the thing that already reaches the follower masters and the workers. All of them
+resolve a caller by name, so a session held anywhere else would be known only on the
+master that signed it in. A session lasts <code>kiok.sso.federated.session.seconds</code>
+(default 3600); after that the name resolves to nothing until the caller signs in
+again.</p>
+<div class="admonition note">
+<p class="admonition-title">A local account of the same name wins</p>
+<p>If a stored user and a federated identity share a name, the stored account's
+policies apply. Creating a local user is a deliberate act by an administrator, so
+it is the more specific statement of intent — and resolving the other way round
+would let whoever controls the directory decide what a local account can do.</p>
+</div>
+<h3 id="group-mapping">Group mapping</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="na">kiok.sso.group.mappings</span><span class="o">=</span><span class="s">data-eng:kiok-operators,platform:kiok-admins</span>
 </code></pre></div>
-<p>kiok compiles a Python DAG by running <code>python3 -m kiok.compile &lt;file&gt;</code>, which imports the module and emits each <code>Dag</code> as a <code>DagSpec</code>.</p>
-<h2 id="java">Java</h2>
-<p>For type-safe authoring with IDE support and compile-time checking, implement the <code>KiokDag</code> interface with the kiok Java SDK. kiok batch-compiles every <code>.java</code> source it finds in a git repo or bundle zip — no separate build step on the operator side — loads every <code>KiokDag</code> class, and calls <code>define()</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DailyEtlDag</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">KiokDag</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nd">@Override</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Dag</span><span class="w"> </span><span class="nf">define</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="n">Dag</span><span class="w"> </span><span class="n">dag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dag</span><span class="p">(</span><span class="s">&quot;daily_etl&quot;</span><span class="p">).</span><span class="na">schedule</span><span class="p">(</span><span class="s">&quot;0 2 * * *&quot;</span><span class="p">);</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;extract&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">           </span><span class="p">.</span><span class="na">shell</span><span class="p">(</span><span class="s">&quot;#!/bin/bash\necho extracting&quot;</span><span class="p">);</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">).</span><span class="na">requires</span><span class="p">(</span><span class="s">&quot;extract&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">           </span><span class="p">.</span><span class="na">shell</span><span class="p">(</span><span class="s">&quot;#!/bin/bash\necho loading&quot;</span><span class="p">);</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dag</span><span class="p">;</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
+<p>Left empty, provider group names are used as they are — the common case where the
+directory already uses this product's group names. <strong>Once set, the mapping is
+exhaustive:</strong> a group not named in it is dropped, so creating a group at the provider
+cannot grant access here by itself.</p>
+<p>An identity whose groups all map to nothing is refused, not admitted with no groups.
+Such a session has no policies and is denied every action, so letting it in produces
+someone who is signed in and can do nothing, left to work out why from permission
+errors. Set <code>kiok.sso.allow.unmapped.groups=true</code> to allow it anyway.</p>
+<h2 id="configuring-it">Configuring it</h2>
+<p>Everything below can be set in the console under <strong>Settings → SSO</strong>, which stores it in
+the replicated metadata store and applies it on every master with no restart. The
+properties file (<code>conf/kiok.properties</code>) is still read for anything left unset, so a
+cluster configured by file keeps working untouched.</p>
+<p>Local passwords keep working while SSO is on. Enabling it cannot lock you out.</p>
+<h3 id="openid-connect">OpenID Connect</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="na">kiok.sso.oidc.enabled</span><span class="o">=</span><span class="s">true</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="na">kiok.sso.oidc.issuer</span><span class="o">=</span><span class="s">https://keycloak.example.com/realms/company</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="na">kiok.sso.oidc.client.id</span><span class="o">=</span><span class="s">kiok-console</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="na">kiok.sso.oidc.client.secret</span><span class="o">=</span><span class="s">…</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="na">kiok.sso.oidc.redirect.uri</span><span class="o">=</span><span class="s">https://kiok.example.com/api/v1/auth/sso/oidc/callback</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="na">kiok.sso.oidc.groups.claim</span><span class="o">=</span><span class="s">groups</span>
 </code></pre></div>
-<p>The <code>Dag</code> and <code>Task</code> builders are fluent, and a loop over a list builds a fan-out graph exactly as the Python example does.</p>
-<h3 id="credentials-in-code-the-conn-helper">Credentials in code — the <code>Conn</code> helper</h3>
-<p>A Java DAG references a stored connection's properties with the <code>Conn</code> helper, matching the Python <code>conn(id, key)</code> and YAML <code>${conn.&lt;id&gt;.&lt;key&gt;}</code> forms — the resolver substitutes the real value in-memory at task-exec time, so the source code itself stays free of secrets:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.cloudcheflabs.kiok.sdk.Conn</span><span class="p">;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">dag</span><span class="p">.</span><span class="na">task</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">   </span><span class="p">.</span><span class="na">shell</span><span class="p">(</span><span class="s">&quot;psql -U \&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Conn</span><span class="p">.</span><span class="na">ref</span><span class="p">(</span><span class="s">&quot;analytics_db&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;username&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot; &quot;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;-d analytics -c &#39;COPY users TO STDOUT&#39;&quot;</span><span class="p">);</span>
+<p>Endpoints are read from the issuer's discovery document, so they are not configured
+individually. The ID token's signature is verified against the provider's published key
+set, and its issuer, audience and expiry are all checked — a token issued for a
+different application is refused even though it is genuine and correctly signed.</p>
+<div class="admonition note">
+<p class="admonition-title">The <code>groups</code> scope</p>
+<p><code>kiok.sso.oidc.scopes</code> deliberately does <strong>not</strong> include <code>groups</code>. It is not a
+standard scope, and a provider that does not define it rejects the whole
+authorization request with <code>invalid_scope</code> — so asking for it by default logs
+nobody in. Group membership comes from a claim the provider is configured to
+include.</p>
+</div>
+<h3 id="saml-20">SAML 2.0</h3>
+<p>A SAML integration is an exchange of metadata, not a form-filling exercise.</p>
+<ol>
+<li><strong>Download this cluster's metadata</strong> from the console (or
+   <code>GET /api/v1/sso/saml/metadata</code>) and give it to whoever administers your identity
+   provider.</li>
+<li><strong>Paste your provider's metadata</strong> into the console (or <code>POST /api/v1/sso/saml/idp-metadata</code>).
+   The entity ID, sign-on URL and signing certificate are read from it — which beats
+   transcribing three fields by hand, where the typos are.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="na">kiok.sso.saml.enabled</span><span class="o">=</span><span class="s">true</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="na">kiok.sso.saml.idp.entity.id</span><span class="o">=</span><span class="s">https://idp.example.com/realms/company</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="na">kiok.sso.saml.idp.sso.url</span><span class="o">=</span><span class="s">https://idp.example.com/protocol/saml</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="na">kiok.sso.saml.idp.certificate</span><span class="o">=</span><span class="s">MIIC…</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="na">kiok.sso.saml.sp.entity.id</span><span class="o">=</span><span class="s">kiok</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="na">kiok.sso.saml.sp.acs.url</span><span class="o">=</span><span class="s">https://kiok.example.com/api/v1/auth/sso/saml/acs</span>
 </code></pre></div>
-<p><code>Conn.ref("id", "key")</code> returns the literal <code>${conn.id.key}</code> reference string; <code>Conn.secret("name")</code> is the standalone-secret shorthand. See <a href="../connections/">Connections</a>.</p>
-<h3 id="how-the-source-compile-works">How the source compile works</h3>
-<p>The kiok leader runs the JDK's in-process <code>javax.tools.JavaCompiler</code> against the kiok SDK already on its own classpath, so a user-authored <code>.java</code> DAG needs no build configuration on the repo side. Multiple sources are compiled in one javac invocation, so cross-file references (a DAG class importing a helper from a sibling file) resolve naturally.</p>
-<p>The original <code>.java</code> text is what the admin UI's <strong>Source</strong> tab shows for that DAG, with the resulting <code>DagSpec</code> (what the scheduler actually executes) rendered just below it.</p>
-<h2 id="why-code-over-yaml">Why code over YAML</h2>
-<p>YAML is declarative and perfect for a fixed, hand-sized workflow. Code wins when the DAG is <em>generated</em>:</p>
+<p>Every assertion is checked four ways, and each one is a real attack if skipped:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>What it prevents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signature, against the provider's certificate</td>
+<td>An assertion the caller wrote</td>
+</tr>
+<tr>
+<td>Audience</td>
+<td>A genuine assertion for another service logging in here</td>
+</tr>
+<tr>
+<td>Validity window</td>
+<td>A captured assertion replayed forever</td>
+</tr>
+<tr>
+<td>Issuer</td>
+<td>Any provider the caller can reach being trusted</td>
+</tr>
+</tbody>
+</table>
+<p>On top of those, an assertion already used is refused. That record is kept <strong>in
+ZooKeeper, not in one master's memory</strong>: an assertion is a bearer document, and a
+replay arrives at whichever master the load balancer picks — usually not the one that
+saw the original. The e2e suite asserts exactly that, replaying against the other
+master.</p>
+<p><strong>Encrypted assertions and signed requests.</strong> Several providers encrypt assertions or
+require the authentication request to be signed. Both need a service-provider keypair —
+generate one from the console (<code>POST /api/v1/sso/saml/keypair</code>), then re-import the SP
+metadata at your provider so it picks up the new certificate. An encrypted assertion
+must carry its own signature: encryption proves who the assertion was <em>for</em>, never who
+wrote it.</p>
+<p><strong>NameID format</strong> is left empty by default, which omits the request entirely and lets
+the provider issue whatever it is configured for. Naming one breaks more integrations
+than it fixes.</p>
+<h3 id="ldap-active-directory">LDAP / Active Directory</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="na">kiok.sso.ldap.enabled</span><span class="o">=</span><span class="s">true</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="na">kiok.sso.ldap.url</span><span class="o">=</span><span class="s">ldaps://ad.example.com:636</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="na">kiok.sso.ldap.bind.dn</span><span class="o">=</span><span class="s">cn=svc-kiok,ou=service,dc=example,dc=com</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="na">kiok.sso.ldap.bind.password</span><span class="o">=</span><span class="s">…</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="na">kiok.sso.ldap.user.base.dn</span><span class="o">=</span><span class="s">ou=people,dc=example,dc=com</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="na">kiok.sso.ldap.user.filter</span><span class="o">=</span><span class="s">(sAMAccountName={0})</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="na">kiok.sso.ldap.group.base.dn</span><span class="o">=</span><span class="s">ou=groups,dc=example,dc=com</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="na">kiok.sso.ldap.group.filter</span><span class="o">=</span><span class="s">(member={0})</span>
+</code></pre></div>
+<p>Authentication is <strong>search then bind</strong>. A service account finds the user's entry —
+their DN is something the product cannot construct, since Active Directory puts people
+under <code>CN=John Doe,OU=Staff,…</code> where neither component is the login name — and the
+password is then checked by binding as that DN.</p>
+<p>That second bind <em>is</em> the authentication. Reading a password attribute and comparing it
+would be wrong even where the directory allows it: only the server knows how its own
+hashes are salted, and account lockout, expiry and disabled flags are enforced on bind
+and nowhere else.</p>
+<p>Group membership is read <strong>both ways</strong>: from the user's <code>memberOf</code> and from a search of
+the group tree. Directories disagree about which side records it — OpenLDAP usually
+keeps it on the group, Active Directory mirrors it onto the user — and reading only one
+way silently returns no groups against half the servers in the field.</p>
+<div class="admonition warning">
+<p class="admonition-title">Use TLS</p>
+<p>Without <code>ldaps://</code> or <code>kiok.sso.ldap.starttls=true</code>, the bind password crosses the
+network in the clear.</p>
+</div>
+<h2 id="behind-a-load-balancer">Behind a load balancer</h2>
+<p>Both browser flows work on any master, regardless of which one started them. The login
+state — including the PKCE verifier — is sealed with a key every master derives from
+<code>KIOK_MASTER_KEY</code> and carried in the <code>state</code> parameter itself rather than held in
+memory on one master. Unsealing it is also what proves this cluster issued it, which is
+the login-CSRF check.</p>
+<p>Without that, SSO works on a single master and fails on roughly half of all attempts
+behind a load balancer — and it fails looking like a problem at the identity provider.</p>
+<h2 id="local-passwords-are-stored-hashed">Local passwords are stored hashed</h2>
+<p>Independently of SSO, kiok stores local passwords as <strong>PBKDF2-HMAC-SHA256</strong> in a
+self-describing format that records the algorithm, the iteration count and the salt
+alongside the hash. The cost is <code>kiok.auth.password.hash.iterations</code> (default 600000).</p>
+<p>Earlier releases stored a plain SHA-256 digest. Those are still verified, and a
+password in the old form is <strong>re-hashed in place on the next successful login</strong>, so
+nobody has to reset anything for this release and nothing keeps the old form once its
+owner signs in. A password change always writes the new format.</p>
+<h2 id="revocation">Revocation</h2>
+<p>Disabling someone at the provider stops new logins immediately. Sessions already issued
+keep working until they expire — this cluster is not told about the change.
+<code>kiok.sso.federated.session.seconds</code> bounds how long that gap lasts; shorter is safer.
+A federated session gets no refresh token, for the same reason: refreshing one would
+extend a session past the point where the directory still vouches for it.</p>
+<h2 id="see-also">See also</h2>
 <ul>
-<li><strong>Loops</strong> — produce N parallel branches from a list instead of copy-pasting N YAML blocks.</li>
-<li><strong>Computed dependencies</strong> — a fan-in task's <code>requires</code> list is built from data, so adding an upstream needs no edit at the fan-in.</li>
-<li><strong>Abstraction</strong> — a helper function/method defines a task group once and reuses it.</li>
-<li><strong>Type safety (Java)</strong> — a typo'd task id or dependency fails at compile time, before the DAG reaches the cluster.</li>
-</ul>
-<h2 id="dag-identity">DAG identity</h2>
-<p>Every DAG has a human-facing <strong>name</strong> (the <code>id</code> you write — need not be unique) and a globally-unique <strong>id</strong> derived from where it came from:</p>
-<ul>
-<li><strong>manual</strong> → the name itself.</li>
-<li><strong>git</strong> → <code>&lt;repo&gt;/&lt;source path&gt;</code> slugified.</li>
-<li><strong>bundle</strong> → <code>&lt;bundle name&gt;/&lt;source path&gt;</code> slugified.</li>
-</ul>
-<p>So two DAGs may share a name as long as they originate from different repos or bundles. Run history is keyed by the unique id, so re-pushing the same DAG file continues its existing history.</p>
-<h2 id="getting-dags-into-the-cluster">Getting DAGs into the cluster</h2>
-<ul>
-<li><strong>Manual</strong> — register a single YAML/Python/Java DAG via the admin UI or <code>submit.sh register</code>.</li>
-<li><strong>Git Sync</strong> — the leader pulls DAGs from git repositories on an interval. See <a href="../git-sync/">Git Sync</a>.</li>
-<li><strong>Bundles</strong> — upload a zip of DAG definitions for air-gapped clusters. See <a href="../bundles/">DAG Bundles</a>.</li>
+<li><a href="../iam/">Identity &amp; Access Management</a> — the groups and policies a federated identity maps onto.</li>
+<li><a href="../auth-authz/">Authentication &amp; Authorization</a> — how a request is authenticated and authorized.</li>
+<li><a href="../configuration/">Configuration Management</a> — where settings live and which win.</li>
 </ul>
 
 

@@ -14,7 +14,7 @@
         <link rel="prev" href="../iam/">
       
       
-        <link rel="next" href="../admin-password-recovery/">
+        <link rel="next" href="../sso/">
       
       
         
@@ -1102,6 +1102,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Single Sign-On (OIDC, SAML, LDAP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../admin-password-recovery/" class="md-nav__link">
         
   
@@ -1578,8 +1606,14 @@
 <p>Every request to the admin API is authenticated with a <strong>JWT</strong>.</p>
 <ul>
 <li><strong>Signing in</strong> — <code>POST /api/v1/auth/login</code> with a <code>user</code> / <code>password</code> body returns a short-lived access token, a longer-lived refresh token, and flags (<code>isAdmin</code>, <code>requirePasswordChange</code>). <code>POST /api/v1/auth/refresh</code> exchanges a valid refresh token for a fresh access token. Access and refresh expiry are configurable (<code>kiok.admin.token.access.expiry.ms</code> / <code>kiok.admin.token.refresh.expiry.ms</code>).</li>
-<li><strong>Presenting the token</strong> — the access token is sent in the <code>Authorization</code> header, accepted under <strong>either</strong> scheme: <code>Authorization: Bearer &lt;jwt&gt;</code> or <code>Authorization: Token &lt;jwt&gt;</code>. The Java and Python SDKs (<code>KiokClient</code>) and <code>submit.sh --token</code> sign in this way and send <code>Token &lt;jwt&gt;</code>; the web admin UI sends <code>Bearer &lt;jwt&gt;</code>.</li>
+<li>
+<p><strong>Presenting the token</strong> — the access token is sent in the <code>Authorization</code> header, accepted under <strong>either</strong> scheme: <code>Authorization: Bearer &lt;jwt&gt;</code> or <code>Authorization: Token &lt;jwt&gt;</code>. The Java and Python SDKs (<code>KiokClient</code>) and <code>submit.sh --token</code> sign in this way and send <code>Token &lt;jwt&gt;</code>; the web admin UI sends <code>Bearer &lt;jwt&gt;</code>.</p>
+</li>
+<li>
+<p><strong>Signing in with an identity provider</strong> — when single sign-on is configured, the console offers an OIDC or SAML button, and this same login route also accepts LDAP/Active Directory credentials. A federated caller gets the same access token every route already accepts, and is authorized by the cluster groups its provider groups map onto. See <a href="../sso/">Single Sign-On</a>.</p>
+</li>
 </ul>
+<p><strong>How local passwords are stored.</strong> As PBKDF2-HMAC-SHA256, in a self-describing format that records the algorithm, iteration count and salt with the hash (<code>kiok.auth.password.hash.iterations</code>, default 600000). Digests written by earlier releases are still verified and are re-hashed in place on the next successful login, so an upgrade needs no password resets.</p>
 <div class="admonition note">
 <p class="admonition-title">Access keys &amp; STS</p>
 <p>Long-lived access-key pairs (an access-key id, a secret, and a user token) and STS-style temporary credentials can be <strong>issued, downloaded, and revoked per user</strong> through the IAM page — see <a href="../iam/">Identity &amp; Access Management</a>. The admin API request path itself validates the JWT above; obtain one with a user/password login.</p>
@@ -1590,6 +1624,7 @@
 <li>Evaluation is <strong>default-allow</strong> with <strong>most-specific-match wins</strong>: the policy statement whose resource pattern most closely matches the request decides the outcome.</li>
 <li>An explicit <strong><code>Deny</code></strong> always beats an <code>Allow</code> at the same specificity.</li>
 <li>The <strong>admin user bypasses</strong> policy checks entirely.</li>
+<li>A <strong>federated identity has no local user account</strong>, so only its mapped groups' policies apply — there is nothing user-specific to attach a policy to. See <a href="../sso/">Single Sign-On</a>.</li>
 </ul>
 <p>DAG operations carry resource names like <code>dag:&lt;origin&gt;:&lt;ref&gt;/&lt;path&gt;</code>, so policies can scope access down to an individual DAG, a git repository, or a bundle. See <a href="../iam/">Identity &amp; Access Management</a> for managing users, groups, and policies.</p>
 <h2 id="leader-routing">Leader routing</h2>

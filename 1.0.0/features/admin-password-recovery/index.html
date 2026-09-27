@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://cloudcheflabs.github.io/kiok-docs/1.0.0/features/admin-password-recovery/">
       
       
-        <link rel="prev" href="../auth-authz/">
+        <link rel="prev" href="../sso/">
       
       
         <link rel="next" href="../connections/">
@@ -1019,6 +1019,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Single Sign-On (OIDC, SAML, LDAP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1736,6 +1764,10 @@ rotation.</p>
 <tr>
 <td><strong>Post-reset state</strong></td>
 <td><code>requirePasswordChange = true</code> (forced rotation on next login)</td>
+</tr>
+<tr>
+<td><strong>Stored form</strong></td>
+<td>PBKDF2-HMAC-SHA256 — the reset writes the current hash format, never the plaintext</td>
 </tr>
 </tbody>
 </table>

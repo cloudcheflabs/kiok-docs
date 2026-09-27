@@ -1022,6 +1022,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Single Sign-On (OIDC, SAML, LDAP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../admin-password-recovery/" class="md-nav__link">
         
   
@@ -1328,6 +1356,67 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#single-sign-on-oidc-saml-ldap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single Sign-On (OIDC / SAML / LDAP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Single Sign-On (OIDC / SAML / LDAP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identity-mapping-all-three-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity mapping (all three providers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openid-connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenID Connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saml-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SAML 2.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap-active-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LDAP / Active Directory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2090,6 +2179,11 @@
 <td><code>admin</code></td>
 <td>Bootstrap admin password seeded on first startup. <strong>Change this</strong> in any real deployment (or reset later via the admin recovery socket).</td>
 </tr>
+<tr>
+<td><code>kiok.auth.password.hash.iterations</code></td>
+<td><code>600000</code></td>
+<td>PBKDF2-HMAC-SHA256 iteration count for local passwords. The count travels inside each stored hash, so raising it does not invalidate existing passwords — a password is rewritten at the new cost on its owner's next successful login. Lower it only for tests.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="admin-recovery-socket">Admin Recovery Socket</h2>
@@ -2124,6 +2218,230 @@ See <a href="../admin-password-recovery/">Admin Password Recovery</a>.</p>
 <td><code>kiok.iam.audit.dir</code></td>
 <td><code>${kiok.base.data.dir}/iam-audit</code></td>
 <td>Directory holding the append-only audit log of socket operations (<code>reset.log</code>, mode <code>600</code>). The plaintext password is never written there.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="single-sign-on-oidc-saml-ldap">Single Sign-On (OIDC / SAML / LDAP)</h2>
+<p>Every key here can also be set from the console under <strong>Settings → SSO</strong>, which stores
+it in the replicated metadata store and applies it on every master with no restart.
+<strong>Stored settings win over this file</strong>: the file brings a cluster up, and the console is
+how it is changed afterwards — if the file won, a console change would be reverted by
+the next restart, silently. See <a href="../sso/">Single Sign-On</a>.</p>
+<h3 id="identity-mapping-all-three-providers">Identity mapping (all three providers)</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.sso.group.mappings</code></td>
+<td><em>(empty)</em></td>
+<td><code>idpGroup:localGroup,idpGroup2:localGroup2</code>. Empty uses provider group names as they are. Once set the mapping is <strong>exhaustive</strong> — a group not named here is dropped, so creating a group at the provider cannot grant access on this cluster by itself.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.allow.unmapped.groups</code></td>
+<td><code>false</code></td>
+<td>Whether an identity whose groups all map to nothing may still sign in. Off deliberately: such a session has no policies and is denied every action, so admitting it produces someone signed in who can do nothing.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.federated.session.seconds</code></td>
+<td><code>3600</code></td>
+<td>Lifetime of a federated session. Bounds how long access outlives a revocation at the provider, which this cluster is not told about. A federated session gets no refresh token for the same reason.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openid-connect">OpenID Connect</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.sso.oidc.enabled</code></td>
+<td><code>false</code></td>
+<td>Whether the console offers an OIDC button and the callback route accepts a code.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.issuer</code></td>
+<td><em>(empty)</em></td>
+<td>Issuer URL. Endpoints and the signing key set are read from its discovery document, so they are not configured individually.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.client.id</code></td>
+<td><em>(empty)</em></td>
+<td>Client id registered at the provider.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.client.secret</code></td>
+<td><em>(empty)</em></td>
+<td>Client secret. Redacted when the settings are read back through the API.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.redirect.uri</code></td>
+<td><code>http://localhost:8080/api/v1/auth/sso/oidc/callback</code></td>
+<td>Must match the registered redirect URI exactly, and must be the address browsers reach — the load balancer's, not one master's.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.scopes</code></td>
+<td><code>openid profile email</code></td>
+<td>Scopes requested. Deliberately excludes <code>groups</code>: it is not a standard scope, and a provider that does not define it rejects the whole authorization request with <code>invalid_scope</code>.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.username.claim</code></td>
+<td><code>preferred_username</code></td>
+<td>ID-token claim used as the caller's name.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.groups.claim</code></td>
+<td><code>groups</code></td>
+<td>ID-token claim carrying group membership.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.oidc.audience</code></td>
+<td><em>(empty)</em></td>
+<td>Expected audience; empty falls back to the client id. A token issued for another application is refused even though it is genuine and correctly signed.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="saml-20">SAML 2.0</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.sso.saml.enabled</code></td>
+<td><code>false</code></td>
+<td>Whether the console offers a SAML button and the ACS route accepts an assertion.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.idp.entity.id</code></td>
+<td><em>(empty)</em></td>
+<td>Provider's entity ID. Filled automatically when its metadata is imported from the console.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.idp.sso.url</code></td>
+<td><em>(empty)</em></td>
+<td>Provider's sign-on URL. Filled by metadata import.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.idp.certificate</code></td>
+<td><em>(empty)</em></td>
+<td>Base64 certificate every assertion signature is verified against. Filled by metadata import.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.sp.entity.id</code></td>
+<td><code>kiok</code></td>
+<td>This cluster's identity, as it appears in the SP metadata the provider imports.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.sp.acs.url</code></td>
+<td><code>http://localhost:8080/api/v1/auth/sso/saml/acs</code></td>
+<td>Assertion Consumer Service URL — again the address browsers reach.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.sp.private.key</code></td>
+<td><em>(empty)</em></td>
+<td>SP private key, for decrypting encrypted assertions and signing requests. Generated from the console; never returned by the API.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.sp.certificate</code></td>
+<td><em>(empty)</em></td>
+<td>SP certificate matching that key, published in the SP metadata.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.nameid.format</code></td>
+<td><em>(empty)</em></td>
+<td>Requested NameID format. Empty omits the request entirely and lets the provider issue what it is configured for — naming one breaks more integrations than it fixes.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.sign.requests</code></td>
+<td><code>false</code></td>
+<td>Sign authentication requests. Needs the SP keypair above; re-import the SP metadata at the provider afterwards.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.username.attribute</code></td>
+<td><code>uid</code></td>
+<td>Assertion attribute used as the caller's name; the NameID is the fallback.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.saml.groups.attribute</code></td>
+<td><code>groups</code></td>
+<td>Assertion attribute carrying group membership.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ldap-active-directory">LDAP / Active Directory</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kiok.sso.ldap.enabled</code></td>
+<td><code>false</code></td>
+<td>Whether directory credentials are accepted at <code>/api/v1/auth/sso/ldap/login</code> and at the ordinary login route.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.url</code></td>
+<td><code>ldap://ldap.example.com:389</code></td>
+<td>Directory URL. Use <code>ldaps://</code> or enable StartTLS below — otherwise the bind password crosses the network in the clear.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.bind.dn</code></td>
+<td><em>(empty)</em></td>
+<td>Service account that searches for user entries. Authentication is search <strong>then</strong> bind: a user's DN cannot be constructed, since Active Directory puts people under <code>CN=John Doe,OU=Staff,…</code> where neither component is the login name.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.bind.password</code></td>
+<td><em>(empty)</em></td>
+<td>Service account password. Redacted when read back through the API.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.user.base.dn</code></td>
+<td><em>(empty)</em></td>
+<td>Subtree searched for user entries.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.user.filter</code></td>
+<td><code>(uid={0})</code></td>
+<td><code>{0}</code> is the login name, escaped per RFC 4515 before substitution. Active Directory usually wants <code>(sAMAccountName={0})</code>.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.group.base.dn</code></td>
+<td><em>(empty)</em></td>
+<td>Subtree searched for groups.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.group.filter</code></td>
+<td><code>(member={0})</code></td>
+<td><code>{0}</code> is the user's DN. Membership is read from this search <strong>and</strong> from the user's <code>memberOf</code>, because directories disagree about which side records it.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.group.name.attribute</code></td>
+<td><code>cn</code></td>
+<td>Attribute taken as the group's name before mapping.</td>
+</tr>
+<tr>
+<td><code>kiok.sso.ldap.starttls</code></td>
+<td><code>false</code></td>
+<td>Upgrade a plain <code>ldap://</code> connection with StartTLS.</td>
 </tr>
 </tbody>
 </table>

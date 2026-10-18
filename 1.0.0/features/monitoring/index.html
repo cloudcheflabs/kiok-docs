@@ -14,7 +14,7 @@
         <link rel="prev" href="../connections/">
       
       
-        <link rel="next" href="../backup/">
+        <link rel="next" href="../topology/">
       
       
         
@@ -1144,6 +1144,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../backup/" class="md-nav__link">
         
   
@@ -1535,7 +1563,7 @@
 <p>kiok surfaces the state of the cluster and of every workflow run through the admin UI.</p>
 <ul>
 <li><strong>Dashboard</strong> — aggregate run metrics: counts by state (success / failed / running), throughput over time, and recent activity.</li>
-<li><strong>Topology</strong> — the live cluster snapshot: the leader Master, every registered Master and Worker, per-Worker task slots, and readiness.</li>
+<li><strong>Topology</strong> — the live cluster snapshot: the ZooKeeper ensemble (each server's role, status, version, connections, latency, znode count and zxid, plus the Master's session), the leader Master, every registered Master and Worker, and readiness, with a live log stream per node. See <a href="../topology/">Cluster Topology</a>.</li>
 <li><strong>Run views</strong> — per run, a graph view (each task coloured by state), a job list (per-task worker, timing, exit code), and a timeline.</li>
 <li><strong>Health &amp; readiness endpoints</strong> — <code>/healthz</code> (liveness) and <code>/readyz</code> (returns 200 only when fully ready) for container probes and external monitoring.</li>
 <li><strong>Logs</strong> — each role writes a rolling log file under <code>logs/</code>; per-task and per-run logs are streamed live and retained — see <a href="../job-logs/">Job Logs</a>.</li>

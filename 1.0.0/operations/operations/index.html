@@ -1129,6 +1129,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../features/topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../features/backup/" class="md-nav__link">
         
   
@@ -1815,7 +1843,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bin/start-zk.sh
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>bin/stop-zk.sh
 </code></pre></div>
-<p>The bundled embedded ZooKeeper is for evaluation only. In production, point all roles at a managed ensemble via <code>kiok.zk.serverList</code>.</p>
+<p>The bundled embedded ZooKeeper is for evaluation only. In production, point all roles at a managed ensemble via <code>kiok.zk.serverList</code>. <strong>Settings → Topology</strong> shows each ensemble server's role and status, so a server that drops out is visible before the ensemble loses quorum — see <a href="../../features/topology/#zookeeper-ensemble">Cluster Topology</a>.</p>
 <h2 id="cluster-bootstrap-and-restart">Cluster Bootstrap and Restart</h2>
 <p>Bootstrap is fully automatic and deterministic:</p>
 <ol>
@@ -1830,7 +1858,7 @@
 <p>After bootstrap, every state change runs on the leader and is pushed to all other nodes immediately. Admin requests that mutate state (DAG register/delete, IAM, KMS, connections, git-repo config) automatically route to the leader if they land on a follower.</p>
 <h2 id="observability">Observability</h2>
 <h3 id="admin-ui">Admin UI</h3>
-<p>The admin port serves the UI at <code>/</code>. The <strong>Settings → Topology</strong> page shows the cluster snapshot — leader identity, registered Masters and Workers, per-worker task slots, and readiness. The <strong>Dashboard</strong> aggregates run metrics.</p>
+<p>The admin port serves the UI at <code>/</code>. The <strong>Settings → Topology</strong> page shows the cluster snapshot — the ZooKeeper ensemble (every server's role, status and lag, and the Master's ZooKeeper session), leader identity, registered Masters and Workers, and readiness. See <a href="../../features/topology/">Cluster Topology</a>. The <strong>Dashboard</strong> aggregates run metrics.</p>
 <h3 id="health-readiness">Health &amp; Readiness</h3>
 <ul>
 <li><code>/healthz</code> — liveness; returns 200 while the process is up.</li>

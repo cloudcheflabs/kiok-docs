@@ -1134,6 +1134,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../backup/" class="md-nav__link">
         
   
@@ -1943,7 +1971,7 @@
 </tbody>
 </table>
 <h2 id="zookeeper">ZooKeeper</h2>
-<p>ZooKeeper backs master leader election and the node registry. Every master and worker in a cluster must point at the same ensemble.</p>
+<p>ZooKeeper backs master leader election, the node registry, the cluster-ready flag and SAML assertion replay protection. Every master and worker in a cluster must point at the same ensemble.</p>
 <table>
 <thead>
 <tr>
@@ -1972,6 +2000,11 @@
 <td><code>kiok.zk.connectionTimeoutMs</code></td>
 <td><code>10000</code></td>
 <td>Maximum time (ms) to wait when first establishing the TCP connection to ZooKeeper.</td>
+</tr>
+<tr>
+<td><code>kiok.zk.topology.probe.timeout.ms</code></td>
+<td><code>2000</code></td>
+<td>Connect and read timeout (ms) of the <code>srvr</code> probe the admin <strong>Topology</strong> page sends to each ZooKeeper server; a server that does not answer within it is shown <code>down</code>. Servers are probed in parallel. See <a href="../topology/#zookeeper-ensemble">Cluster Topology</a>.</td>
 </tr>
 </tbody>
 </table>

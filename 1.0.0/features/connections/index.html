@@ -1157,6 +1157,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Registering a connection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-list-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the list shows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#editing-a-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Editing a connection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1711,11 +1739,11 @@
 <tbody>
 <tr>
 <td>Connection id</td>
-<td>Unique id you reference from DAGs (e.g. <code>analytics_db</code>)</td>
+<td>Unique id you reference from DAGs (e.g. <code>analytics_db</code>). It may not contain <code>.</code>, <code>}</code>, <code>/</code>, <code>\</code> or whitespace — a reference <code>${conn.&lt;id&gt;.&lt;key&gt;}</code> could not name it</td>
 </tr>
 <tr>
 <td>Type</td>
-<td>A label — <code>s3</code> / <code>git</code> / <code>secret</code> / <code>jdbc</code> / <code>kafka</code> / <code>generic</code>. Organisational only; it does not change behaviour</td>
+<td>A label — <code>s3</code> / <code>git</code> / <code>secret</code> / <code>jdbc</code> / <code>kafka</code> / <code>generic</code>. It changes nothing except masking: every value of a <code>secret</code> connection is masked</td>
 </tr>
 <tr>
 <td>Description</td>
@@ -1736,7 +1764,44 @@
 <p><strong>Example — a standalone secret</strong> <code>api_token</code> (type <code>secret</code>) — give it a single property named <code>value</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>value=ghp_xxxxxxxxxxxxxxxx
 </code></pre></div>
-<p>Connections are stored in a dedicated <strong>KMS-encrypted RocksDB store</strong> on the leader and synchronised to followers. The API never returns the values in plaintext.</p>
+<p>Connections are stored in a dedicated <strong>KMS-encrypted RocksDB store</strong> on the leader and synchronised to followers.</p>
+<h3 id="what-the-list-shows">What the list shows</h3>
+<p>Secret values never leave the master: any property whose key contains <code>secret</code>, <code>password</code>, <code>passwd</code>,
+<code>token</code>, <code>credential</code>, <code>apikey</code> / <code>api_key</code>, <code>accesskey</code> / <code>access_key</code>, <code>private</code>, <code>jaas</code> or
+<code>authheadervalue</code> (case-insensitive) — and every value of a <code>secret</code> connection — is returned as <code>***</code>.
+Everything else (endpoint, bucket, host, port, user name) is shown as stored, so you can see what a
+connection points at.</p>
+<h3 id="editing-a-connection">Editing a connection</h3>
+<p><strong>Edit</strong> fills the form with the connection as stored, secrets as <code>***</code>. Saving an existing id
+<strong>merges</strong> into it:</p>
+<table>
+<thead>
+<tr>
+<th>You send</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key=***</code></td>
+<td>the stored value is kept — edit an endpoint without re-typing the password</td>
+</tr>
+<tr>
+<td><code>key=</code> (empty)</td>
+<td>the key is removed</td>
+</tr>
+<tr>
+<td><code>key=new value</code></td>
+<td>the value is replaced</td>
+</tr>
+<tr>
+<td>a key left out</td>
+<td>kept as it was</td>
+</tr>
+</tbody>
+</table>
+<p>Only administrators can list, create, edit or delete connections. DAG tasks use them through the
+worker, not through this API.</p>
 <h2 id="referencing-a-connection-from-a-dag">Referencing a connection from a DAG</h2>
 <p>A DAG references a connection <strong>indirectly</strong> — it carries only the reference, never the secret. Two forms:</p>
 <table>

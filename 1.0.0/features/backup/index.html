@@ -1693,6 +1693,11 @@
 <li><strong>Automatic backup schedule</strong> — a 5-field UNIX cron expression (e.g. <code>0 2 * * *</code> for daily at 02:00). Same grammar as the DAG <a href="../scheduler/">scheduler</a>. Leave empty to disable.</li>
 </ul>
 <p>The page also has a <strong>Back up now</strong> button that triggers an immediate backup.</p>
+<p>These settings are read from the replicated metadata store each time they are used, so every Master
+answers with the same values, and a Master that becomes leader after a failover keeps running the
+schedule the previous leader had — it does not fall back to what it read when it started. Each part of
+the page loads on its own: an S3 error listing backups is shown next to the other settings instead of
+hiding them. Every backup route, including the reads, is administrator-only.</p>
 <h3 id="cron-scheduling">Cron scheduling</h3>
 <p>The cron expression lives on the leader as a <code>BackupScheduler</code> daemon that ticks once per scheduler interval (the same cadence as the DAG cron scheduler) and fires <code>backupNow()</code> once when the cron has a fire time in <code>(lastChecked, now]</code>. The schedule is persisted under <code>backup.cron</code> in the metadata store, so a leader handoff or master restart re-arms the same cron.</p>
 <p>The first tick after the cron is set, or after a leader change, <strong>arms from "now"</strong> — kiok does not back-fire missed cron times on startup. Recovering a missed nightly backup three days late tends to surprise more than skipping it.</p>
@@ -1722,6 +1727,8 @@
 <li>For each of the five stores, it fetches the bytes (following the incremental pointer to whichever backup id actually holds them) and imports them — overwriting the live store.</li>
 <li>The restore completes; the cluster is now at the chosen snapshot.</li>
 </ol>
+<p>A restore that cannot run — no S3 target, a backup id that does not exist or cannot be read — answers
+<code>500</code> with an <code>error</code> that says so, and the page shows it.</p>
 <p>Because the <code>joblog</code> store is restored too, completed-run logs come back along with DAGs, runs, IAM, KMS, and connections.</p>
 <blockquote>
 <p>The <strong>Restore</strong> button is per-backup-row — it appears only once at least one backup exists in S3. On a cluster with no backups yet, the list shows "No backups" and there is nothing to restore. Enable backup and run <strong>Back up now</strong> first.</p>

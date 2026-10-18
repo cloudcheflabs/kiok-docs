@@ -1073,6 +1073,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settings-are-for-administrators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings are for administrators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dags-and-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DAGs and runs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1080,6 +1108,17 @@
     <span class="md-ellipsis">
       
         Leader routing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors
       
     </span>
   </a>
@@ -1633,9 +1672,11 @@
 <h2 id="authentication">Authentication</h2>
 <p>Every request to the admin API is authenticated with a <strong>JWT</strong>.</p>
 <ul>
-<li><strong>Signing in</strong> — <code>POST /api/v1/auth/login</code> with a <code>user</code> / <code>password</code> body returns a short-lived access token, a longer-lived refresh token, and flags (<code>isAdmin</code>, <code>requirePasswordChange</code>). <code>POST /api/v1/auth/refresh</code> exchanges a valid refresh token for a fresh access token. Access and refresh expiry are configurable (<code>kiok.admin.token.access.expiry.ms</code> / <code>kiok.admin.token.refresh.expiry.ms</code>).</li>
+<li><strong>Signing in</strong> — <code>POST /api/v1/auth/login</code> with a <code>user</code> / <code>password</code> body returns a short-lived access token (15 minutes by default), a longer-lived refresh token (24 hours), and flags (<code>isAdmin</code>, <code>requirePasswordChange</code>). <code>POST /api/v1/auth/refresh</code> exchanges a valid refresh token for a fresh pair. Expiry is configurable (<code>kiok.admin.token.access.expiry.ms</code> / <code>kiok.admin.token.refresh.expiry.ms</code>). A wrong password answers <code>401</code> with <code>invalid credentials</code>, which the login page shows.</li>
+<li><strong>Presenting the token</strong> — the access token is sent in the <code>Authorization</code> header, accepted under <strong>either</strong> scheme: <code>Authorization: Bearer &lt;jwt&gt;</code> or <code>Authorization: Token &lt;jwt&gt;</code>. The Java and Python SDKs (<code>KiokClient</code>), <code>submit.sh --token</code> and the web admin UI all send <code>Token &lt;jwt&gt;</code>.</li>
+<li><strong>Access and refresh tokens are not interchangeable.</strong> Each token carries its kind (<code>typ</code>: <code>access</code> or <code>refresh</code>). The API accepts only access tokens, and <code>/auth/refresh</code> accepts only refresh tokens — so a stolen access token cannot be turned into a day-long session, and a refresh token cannot call the API.</li>
 <li>
-<p><strong>Presenting the token</strong> — the access token is sent in the <code>Authorization</code> header, accepted under <strong>either</strong> scheme: <code>Authorization: Bearer &lt;jwt&gt;</code> or <code>Authorization: Token &lt;jwt&gt;</code>. The Java and Python SDKs (<code>KiokClient</code>) and <code>submit.sh --token</code> sign in this way and send <code>Token &lt;jwt&gt;</code>; the web admin UI sends <code>Bearer &lt;jwt&gt;</code>.</p>
+<p><strong>Deleting a user signs them out at once.</strong> Every request checks that the token's user still exists, on every master, so a deleted user's access token is refused immediately rather than at its expiry, and their refresh token no longer renews. (A federated user has no local account; their token is bounded by its short lifetime and the provider's own controls.) Signing out of the console discards the tokens in the browser; a token copied elsewhere stays valid until it expires or its user is deleted.</p>
 </li>
 <li>
 <p><strong>Signing in with an identity provider</strong> — when single sign-on is configured, the console offers an OIDC or SAML button, and this same login route also accepts LDAP/Active Directory credentials. A federated caller gets the same access token every route already accepts, and is authorized by the cluster groups its provider groups map onto. See <a href="../sso/">Single Sign-On</a>.</p>
@@ -1647,16 +1688,37 @@
 <p>Long-lived access-key pairs (an access-key id, a secret, and a user token) and STS-style temporary credentials can be <strong>issued, downloaded, and revoked per user</strong> through the IAM page — see <a href="../iam/">Identity &amp; Access Management</a>. The admin API request path itself validates the JWT above; obtain one with a user/password login.</p>
 </div>
 <h2 id="authorization">Authorization</h2>
+<h3 id="settings-are-for-administrators">Settings are for administrators</h3>
+<p>Everything under <strong>Settings</strong> in the console — IAM, KMS, STS sessions, connections, SSO, git sync, DAG
+bundles, backup and restore, logs, nodes, metrics and maintenance mode — is administrator-only, for
+reading as well as writing, and the server enforces it: a non-administrator calling any of those
+routes gets <code>403 administrator access required</code>, whatever the console shows. Hiding the Settings link
+is a convenience; the server check is what stops a user from, for example, adding themselves to
+<code>admin-group</code> through the API. Two exceptions: anyone signed in may read the maintenance-mode flag
+(<code>GET /api/v1/admin/maintenance</code>, which the console shows as a banner), and a user may download their
+own access key (<code>GET /api/v1/iam/download-key/&lt;their id&gt;/&lt;key id&gt;</code>).</p>
+<p>An administrator is any user whose policies (directly or through a group) include
+<code>AdministratorAccess</code>; for a federated user, the groups their provider maps them to. The cluster
+refuses a change that would leave no local user with <code>AdministratorAccess</code> — detaching it from
+<code>admin-group</code> while that group holds the only administrators, or removing the last administrator from
+the group — with <code>400 ... would leave no administrator</code>.</p>
+<h3 id="dags-and-runs">DAGs and runs</h3>
 <p>Every authenticated request is mapped to an <strong>action</strong> and a <strong>resource</strong>, then evaluated against all policies that apply to the caller — those attached to the user plus those inherited from its groups.</p>
 <ul>
 <li>Evaluation is <strong>default-allow</strong> with <strong>most-specific-match wins</strong>: the policy statement whose resource pattern most closely matches the request decides the outcome.</li>
 <li>An explicit <strong><code>Deny</code></strong> always beats an <code>Allow</code> at the same specificity.</li>
-<li>The <strong>admin user bypasses</strong> policy checks entirely.</li>
+<li><strong>Administrators bypass</strong> policy checks entirely.</li>
+<li>A run, its arguments and its task logs are governed by the run's DAG: reading them needs <code>dag:Read</code> on that DAG (<code>GET /api/v1/runs/{id}</code> and <code>.../tasks/{task}/log</code> answer <code>403</code> otherwise). The run of a DAG that has since been deleted is visible to administrators only.</li>
 <li>A <strong>federated identity has no local user account</strong>, so only its mapped groups' policies apply — there is nothing user-specific to attach a policy to. See <a href="../sso/">Single Sign-On</a>.</li>
 </ul>
 <p>DAG operations carry resource names like <code>dag:&lt;origin&gt;:&lt;ref&gt;/&lt;path&gt;</code>, so policies can scope access down to an individual DAG, a git repository, or a bundle. See <a href="../iam/">Identity &amp; Access Management</a> for managing users, groups, and policies.</p>
 <h2 id="leader-routing">Leader routing</h2>
-<p>Requests that mutate cluster state are always executed on the leader. If such a request lands on a follower Master it is automatically routed to the leader, so authentication and authorization decisions are made against one consistent source of truth.</p>
+<p>Requests that mutate cluster state are always executed on the leader. If such a request lands on a follower Master it is automatically routed to the leader, so authentication and authorization decisions are made against one consistent source of truth. This includes SSO settings: a change saved through a follower is applied on the leader and replicated back, instead of being overwritten by the leader's next snapshot.</p>
+<h2 id="errors">Errors</h2>
+<p>A request the server refuses because of its input — an unknown user, a duplicate name, an invalid
+value, a DAG definition that does not parse — answers <code>400</code> (or <code>404</code> for something that does not
+exist) with an <code>error</code> message, which the console shows. <code>500</code> is reserved for failures of the server
+itself.</p>
 
 
 

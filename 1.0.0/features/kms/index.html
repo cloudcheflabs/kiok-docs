@@ -1566,6 +1566,7 @@
 <li>The <strong>master key</strong> is supplied as the environment variable <code>KIOK_MASTER_KEY</code> (32+ characters) and never written to a config file. Losing it means losing access to all encrypted state.</li>
 <li>Everything sensitive is encrypted with a named KMS key: the metadata store (DAGs, runs), the IAM store, the connection store, job logs, and — optionally — the internal protocol traffic between nodes.</li>
 <li><strong>Key rotation</strong> is supported — a new key version encrypts future writes while older versions stay available to decrypt existing data. Rotate from the admin UI's <strong>Settings → KMS</strong> page.</li>
+<li><strong>Creating and rotating keys report real outcomes.</strong> A key id must be 1–128 letters, digits, <code>_</code>, <code>.</code>, <code>:</code> or <code>-</code>. Creating an id that exists answers <code>400</code>; rotating an id that does not exist answers <code>404</code> (it used to create a new key silently); on a cluster whose KMS provider is not the built-in cluster KMS both answer <code>409</code> rather than claiming success. Key status lists each version's number, state and creation time — never key material. The KMS page is administrator-only.</li>
 <li>Key state lives on the leader and is synchronised to every Master and Worker, so any node can decrypt what it needs.</li>
 </ul>
 

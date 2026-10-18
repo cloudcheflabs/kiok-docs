@@ -1794,7 +1794,12 @@ one timeout even when servers are unreachable.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Log</strong> on any row streams that node's log live (offset-based, with Live / Paused).
+<p><strong>Log</strong> on any row streams that node's log live (offset-based, with Live / Paused). It is always that
+node's own log, whichever Master served the page: a Worker's log comes from the Worker over the
+internal channel, and another Master's log is fetched from that Master. An id that names no node says
+so (<code>unknownNode: true</code>) rather than showing some other log. Each poll returns only complete lines
+written since the previous one — byte-accurate, so non-ASCII text does not drift — and the viewer starts
+again from the end of the file if the log was truncated or rotated.
 <strong>Enter Maintenance</strong> in the page header holds the cluster still — see
 <a href="../cluster-maintenance/">Cluster Maintenance Mode</a>.</p>
 <h2 id="api">API</h2>

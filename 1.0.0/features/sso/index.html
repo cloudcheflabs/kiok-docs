@@ -1182,6 +1182,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#returning-to-the-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returning to the console
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#local-passwords-are-stored-hashed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1916,6 +1927,16 @@ memory on one master. Unsealing it is also what proves this cluster issued it, w
 the login-CSRF check.</p>
 <p>Without that, SSO works on a single master and fails on roughly half of all attempts
 behind a load balancer — and it fails looking like a problem at the identity provider.</p>
+<h2 id="returning-to-the-console">Returning to the console</h2>
+<p>After a browser sign-in the cluster redirects back to the console with the session in the URL
+fragment. The return path (<code>?redirect=</code> on <code>/api/v1/auth/sso/oidc/start</code> and <code>/saml/start</code>) is accepted
+only as a path inside the console: anything that a browser would read as another site — <code>//host/...</code>,
+<code>/\host</code>, an absolute URL, or control characters — is replaced by <code>/</code>, because that redirect carries
+the session token. Both the success and the error redirect include the configured context path
+(<code>kiok.master.admin.context.path</code>), so sign-in works for a console served under a prefix such as <code>/kiok</code>.</p>
+<p>Saving SSO settings through a follower Master forwards the change to the leader, which stores it and
+replicates it to every Master; a change made on a follower used to be overwritten by the leader's next
+snapshot.</p>
 <h2 id="local-passwords-are-stored-hashed">Local passwords are stored hashed</h2>
 <p>Independently of SSO, kiok stores local passwords as <strong>PBKDF2-HMAC-SHA256</strong> in a
 self-describing format that records the algorithm, the iteration count and the salt

@@ -29,6 +29,12 @@ The **Backup &amp; Restore** page in the admin UI exposes:
 
 The page also has a **Back up now** button that triggers an immediate backup.
 
+These settings are read from the replicated metadata store each time they are used, so every Master
+answers with the same values, and a Master that becomes leader after a failover keeps running the
+schedule the previous leader had — it does not fall back to what it read when it started. Each part of
+the page loads on its own: an S3 error listing backups is shown next to the other settings instead of
+hiding them. Every backup route, including the reads, is administrator-only.
+
 ### Cron scheduling
 
 The cron expression lives on the leader as a `BackupScheduler` daemon that ticks once per scheduler interval (the same cadence as the DAG cron scheduler) and fires `backupNow()` once when the cron has a fire time in `(lastChecked, now]`. The schedule is persisted under `backup.cron` in the metadata store, so a leader handoff or master restart re-arms the same cron.
@@ -68,6 +74,9 @@ The flow:
 2. The leader reads that backup's `manifest.json`.
 3. For each of the five stores, it fetches the bytes (following the incremental pointer to whichever backup id actually holds them) and imports them — overwriting the live store.
 4. The restore completes; the cluster is now at the chosen snapshot.
+
+A restore that cannot run — no S3 target, a backup id that does not exist or cannot be read — answers
+`500` with an `error` that says so, and the page shows it.
 
 Because the `joblog` store is restored too, completed-run logs come back along with DAGs, runs, IAM, KMS, and connections.
 

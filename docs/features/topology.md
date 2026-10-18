@@ -73,7 +73,12 @@ The probe is read-only and any Master answers it; it does not go through the lea
 | Role | `Leader` for the Master that holds leadership, `Follower` for the others |
 | Status | `ready` once the node has finished bootstrap and synchronised with the leader |
 
-**Log** on any row streams that node's log live (offset-based, with Live / Paused).
+**Log** on any row streams that node's log live (offset-based, with Live / Paused). It is always that
+node's own log, whichever Master served the page: a Worker's log comes from the Worker over the
+internal channel, and another Master's log is fetched from that Master. An id that names no node says
+so (`unknownNode: true`) rather than showing some other log. Each poll returns only complete lines
+written since the previous one — byte-accurate, so non-ASCII text does not drift — and the viewer starts
+again from the end of the file if the log was truncated or rotated.
 **Enter Maintenance** in the page header holds the cluster still — see
 [Cluster Maintenance Mode](cluster-maintenance.md).
 

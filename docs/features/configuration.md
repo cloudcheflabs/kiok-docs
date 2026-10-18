@@ -247,7 +247,7 @@ Per-task logs buffer on the worker and leader, then optionally archive to S3.
 
 ## Backup
 
-Manual-only backup of metadata/KMS/IAM/connection state to S3, reusing the job-log S3 endpoint/bucket/credentials under a separate prefix.
+Backup of metadata/KMS/IAM/connection/job-log state to S3 — on demand or on a cron schedule (see [Backup &amp; Restore](backup.md)) — to the job-log S3 target under a separate prefix, or to a stored S3 connection.
 
 | Property | Default | Description |
 |---|---|---|

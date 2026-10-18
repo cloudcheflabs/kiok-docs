@@ -34,7 +34,7 @@ kiok.log.path=${user.dir}/logs
 
 ## ZooKeeper
 
-ZooKeeper backs master leader election and the node registry. Every master and worker in a cluster must point at the same ensemble.
+ZooKeeper backs master leader election, the node registry, the cluster-ready flag and SAML assertion replay protection. Every master and worker in a cluster must point at the same ensemble.
 
 | Property | Default | Description |
 |---|---|---|
@@ -42,6 +42,7 @@ ZooKeeper backs master leader election and the node registry. Every master and w
 | `kiok.zk.rootPath` | `/kiok` | ZooKeeper namespace (chroot) for all kiok znodes, so multiple clusters can share one ensemble. |
 | `kiok.zk.sessionTimeoutMs` | `30000` | Session timeout (ms). On expiry, ephemeral znodes (e.g. leadership) drop and re-election triggers. Larger tolerates GC/network pauses but detects failures slower. |
 | `kiok.zk.connectionTimeoutMs` | `10000` | Maximum time (ms) to wait when first establishing the TCP connection to ZooKeeper. |
+| `kiok.zk.topology.probe.timeout.ms` | `2000` | Connect and read timeout (ms) of the `srvr` probe the admin **Topology** page sends to each ZooKeeper server; a server that does not answer within it is shown `down`. Servers are probed in parallel. See [Cluster Topology](topology.md#zookeeper-ensemble). |
 
 ## Master
 

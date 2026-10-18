@@ -203,6 +203,19 @@ the login-CSRF check.
 Without that, SSO works on a single master and fails on roughly half of all attempts
 behind a load balancer — and it fails looking like a problem at the identity provider.
 
+## Returning to the console
+
+After a browser sign-in the cluster redirects back to the console with the session in the URL
+fragment. The return path (`?redirect=` on `/api/v1/auth/sso/oidc/start` and `/saml/start`) is accepted
+only as a path inside the console: anything that a browser would read as another site — `//host/...`,
+`/\host`, an absolute URL, or control characters — is replaced by `/`, because that redirect carries
+the session token. Both the success and the error redirect include the configured context path
+(`kiok.master.admin.context.path`), so sign-in works for a console served under a prefix such as `/kiok`.
+
+Saving SSO settings through a follower Master forwards the change to the leader, which stores it and
+replicates it to every Master; a change made on a follower used to be overwritten by the leader's next
+snapshot.
+
 ## Local passwords are stored hashed
 
 Independently of SSO, kiok stores local passwords as **PBKDF2-HMAC-SHA256** in a

@@ -16,8 +16,8 @@ Open **Settings → Connections** in the admin UI and fill in **Add / update con
 
 | Field | Meaning |
 |---|---|
-| Connection id | Unique id you reference from DAGs (e.g. `analytics_db`) |
-| Type | A label — `s3` / `git` / `secret` / `jdbc` / `kafka` / `generic`. Organisational only; it does not change behaviour |
+| Connection id | Unique id you reference from DAGs (e.g. `analytics_db`). It may not contain `.`, `}`, `/`, `\` or whitespace — a reference `${conn.<id>.<key>}` could not name it |
+| Type | A label — `s3` / `git` / `secret` / `jdbc` / `kafka` / `generic`. It changes nothing except masking: every value of a `secret` connection is masked |
 | Description | Free text |
 | Properties | One `key=value` per line |
 
@@ -36,7 +36,30 @@ password=p4ssw0rd-...
 value=ghp_xxxxxxxxxxxxxxxx
 ```
 
-Connections are stored in a dedicated **KMS-encrypted RocksDB store** on the leader and synchronised to followers. The API never returns the values in plaintext.
+Connections are stored in a dedicated **KMS-encrypted RocksDB store** on the leader and synchronised to followers.
+
+### What the list shows
+
+Secret values never leave the master: any property whose key contains `secret`, `password`, `passwd`,
+`token`, `credential`, `apikey` / `api_key`, `accesskey` / `access_key`, `private`, `jaas` or
+`authheadervalue` (case-insensitive) — and every value of a `secret` connection — is returned as `***`.
+Everything else (endpoint, bucket, host, port, user name) is shown as stored, so you can see what a
+connection points at.
+
+### Editing a connection
+
+**Edit** fills the form with the connection as stored, secrets as `***`. Saving an existing id
+**merges** into it:
+
+| You send | Result |
+|---|---|
+| `key=***` | the stored value is kept — edit an endpoint without re-typing the password |
+| `key=` (empty) | the key is removed |
+| `key=new value` | the value is replaced |
+| a key left out | kept as it was |
+
+Only administrators can list, create, edit or delete connections. DAG tasks use them through the
+worker, not through this API.
 
 ## Referencing a connection from a DAG
 

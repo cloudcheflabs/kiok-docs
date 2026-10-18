@@ -39,7 +39,7 @@ bin/start-zk.sh
 bin/stop-zk.sh
 ```
 
-The bundled embedded ZooKeeper is for evaluation only. In production, point all roles at a managed ensemble via `kiok.zk.serverList`.
+The bundled embedded ZooKeeper is for evaluation only. In production, point all roles at a managed ensemble via `kiok.zk.serverList`. **Settings → Topology** shows each ensemble server's role and status, so a server that drops out is visible before the ensemble loses quorum — see [Cluster Topology](../features/topology.md#zookeeper-ensemble).
 
 ## Cluster Bootstrap and Restart
 
@@ -62,7 +62,7 @@ After bootstrap, every state change runs on the leader and is pushed to all othe
 
 ### Admin UI
 
-The admin port serves the UI at `/`. The **Settings → Topology** page shows the cluster snapshot — leader identity, registered Masters and Workers, per-worker task slots, and readiness. The **Dashboard** aggregates run metrics.
+The admin port serves the UI at `/`. The **Settings → Topology** page shows the cluster snapshot — the ZooKeeper ensemble (every server's role, status and lag, and the Master's ZooKeeper session), leader identity, registered Masters and Workers, and readiness. See [Cluster Topology](../features/topology.md). The **Dashboard** aggregates run metrics.
 
 ### Health & Readiness
 

@@ -49,11 +49,25 @@ Multiple `.java` files are compiled in a single javac invocation so cross-file r
 
 The original `.java` source text — not a "compiled from N files" marker — is stored as the DAG's `source` field, so the admin UI's **Source** tab shows operators the actual Java code they authored, with the resulting `DagSpec` (the in-memory structure the scheduler executes) rendered just below it.
 
+## DAG ids
+
+A git DAG keeps the id its source declares — `dag.id` in YAML, the DAG id in the Python or Java SDK, the file name stem for a plain `.sh` — exactly as a [bundle](bundles.md#identity-and-history) DAG does. That is the id you trigger it by and see in the console. A source that declares no id falls back to `<repo>_<path>`.
+
+An id must be free. A file is skipped, and the reason recorded, when its id is:
+
+- declared by another file of the same repository (the first file keeps it: `b.yaml: DAG id 'daily_load' is also declared by a.yaml`);
+- held by a bundle, another repository, or a DAG registered through the API (`... is already used by bundle 'finance-v2'`).
+
+The other files still sync. The **Git Sync** page shows each repository's last sync time and every file the last sync skipped, with the reason (`GET /api/v1/admin/gitsync/repos` returns them as `lastSyncAt` and `errors`). Registering a DAG through the API under an id a repository owns is refused with `409 Conflict`.
+
+!!! note "Upgrading from a release that derived git ids"
+    Earlier releases named git DAGs `<repo>_<path>`. After the upgrade the next sync registers each DAG under its declared id and prunes the old one; the run history recorded under the old id stays where it was.
+
 ## Prune on delete
 
 When a DAG file is **removed** from the repository, git-sync prunes the corresponding DAG on the next sync — the DAG disappears from the cluster, matching the repo.
 
-**Run history survives the prune.** History is keyed by the DAG's unique id (derived from repo + source path), not by the DAG record itself. So if the same file is later re-pushed — same name, same path — the DAG reappears and **continues its existing run history** rather than starting fresh. Deleting and re-adding a DAG through git is therefore safe and non-destructive.
+**Run history survives the prune.** History is keyed by the DAG's id, not by the DAG record itself. So if the same file is later re-pushed — same name, same path — the DAG reappears and **continues its existing run history** rather than starting fresh. Deleting and re-adding a DAG through git is therefore safe and non-destructive.
 
 ## Private repositories
 

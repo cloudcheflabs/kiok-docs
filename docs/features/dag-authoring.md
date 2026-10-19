@@ -116,13 +116,13 @@ YAML is declarative and perfect for a fixed, hand-sized workflow. Code wins when
 
 ## DAG identity
 
-Every DAG has a human-facing **name** (the `id` you write — need not be unique) and a globally-unique **id** derived from where it came from:
+Every DAG has a human-facing **name** (the `id` you write) and a unique **id**, the key you trigger, schedule and link it by:
 
-- **manual** → the name itself.
-- **git** → `<repo>/<source path>` slugified.
-- **bundle** → `<bundle name>/<source path>` slugified.
+- **manual** (registered through the API or the console) → the name itself.
+- **bundle** → the name itself. An id already held by another DAG is refused and listed under the bundle; see [DAG Bundles](bundles.md#identity-and-history).
+- **git** → `<repo>/<source path>` slugified, so two repositories may declare the same name.
 
-So two DAGs may share a name as long as they originate from different repos or bundles. Run history is keyed by the unique id, so re-pushing the same DAG file continues its existing history.
+Registering a DAG through the API under an id that a bundle or a git repository owns is refused with `409 Conflict`; change it at its source. Run history is keyed by the unique id, so re-pushing the same DAG file continues its existing history.
 
 ## Getting DAGs into the cluster
 

@@ -1791,8 +1791,7 @@
 <p>Every DAG has a human-facing <strong>name</strong> (the <code>id</code> you write) and a unique <strong>id</strong>, the key you trigger, schedule and link it by:</p>
 <ul>
 <li><strong>manual</strong> (registered through the API or the console) → the name itself.</li>
-<li><strong>bundle</strong> → the name itself. An id already held by another DAG is refused and listed under the bundle; see <a href="../bundles/#identity-and-history">DAG Bundles</a>.</li>
-<li><strong>git</strong> → <code>&lt;repo&gt;/&lt;source path&gt;</code> slugified, so two repositories may declare the same name.</li>
+<li><strong>bundle</strong> and <strong>git</strong> → the name itself. An id already held by another DAG is refused and listed under the bundle or the repository; see <a href="../bundles/#identity-and-history">DAG Bundles</a> and <a href="../git-sync/#dag-ids">Git Sync</a>.</li>
 </ul>
 <p>Registering a DAG through the API under an id that a bundle or a git repository owns is refused with <code>409 Conflict</code>; change it at its source. Run history is keyed by the unique id, so re-pushing the same DAG file continues its existing history.</p>
 <h2 id="getting-dags-into-the-cluster">Getting DAGs into the cluster</h2>

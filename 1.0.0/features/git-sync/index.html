@@ -964,6 +964,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dag-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DAG ids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prune-on-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1736,9 +1747,21 @@
 <p>For <code>.java</code> sources, the leader uses the JDK's in-process <code>javax.tools.JavaCompiler</code> (kiok master must run on a JDK, not a JRE — kiok's packaged distribution already ships with one). The compiler's classpath is auto-derived from the master's own <code>lib/</code> directory, so a user-authored DAG can reference the kiok SDK (<code>com.cloudcheflabs.kiok.sdk.{Dag, Task, KiokDag, Conn}</code>) without any build configuration on the repo side.</p>
 <p>Multiple <code>.java</code> files are compiled in a single javac invocation so cross-file references resolve naturally — a DAG class can import a helper from a sibling source file. Each compiled <code>KiokDag</code> subclass is then loaded with an isolated <code>URLClassLoader</code> and its <code>define()</code> method invoked once.</p>
 <p>The original <code>.java</code> source text — not a "compiled from N files" marker — is stored as the DAG's <code>source</code> field, so the admin UI's <strong>Source</strong> tab shows operators the actual Java code they authored, with the resulting <code>DagSpec</code> (the in-memory structure the scheduler executes) rendered just below it.</p>
+<h2 id="dag-ids">DAG ids</h2>
+<p>A git DAG keeps the id its source declares — <code>dag.id</code> in YAML, the DAG id in the Python or Java SDK, the file name stem for a plain <code>.sh</code> — exactly as a <a href="../bundles/#identity-and-history">bundle</a> DAG does. That is the id you trigger it by and see in the console. A source that declares no id falls back to <code>&lt;repo&gt;_&lt;path&gt;</code>.</p>
+<p>An id must be free. A file is skipped, and the reason recorded, when its id is:</p>
+<ul>
+<li>declared by another file of the same repository (the first file keeps it: <code>b.yaml: DAG id 'daily_load' is also declared by a.yaml</code>);</li>
+<li>held by a bundle, another repository, or a DAG registered through the API (<code>... is already used by bundle 'finance-v2'</code>).</li>
+</ul>
+<p>The other files still sync. The <strong>Git Sync</strong> page shows each repository's last sync time and every file the last sync skipped, with the reason (<code>GET /api/v1/admin/gitsync/repos</code> returns them as <code>lastSyncAt</code> and <code>errors</code>). Registering a DAG through the API under an id a repository owns is refused with <code>409 Conflict</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Upgrading from a release that derived git ids</p>
+<p>Earlier releases named git DAGs <code>&lt;repo&gt;_&lt;path&gt;</code>. After the upgrade the next sync registers each DAG under its declared id and prunes the old one; the run history recorded under the old id stays where it was.</p>
+</div>
 <h2 id="prune-on-delete">Prune on delete</h2>
 <p>When a DAG file is <strong>removed</strong> from the repository, git-sync prunes the corresponding DAG on the next sync — the DAG disappears from the cluster, matching the repo.</p>
-<p><strong>Run history survives the prune.</strong> History is keyed by the DAG's unique id (derived from repo + source path), not by the DAG record itself. So if the same file is later re-pushed — same name, same path — the DAG reappears and <strong>continues its existing run history</strong> rather than starting fresh. Deleting and re-adding a DAG through git is therefore safe and non-destructive.</p>
+<p><strong>Run history survives the prune.</strong> History is keyed by the DAG's id, not by the DAG record itself. So if the same file is later re-pushed — same name, same path — the DAG reappears and <strong>continues its existing run history</strong> rather than starting fresh. Deleting and re-adding a DAG through git is therefore safe and non-destructive.</p>
 <h2 id="private-repositories">Private repositories</h2>
 <p>Git Sync configuration never holds credentials. For a private repository, store the git credentials in a <a href="../connections/">connection</a> — an SSH <code>privateKey</code>, or <code>username</code> + <code>password</code>/token — and reference it by <code>credentialConnectionId</code>. The credentials live only in the KMS-encrypted connection store.</p>
 <h2 id="manual-sync">Manual sync</h2>

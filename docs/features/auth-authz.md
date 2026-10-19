@@ -43,7 +43,7 @@ Every authenticated request is mapped to an **action** and a **resource**, then 
 - Evaluation is **default-allow** with **most-specific-match wins**: the policy statement whose resource pattern most closely matches the request decides the outcome.
 - An explicit **`Deny`** always beats an `Allow` at the same specificity.
 - **Administrators bypass** policy checks entirely.
-- A run, its arguments and its task logs are governed by the run's DAG: reading them needs `dag:Read` on that DAG (`GET /api/v1/runs/{id}` and `.../tasks/{task}/log` answer `403` otherwise). The run of a DAG that has since been deleted is visible to administrators only.
+- A run, its arguments and its task logs are governed by the run's DAG: reading them needs `dag:Read` on that DAG (`GET /api/v1/runs/{id}` and `.../tasks/{task}/log` answer `403` otherwise). `GET /api/v1/runs?limit=N` (default 120, at most 1000) returns the newest runs across every DAG the caller may read, newest first; the console's Executions page loads with that one request. The run of a DAG that has since been deleted is visible to administrators only.
 - A **federated identity has no local user account**, so only its mapped groups' policies apply — there is nothing user-specific to attach a policy to. See [Single Sign-On](sso.md).
 
 DAG operations carry resource names like `dag:<origin>:<ref>/<path>`, so policies can scope access down to an individual DAG, a git repository, or a bundle. See [Identity &amp; Access Management](iam.md) for managing users, groups, and policies.

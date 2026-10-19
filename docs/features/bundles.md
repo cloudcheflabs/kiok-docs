@@ -36,4 +36,17 @@ Bundle DAGs — like manually-registered DAGs — are **persisted in the leader'
 
 ## Identity and history
 
-A bundle DAG's unique id is derived from `<bundle name>/<source path>`, so re-uploading the same bundle keeps each DAG's id stable and **continues its run history**. Deleting a bundle removes its DAGs but leaves their run history intact.
+A bundle DAG keeps the id its source declares: `dag.id` in YAML, the DAG id in the Python or Java SDK, and the file name stem for a plain `.sh` file. That is the id you trigger it by, use in the API and see in the console.
+
+An id must be free. When a file declares an id that another DAG already holds, that file is skipped and the bundle lists why:
+
+| The id is held by | Listed under the bundle as |
+|---|---|
+| another bundle | `x.yaml: DAG id 'daily_load' is already used by bundle 'finance-v2'` |
+| a git repository | `... is already used by git repository 'team-a-dags'` |
+| a DAG registered through the API | `... is already used by a DAG registered through the API` |
+| another file of the same bundle | `... is declared by another file of this bundle` |
+
+The other files of the bundle still register. In the other direction, registering a DAG through the API under an id a bundle owns is refused with `409 Conflict`.
+
+Re-uploading the same bundle first removes that bundle's own DAGs, so its ids never clash with themselves; each DAG keeps its id and **continues its run history**. Deleting a bundle removes its DAGs but leaves their run history intact.

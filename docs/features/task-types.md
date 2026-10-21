@@ -50,6 +50,7 @@ Performs an HTTP call — useful for triggering external systems or webhooks. Th
 | `url` | Request URL (required) |
 | `method` | HTTP method; defaults to `GET` |
 | `body` | Optional request body |
+| `ssl.trustStore` / `ssl.trustStorePassword` / `ssl.insecure` | TLS trust for an HTTPS URL with a self-signed certificate — see [HTTPS endpoints](#https-endpoints-with-a-self-signed-certificate) |
 | `expectStatus` | Optional exact status code to require (e.g. `201`). When set, the task succeeds only on that status; otherwise **any 2xx** is a success and anything else fails the task |
 
 The TCP connect timeout is bounded by `kiok.task.http.connect.timeout.ms` (default 10s); the overall request is bounded by the task/DAG timeout.
@@ -107,8 +108,34 @@ Runs the task's `script` as a SQL statement against any Trino coordinator — or
 | `trino.catalog` / `trino.schema` | Default catalog / schema for the session |
 | `trino.source` | `X-Trino-Source` identifier; defaults to `kiok` |
 | `trino.pollIntervalMs` | nextUri poll cadence; default 500 |
+| `trino.ssl.trustStore` | For an HTTPS gateway with a self-signed or private-CA certificate: a PEM, JKS or PKCS12 file **on the worker** holding the gateway's certificate or CA. Trusted in addition to the JVM's default CAs; the host name is still verified |
+| `trino.ssl.trustStorePassword` | Password of a JKS / PKCS12 trust store (not needed for PEM); can be `${conn.<id>.password}` |
+| `trino.ssl.trustStoreType` | `PEM` / `JKS` / `PKCS12`; detected when omitted |
+| `trino.ssl.insecure` | `"true"` accepts any certificate and host name — development only; default `false` |
 
 The `#{ nowMinusFormatted(...) }` token in the SQL is resolved at run time — see [Date placeholders](date-placeholders.md).
+
+### HTTPS endpoints with a self-signed certificate
+
+Without the `ssl.*` keys a task uses the JVM's default trust store, so a gateway with a self-signed
+certificate fails with `PKIX path building failed`; the task log then names the keys to set. Set them per
+task instead of `-Djavax.net.ssl.trustStore` on the kiok JVM, which would affect every TLS call in it and
+drop the public CAs unless `cacerts` is copied in:
+
+```yaml
+- id: daily_merge
+  type: trino
+  config:
+    trino.url:           "https://trino-gw.chango.example:443"
+    trino.user:          "${conn.trinoGw.username}"
+    trino.password:      "${conn.trinoGw.password}"
+    trino.ssl.trustStore: /etc/kiok/certs/trino-gw.pem   # the gateway's certificate, on every worker
+```
+
+The same keys work for `ontul.` and `livy.` tasks (`ontul.ssl.trustStore`, `livy.ssl.insecure`, …) and,
+without a prefix, for `http` tasks (`ssl.trustStore`). The SDKs take them too: Python
+`dag.trino(..., ssl_trust_store=..., ssl_trust_store_password=..., ssl_insecure=...)`, Java
+`.trinoTrustStore(path, password)` / `.trinoInsecure(true)` (and the `ontul` / `livy` variants).
 
 ## `ontul`
 

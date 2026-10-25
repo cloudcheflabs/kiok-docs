@@ -84,7 +84,7 @@ errors. Set `kiok.sso.allow.unmapped.groups=true` to allow it anyway.
 
 ## Configuring it
 
-Everything below can be set in the console under **Settings → SSO**, which stores it in
+Everything below can be set in the console under **Settings → SSO** (administrators only — the settings routes refuse non-administrators, reads included, and every caller until the factory `admin` password has been changed), which stores it in
 the replicated metadata store and applies it on every master with no restart. The
 properties file (`conf/kiok.properties`) is still read for anything left unset, so a
 cluster configured by file keeps working untouched.

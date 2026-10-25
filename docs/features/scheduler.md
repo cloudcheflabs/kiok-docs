@@ -12,6 +12,8 @@ dag:
   schedule: "0 2 * * *"   # every day at 02:00
 ```
 
+The expression is evaluated in the **masters' time zone** (the JVM default zone of the leader; containers usually run in UTC). `GET /api/v1/dags` and `GET /api/v1/dags/{id}` report, for a scheduled DAG, its next fire time as `nextRunAt` (epoch millis), the zone it is evaluated in as `scheduleZone`, and `catchup`; the admin UI shows the next run in the browser's own time zone on the DAGs, DAG detail and Schedules pages.
+
 A leader-only scheduler loop ticks at a short interval (`kiok.scheduler.tick.interval.ms`, default 1s) and, for each DAG whose next fire time is due, creates a new run. Because scheduling runs only on the leader, a DAG never double-fires when the cluster has multiple Masters.
 
 At most one run is created per DAG per tick, and the tick advances the DAG's watermark whether or not
@@ -21,14 +23,38 @@ Omit `schedule` for a **manual-only** DAG — it never fires on its own and runs
 
 ## Manual triggers
 
-Any DAG — scheduled or not — can be triggered on demand from the admin UI's **Run** button, the REST API, or the CLI:
+Any DAG — scheduled or not — can be triggered on demand from the admin UI's **Trigger run** button (on the DAG page; **Re-run** on a finished run's page starts the same DAG again with the same arguments), the REST API, or the CLI:
 
 ```bash
 bin/submit.sh trigger daily_etl --token <jwt>
 bin/submit.sh trigger daily_etl --args date=2026-05-16 --token <jwt>
 ```
 
-Trigger arguments are passed into the run and made available to its tasks.
+Trigger arguments are stored on the run (shown under **Arguments** on its page) and reach its
+**shell and python tasks** (including `python_callable`) as environment variables:
+
+| Variable | Value |
+|---|---|
+| `KIOK_ARG_<NAME>` | each trigger argument; the name is upper-cased (`date` → `KIOK_ARG_DATE`) |
+| `KIOK_DAG_ID`, `KIOK_RUN_ID`, `KIOK_TASK_ID` | the run's identity |
+
+```yaml
+- id: load
+  type: shell
+  script: |
+    #!/bin/bash
+    echo "loading ${KIOK_ARG_DATE:-today}"
+```
+
+A value is never spliced into the script text, so an argument cannot inject code into it. An argument
+name must match `[A-Za-z_][A-Za-z0-9_]*` (at most 64 characters); anything else is refused with `400`.
+`http`, `livy`, `trino` and `ontul` tasks do not receive arguments. Triggering an unknown DAG answers
+`404`.
+
+```bash
+curl -X POST -H "Authorization: Token $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"args": {"date": "2026-05-16"}}' http://kiok-master:8080/api/v1/dags/daily_etl/runs
+```
 
 ## Catchup — recovering intervals missed during an outage
 

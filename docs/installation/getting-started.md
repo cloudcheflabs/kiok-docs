@@ -57,7 +57,7 @@ bin/submit.sh register hello_kiok.yaml --token <jwt>
 
 ## Trigger a Run
 
-The DAG above has an hourly schedule, but you can also trigger it on demand — from the UI's **Run** button, or the CLI:
+The DAG above has an hourly schedule, but you can also trigger it on demand — from the DAG page's **Trigger run** button, or the CLI:
 
 ```bash
 bin/submit.sh trigger hello_kiok --token <jwt>

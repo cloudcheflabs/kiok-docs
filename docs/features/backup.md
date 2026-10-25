@@ -41,7 +41,7 @@ The cron expression lives on the leader as a `BackupScheduler` daemon that ticks
 
 The first tick after the cron is set, or after a leader change, **arms from "now"** — kiok does not back-fire missed cron times on startup. Recovering a missed nightly backup three days late tends to surprise more than skipping it.
 
-The admin UI shows the next scheduled fire time next to an active cron. The two REST endpoints:
+The admin UI shows the next scheduled fire time next to an active cron, in the browser's time zone (the cron itself is evaluated in the leader's zone). The two REST endpoints:
 
 ```bash
 # Read the current cron and its next-fire timestamp
@@ -64,7 +64,7 @@ Each backup writes a `manifest.json` recording, per store, its hash and which ba
 
 ## Restore
 
-The same admin page lists every backup in S3, newest first. Each row has a **Restore** button.
+The same admin page lists every backup in S3, newest first, with the time each was taken (a backup id is its UTC creation time, e.g. `20261025T095700.401301630Z`, shown in the browser's zone). Each row has a **Restore** button.
 
 > Restore is **destructive** — it overwrites current cluster state. The UI asks for confirmation first.
 
@@ -73,7 +73,8 @@ The flow:
 1. The operator clicks **Restore** on a backup row and confirms.
 2. The leader reads that backup's `manifest.json`.
 3. For each of the five stores, it fetches the bytes (following the incremental pointer to whichever backup id actually holds them) and imports them — overwriting the live store.
-4. The restore completes; the cluster is now at the chosen snapshot.
+4. The leader sends the restored state (KMS first, then IAM, connections and metadata) to every other master and worker, so a user removed by the restore cannot still sign in through a follower.
+5. The restore completes; the cluster is now at the chosen snapshot.
 
 A restore that cannot run — no S3 target, a backup id that does not exist or cannot be read — answers
 `500` with an `error` that says so, and the page shows it.

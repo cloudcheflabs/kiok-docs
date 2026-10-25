@@ -1,6 +1,6 @@
 # Task Types
 
-A task is one node in a DAG. kiok runs six task types; all of them are authored the same way in YAML, Python, or Java.
+A task is one node in a DAG. kiok runs seven task types (`shell`, `python`, `python_callable`, `http`, `livy`, `trino`, `ontul`); all of them are authored the same way in YAML, Python, or Java.
 
 ## `shell`
 
@@ -30,6 +30,15 @@ Runs an inline Python script with the Worker's `python3` (`kiok.python.path`). U
   script: |
     print("rows:", sum(range(100)))
 ```
+
+`python_callable` imports a module on the Worker and calls one function in it
+(`config.module`, `config.callable`) — e.g. `module: mypkg.jobs`, `callable: run`.
+
+### Environment of shell and python tasks
+
+A `shell`, `python` or `python_callable` task runs with the run's trigger arguments as
+`KIOK_ARG_<NAME>` (upper-cased) and with `KIOK_DAG_ID`, `KIOK_RUN_ID` and `KIOK_TASK_ID` set — see
+[Scheduler &amp; Triggers](scheduler.md#manual-triggers).
 
 ## `http`
 
@@ -210,7 +219,7 @@ The kiok side handles upload; the ontul side handles download. Both use the same
 | Field | Meaning |
 |---|---|
 | `id` | Task identifier, unique within the DAG |
-| `type` | `shell`, `python`, `http`, `livy`, `trino`, or `ontul` |
+| `type` | `shell`, `python`, `python_callable`, `http`, `livy`, `trino`, or `ontul` |
 | `script` | Inline body for `shell` / `python` tasks, SQL for `trino`, SQL for `ontul` BATCH/STREAMING |
 | `requires` | List of upstream task ids that must succeed first |
 | `timeout` | Per-task execution timeout; overrides the DAG / cluster default |

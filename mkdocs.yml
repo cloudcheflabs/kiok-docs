@@ -40,6 +40,7 @@ nav:
       - "Getting Started": installation/getting-started.md
   - "Features":
       - "Authoring DAGs": features/dag-authoring.md
+      - "Admin UI Guide": features/admin-ui.md
       - "Distributed Architecture": features/distributed-architecture.md
       - "Scheduler & Triggers": features/scheduler.md
       - "Worker-Driver Execution": features/execution.md

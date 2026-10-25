@@ -36,7 +36,7 @@ password=p4ssw0rd-...
 value=ghp_xxxxxxxxxxxxxxxx
 ```
 
-Connections are stored in a dedicated **KMS-encrypted RocksDB store** on the leader and synchronised to followers.
+Connections are stored in a dedicated **KMS-encrypted RocksDB store** on the leader and synchronised to followers and workers. The leader's copy is authoritative: a connection deleted on the leader is deleted on every follower too (snapshots used to only add, so a deleted connection — credentials included — stayed on the followers and came back if one became leader).
 
 ### What the list shows
 

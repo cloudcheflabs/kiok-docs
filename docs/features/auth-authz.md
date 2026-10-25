@@ -2,7 +2,7 @@
 
 ## Authentication
 
-Every request to the admin API is authenticated with a **JWT**.
+Every request to the admin API is authenticated with a **JWT**, or with one of the long-lived credentials the IAM page issues (below).
 
 - **Signing in** — `POST /api/v1/auth/login` with a `user` / `password` body returns a short-lived access token (15 minutes by default), a longer-lived refresh token (24 hours), and flags (`isAdmin`, `requirePasswordChange`). `POST /api/v1/auth/refresh` exchanges a valid refresh token for a fresh pair. Expiry is configurable (`kiok.admin.token.access.expiry.ms` / `kiok.admin.token.refresh.expiry.ms`). A wrong password answers `401` with `invalid credentials`, which the login page shows.
 - **Presenting the token** — the access token is sent in the `Authorization` header, accepted under **either** scheme: `Authorization: Bearer <jwt>` or `Authorization: Token <jwt>`. The Java and Python SDKs (`KiokClient`), `submit.sh --token` and the web admin UI all send `Token <jwt>`.
@@ -14,8 +14,17 @@ Every request to the admin API is authenticated with a **JWT**.
 
 **How local passwords are stored.** As PBKDF2-HMAC-SHA256, in a self-describing format that records the algorithm, iteration count and salt with the hash (`kiok.auth.password.hash.iterations`, default 600000). Digests written by earlier releases are still verified and are re-hashed in place on the next successful login, so an upgrade needs no password resets.
 
-!!! note "Access keys & STS"
-    Long-lived access-key pairs (an access-key id, a secret, and a user token) and STS-style temporary credentials can be **issued, downloaded, and revoked per user** through the IAM page — see [Identity &amp; Access Management](iam.md). The admin API request path itself validates the JWT above; obtain one with a user/password login.
+### Long-lived credentials: user token and access key
+
+A key issued on the IAM page (see [Identity &amp; Access Management](iam.md)) authenticates REST calls
+directly, without a login:
+
+- `Authorization: Token OTOK…` — the key's **user token** (what `KIOK_USER_TOKEN` / `submit.sh --token` send);
+- `Authorization: AccessKey <access-key-id>:<secret>` — the key pair (`submit.sh --accesskey/--secretkey`).
+
+Only an **active, unexpired** key of an existing user is accepted; the caller gets exactly that user's
+rights. Revoking the key (or deleting the user) refuses it at once on every master, and a key past its
+expiry date is refused (`401`). A JWT is still what the console and the SDK logins use.
 
 ## Authorization
 
@@ -30,6 +39,11 @@ is a convenience; the server check is what stops a user from, for example, addin
 (`GET /api/v1/admin/maintenance`, which the console shows as a banner), and a user may download their
 own access key (`GET /api/v1/iam/download-key/<their id>/<key id>`).
 
+The SSO settings (`/api/v1/sso/*`) are administrator-only for reads too, and — like every route except
+`GET /auth/session`, `GET /whoami` and `POST /auth/change-password` — are refused until the factory
+`admin` password has been changed, so a default-password session cannot point the cluster at an identity
+provider of its choosing.
+
 An administrator is any user whose policies (directly or through a group) include
 `AdministratorAccess`; for a federated user, the groups their provider maps them to. The cluster
 refuses a change that would leave no local user with `AdministratorAccess` — detaching it from
@@ -43,7 +57,7 @@ Every authenticated request is mapped to an **action** and a **resource**, then 
 - Evaluation is **default-allow** with **most-specific-match wins**: the policy statement whose resource pattern most closely matches the request decides the outcome.
 - An explicit **`Deny`** always beats an `Allow` at the same specificity.
 - **Administrators bypass** policy checks entirely.
-- A run, its arguments and its task logs are governed by the run's DAG: reading them needs `dag:Read` on that DAG (`GET /api/v1/runs/{id}` and `.../tasks/{task}/log` answer `403` otherwise). `GET /api/v1/runs?limit=N` (default 120, at most 1000) returns the newest runs across every DAG the caller may read, newest first; the console's Executions page loads with that one request. The run of a DAG that has since been deleted is visible to administrators only.
+- A run, its arguments and its task logs are governed by the run's DAG: reading them needs `dag:Read` on that DAG (`GET /api/v1/runs/{id}` and `.../tasks/{task}/log` answer `403` otherwise). `GET /api/v1/runs?limit=N` (default 120, at most 1000) returns the newest runs across every DAG the caller may read, newest first; the console's Executions page loads with that one request. `GET /api/v1/runs?dag=<id>&limit=N` returns one DAG's newest runs the same way (the DAG page's Runs tab). The run of a DAG that has since been deleted is visible to administrators only: a non-administrator can neither list (`GET /dags/{id}/runs`), read, nor cancel it (`403`), and a task log of an unknown run answers `404`.
 - A **federated identity has no local user account**, so only its mapped groups' policies apply — there is nothing user-specific to attach a policy to. See [Single Sign-On](sso.md).
 
 DAG operations carry resource names like `dag:<origin>:<ref>/<path>`, so policies can scope access down to an individual DAG, a git repository, or a bundle. See [Identity &amp; Access Management](iam.md) for managing users, groups, and policies.

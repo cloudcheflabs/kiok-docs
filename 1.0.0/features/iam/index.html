@@ -686,6 +686,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../distributed-architecture/" class="md-nav__link">
         
   
@@ -1613,7 +1641,7 @@
 <li><strong>Users, groups, and policies</strong> are managed from the admin UI's <strong>Settings → IAM</strong> page. A user inherits the policies of every group it belongs to.</li>
 <li><strong>Policies</strong> follow the standard AWS IAM JSON format — actions, resources, <code>Allow</code> / <code>Deny</code> — with wildcard matching. Evaluation is <strong>default-allow</strong>: most-specific-match wins (specificity measured by the non-wildcard length of the matching resource pattern), an explicit <code>Deny</code> breaks ties at equal specificity, and the admin user bypasses policy checks. A user with no matching statement is allowed — an ungoverned user has full access until a policy restricts it.</li>
 <li><strong>DAG-level authorization</strong> — DAG operations are authorized against resource names of the form <code>dag:&lt;origin&gt;:&lt;ref&gt;/&lt;path&gt;</code>, so a policy can grant or deny access to specific DAGs, repositories, or bundles.</li>
-<li><strong>Access keys</strong> — long-lived access-key pairs (an access-key id, a secret, and a user token) can be issued, downloaded as CSV, and revoked per user. <strong>STS-style temporary credentials</strong> (assume-role sessions minted from a parent access key) are also supported. Note that the admin API request path authenticates with a JWT (see <a href="../auth-authz/">Authentication &amp; Authorization</a>); the SDKs and <code>submit.sh --token</code> obtain that JWT via a user/password login.</li>
+<li><strong>Access keys</strong> — long-lived access-key pairs (an access-key id, a secret, and a user token) can be issued, downloaded as CSV, and revoked per user. <strong>STS-style temporary credentials</strong> (assume-role sessions minted from a parent access key) are also supported. A key's user token (<code>Authorization: Token OTOK…</code>) and its pair (<code>Authorization: AccessKey &lt;id&gt;:&lt;secret&gt;</code>) authenticate REST calls with that user's rights while the key is active and unexpired; revoking it takes effect at once on every master (see <a href="../auth-authz/#long-lived-credentials-user-token-and-access-key">Authentication &amp; Authorization</a>). An STS session's CSV download carries its expiry as an ISO-8601 UTC timestamp.</li>
 <li>On the first cluster bootstrap a default admin user, group, and full-access policy are created automatically — and never recreated afterward.</li>
 </ul>
 <h2 id="the-iam-page">The IAM page</h2>
@@ -1630,8 +1658,14 @@ else (a user may still download their own access key). On the page:</p>
   <a href="../auth-authz/#settings-are-for-administrators">Authentication &amp; Authorization</a>.</li>
 <li>An access key's <strong>expiry date</strong> means the end of that day in the browser's time zone (23:59:59.999),
   not UTC midnight.</li>
+<li>A key shows <strong>Expiry: <date></strong>, <strong>Expired <date></strong> once past it, or <strong>No expiry</strong>.</li>
+<li>The built-in <code>admin</code> user is marked <strong>built-in</strong> and cannot be deleted.</li>
+<li>Side panels (new user, group, policy, token) open 960 px wide (at most 92% of the window).</li>
+<li>STS sessions are listed on every master, not only the leader (a sync bug used to stop every IAM
+  change reaching the followers while any STS session existed).</li>
 <li>Revoking a key, deleting a user and downloading credentials report failures on the page.</li>
 </ul>
+<p>See the <a href="../admin-ui/#iam">Admin UI Guide</a> for every control on the page.</p>
 <p>For how requests are authenticated and how that flows into authorization, see <a href="../auth-authz/">Authentication &amp; Authorization</a>.</p>
 
 

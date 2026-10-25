@@ -686,6 +686,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../distributed-architecture/" class="md-nav__link">
         
   
@@ -1809,7 +1837,7 @@ Such a session has no policies and is denied every action, so letting it in prod
 someone who is signed in and can do nothing, left to work out why from permission
 errors. Set <code>kiok.sso.allow.unmapped.groups=true</code> to allow it anyway.</p>
 <h2 id="configuring-it">Configuring it</h2>
-<p>Everything below can be set in the console under <strong>Settings → SSO</strong>, which stores it in
+<p>Everything below can be set in the console under <strong>Settings → SSO</strong> (administrators only — the settings routes refuse non-administrators, reads included, and every caller until the factory <code>admin</code> password has been changed), which stores it in
 the replicated metadata store and applies it on every master with no restart. The
 properties file (<code>conf/kiok.properties</code>) is still read for anything left unset, so a
 cluster configured by file keeps working untouched.</p>

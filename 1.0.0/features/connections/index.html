@@ -686,6 +686,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../distributed-architecture/" class="md-nav__link">
         
   
@@ -1764,7 +1792,7 @@
 <p><strong>Example — a standalone secret</strong> <code>api_token</code> (type <code>secret</code>) — give it a single property named <code>value</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>value=ghp_xxxxxxxxxxxxxxxx
 </code></pre></div>
-<p>Connections are stored in a dedicated <strong>KMS-encrypted RocksDB store</strong> on the leader and synchronised to followers.</p>
+<p>Connections are stored in a dedicated <strong>KMS-encrypted RocksDB store</strong> on the leader and synchronised to followers and workers. The leader's copy is authoritative: a connection deleted on the leader is deleted on every follower too (snapshots used to only add, so a deleted connection — credentials included — stayed on the followers and came back if one became leader).</p>
 <h3 id="what-the-list-shows">What the list shows</h3>
 <p>Secret values never leave the master: any property whose key contains <code>secret</code>, <code>password</code>, <code>passwd</code>,
 <code>token</code>, <code>credential</code>, <code>apikey</code> / <code>api_key</code>, <code>accesskey</code> / <code>access_key</code>, <code>private</code>, <code>jaas</code> or

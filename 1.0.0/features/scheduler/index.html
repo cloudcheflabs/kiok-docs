@@ -686,6 +686,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../distributed-architecture/" class="md-nav__link">
         
   
@@ -1709,22 +1737,55 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_etl</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">   </span><span class="c1"># every day at 02:00</span>
 </code></pre></div>
+<p>The expression is evaluated in the <strong>masters' time zone</strong> (the JVM default zone of the leader; containers usually run in UTC). <code>GET /api/v1/dags</code> and <code>GET /api/v1/dags/{id}</code> report, for a scheduled DAG, its next fire time as <code>nextRunAt</code> (epoch millis), the zone it is evaluated in as <code>scheduleZone</code>, and <code>catchup</code>; the admin UI shows the next run in the browser's own time zone on the DAGs, DAG detail and Schedules pages.</p>
 <p>A leader-only scheduler loop ticks at a short interval (<code>kiok.scheduler.tick.interval.ms</code>, default 1s) and, for each DAG whose next fire time is due, creates a new run. Because scheduling runs only on the leader, a DAG never double-fires when the cluster has multiple Masters.</p>
 <p>At most one run is created per DAG per tick, and the tick advances the DAG's watermark whether or not
 it fired — which is why missed intervals are skipped rather than accumulated. See below.</p>
 <p>Omit <code>schedule</code> for a <strong>manual-only</strong> DAG — it never fires on its own and runs only when triggered.</p>
 <h2 id="manual-triggers">Manual triggers</h2>
-<p>Any DAG — scheduled or not — can be triggered on demand from the admin UI's <strong>Run</strong> button, the REST API, or the CLI:</p>
+<p>Any DAG — scheduled or not — can be triggered on demand from the admin UI's <strong>Trigger run</strong> button (on the DAG page; <strong>Re-run</strong> on a finished run's page starts the same DAG again with the same arguments), the REST API, or the CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>daily_etl<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>daily_etl<span class="w"> </span>--args<span class="w"> </span><span class="nv">date</span><span class="o">=</span><span class="m">2026</span>-05-16<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
 </code></pre></div>
-<p>Trigger arguments are passed into the run and made available to its tasks.</p>
+<p>Trigger arguments are stored on the run (shown under <strong>Arguments</strong> on its page) and reach its
+<strong>shell and python tasks</strong> (including <code>python_callable</code>) as environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KIOK_ARG_&lt;NAME&gt;</code></td>
+<td>each trigger argument; the name is upper-cased (<code>date</code> → <code>KIOK_ARG_DATE</code>)</td>
+</tr>
+<tr>
+<td><code>KIOK_DAG_ID</code>, <code>KIOK_RUN_ID</code>, <code>KIOK_TASK_ID</code></td>
+<td>the run's identity</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="no">#!/bin/bash</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="no">echo &quot;loading ${KIOK_ARG_DATE:-today}&quot;</span>
+</code></pre></div>
+<p>A value is never spliced into the script text, so an argument cannot inject code into it. An argument
+name must match <code>[A-Za-z_][A-Za-z0-9_]*</code> (at most 64 characters); anything else is refused with <code>400</code>.
+<code>http</code>, <code>livy</code>, <code>trino</code> and <code>ontul</code> tasks do not receive arguments. Triggering an unknown DAG answers
+<code>404</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Token </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;args&quot;: {&quot;date&quot;: &quot;2026-05-16&quot;}}&#39;</span><span class="w"> </span>http://kiok-master:8080/api/v1/dags/daily_etl/runs
+</code></pre></div>
 <h2 id="catchup-recovering-intervals-missed-during-an-outage">Catchup — recovering intervals missed during an outage</h2>
 <p><code>catchup</code> decides what happens to fire times that passed while the cluster was down.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">dag</span><span class="p">:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_etl</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">catchup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">          </span><span class="c1"># default false</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">dag</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_etl</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">catchup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">          </span><span class="c1"># default false</span>
 </code></pre></div>
 <ul>
 <li><strong><code>catchup: false</code> (default)</strong> — missed intervals are skipped. The DAG resumes from the next
@@ -1746,8 +1807,8 @@ try.</p>
 releasing all of them at once is an outage of its own. <code>kiok.scheduler.catchup.max.runs</code> (default
 <code>24</code>) bounds it. When the gap is larger, the <strong>most recent</strong> intervals are run and the older ones are
 dropped with a <code>WARN</code> naming the range that was let go:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>WARN  Scheduler - Catch-up capped at 24 run(s); dropping 144 older missed interval(s)
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>      from 2026-09-12T01:00:00Z to 2026-09-18T00:00:00Z. Trigger them by hand if they matter.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>WARN  Scheduler - Catch-up capped at 24 run(s); dropping 144 older missed interval(s)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>      from 2026-09-12T01:00:00Z to 2026-09-18T00:00:00Z. Trigger them by hand if they matter.
 </code></pre></div>
 <p>Fresher data is worth more than stale data, which is why the recent end is kept. If the older
 intervals matter, trigger them by hand or give the task an argument-driven date range (see

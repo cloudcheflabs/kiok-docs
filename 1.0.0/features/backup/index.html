@@ -686,6 +686,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../distributed-architecture/" class="md-nav__link">
         
   
@@ -1701,7 +1729,7 @@ hiding them. Every backup route, including the reads, is administrator-only.</p>
 <h3 id="cron-scheduling">Cron scheduling</h3>
 <p>The cron expression lives on the leader as a <code>BackupScheduler</code> daemon that ticks once per scheduler interval (the same cadence as the DAG cron scheduler) and fires <code>backupNow()</code> once when the cron has a fire time in <code>(lastChecked, now]</code>. The schedule is persisted under <code>backup.cron</code> in the metadata store, so a leader handoff or master restart re-arms the same cron.</p>
 <p>The first tick after the cron is set, or after a leader change, <strong>arms from "now"</strong> — kiok does not back-fire missed cron times on startup. Recovering a missed nightly backup three days late tends to surprise more than skipping it.</p>
-<p>The admin UI shows the next scheduled fire time next to an active cron. The two REST endpoints:</p>
+<p>The admin UI shows the next scheduled fire time next to an active cron, in the browser's time zone (the cron itself is evaluated in the leader's zone). The two REST endpoints:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Read the current cron and its next-fire timestamp</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>http://kiok-master:8080/api/v1/admin/backup/cron
@@ -1716,7 +1744,7 @@ hiding them. Every backup route, including the reads, is administrator-only.</p>
 <p>Each store is content-hashed (SHA-256). If a store's bytes are unchanged since the last backup, it is <strong>not re-uploaded</strong> — the new backup's manifest simply points at the backup id that already holds it. A backup taken with no cluster activity uploads almost nothing.</p>
 <p>Each backup writes a <code>manifest.json</code> recording, per store, its hash and which backup id holds its bytes — so the incremental chain is always resolvable from any single manifest.</p>
 <h2 id="restore">Restore</h2>
-<p>The same admin page lists every backup in S3, newest first. Each row has a <strong>Restore</strong> button.</p>
+<p>The same admin page lists every backup in S3, newest first, with the time each was taken (a backup id is its UTC creation time, e.g. <code>20261025T095700.401301630Z</code>, shown in the browser's zone). Each row has a <strong>Restore</strong> button.</p>
 <blockquote>
 <p>Restore is <strong>destructive</strong> — it overwrites current cluster state. The UI asks for confirmation first.</p>
 </blockquote>
@@ -1725,6 +1753,7 @@ hiding them. Every backup route, including the reads, is administrator-only.</p>
 <li>The operator clicks <strong>Restore</strong> on a backup row and confirms.</li>
 <li>The leader reads that backup's <code>manifest.json</code>.</li>
 <li>For each of the five stores, it fetches the bytes (following the incremental pointer to whichever backup id actually holds them) and imports them — overwriting the live store.</li>
+<li>The leader sends the restored state (KMS first, then IAM, connections and metadata) to every other master and worker, so a user removed by the restore cannot still sign in through a follower.</li>
 <li>The restore completes; the cluster is now at the chosen snapshot.</li>
 </ol>
 <p>A restore that cannot run — no S3 target, a backup id that does not exist or cannot be read — answers

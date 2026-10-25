@@ -799,6 +799,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../features/admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../features/distributed-architecture/" class="md-nav__link">
         
   
@@ -1701,7 +1729,7 @@
 </code></pre></div>
 <p><code>submit.sh</code> authenticates with a JWT — pass it with <code>--token &lt;jwt&gt;</code> (or the <code>KIOK_USER_TOKEN</code> environment variable). Obtain the JWT from a user/password login (<code>POST /api/v1/auth/login</code>); the admin API validates this token on every request (see <a href="../../features/auth-authz/">Authentication &amp; Authorization</a>). <code>submit.sh</code> targets <code>localhost:8080</code> by default; override with <code>--master host:port</code>.</p>
 <h2 id="trigger-a-run">Trigger a Run</h2>
-<p>The DAG above has an hourly schedule, but you can also trigger it on demand — from the UI's <strong>Run</strong> button, or the CLI:</p>
+<p>The DAG above has an hourly schedule, but you can also trigger it on demand — from the DAG page's <strong>Trigger run</strong> button, or the CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bin/submit.sh<span class="w"> </span>trigger<span class="w"> </span>hello_kiok<span class="w"> </span>--token<span class="w"> </span>&lt;jwt&gt;
 </code></pre></div>
 <p>This returns a run id. The leader assigns the whole run to one worker — its <em>driver</em> — which walks the graph, dispatches each task as its dependencies are satisfied, and streams status and logs back.</p>

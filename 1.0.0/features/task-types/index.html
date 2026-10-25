@@ -686,6 +686,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../admin-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin UI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../distributed-architecture/" class="md-nav__link">
         
   
@@ -865,6 +893,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-of-shell-and-python-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment of shell and python tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1747,7 +1792,7 @@
 
 
 <h1 id="task-types">Task Types</h1>
-<p>A task is one node in a DAG. kiok runs six task types; all of them are authored the same way in YAML, Python, or Java.</p>
+<p>A task is one node in a DAG. kiok runs seven task types (<code>shell</code>, <code>python</code>, <code>python_callable</code>, <code>http</code>, <code>livy</code>, <code>trino</code>, <code>ontul</code>); all of them are authored the same way in YAML, Python, or Java.</p>
 <h2 id="shell"><code>shell</code></h2>
 <p>Runs an inline shell script. The script body is written to a file, made executable, and run by the Worker; stdout and stderr are captured and streamed back.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extract</span>
@@ -1767,6 +1812,12 @@
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="no">print(&quot;rows:&quot;, sum(range(100)))</span>
 </code></pre></div>
+<p><code>python_callable</code> imports a module on the Worker and calls one function in it
+(<code>config.module</code>, <code>config.callable</code>) — e.g. <code>module: mypkg.jobs</code>, <code>callable: run</code>.</p>
+<h3 id="environment-of-shell-and-python-tasks">Environment of shell and python tasks</h3>
+<p>A <code>shell</code>, <code>python</code> or <code>python_callable</code> task runs with the run's trigger arguments as
+<code>KIOK_ARG_&lt;NAME&gt;</code> (upper-cased) and with <code>KIOK_DAG_ID</code>, <code>KIOK_RUN_ID</code> and <code>KIOK_TASK_ID</code> set — see
+<a href="../scheduler/#manual-triggers">Scheduler &amp; Triggers</a>.</p>
 <h2 id="http"><code>http</code></h2>
 <p>Performs an HTTP call — useful for triggering external systems or webhooks. The URL and options come from the task config:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notify</span>
@@ -2031,7 +2082,7 @@ without a prefix, for <code>http</code> tasks (<code>ssl.trustStore</code>). The
 </tr>
 <tr>
 <td><code>type</code></td>
-<td><code>shell</code>, <code>python</code>, <code>http</code>, <code>livy</code>, <code>trino</code>, or <code>ontul</code></td>
+<td><code>shell</code>, <code>python</code>, <code>python_callable</code>, <code>http</code>, <code>livy</code>, <code>trino</code>, or <code>ontul</code></td>
 </tr>
 <tr>
 <td><code>script</code></td>

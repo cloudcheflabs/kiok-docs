@@ -84,6 +84,25 @@ Submits a Spark batch via Apache Livy's REST API and tails the batch log until i
 
 The full Spark stdout (`INFO TaskSetManager … (N/M)`, the workload's own `print(...)`, `SparkContext is stopping`, …) streams into kiok's per-task log view as it arrives. See the [Spark via Apache Livy](../tutorials/spark-via-livy.md) tutorial for a self-contained `docker compose` walkthrough, the YAML / Python / Java authoring of the same task, the full `livy.*` configuration reference, and a worker-restart resume demo.
 
+| Key | Meaning |
+|---|---|
+| `livy.ssl.trustStore` | For an HTTPS Livy endpoint / gateway with a self-signed or private-CA certificate: a PEM, JKS or PKCS12 file **on the worker** holding the certificate or CA. Trusted in addition to the JVM's default CAs; the host name is still verified |
+| `livy.ssl.trustStorePassword` | Password of a JKS / PKCS12 trust store (not needed for PEM); can be `${conn.<id>.password}` |
+| `livy.ssl.trustStoreType` | `PEM` / `JKS` / `PKCS12`; detected when omitted |
+| `livy.ssl.insecure` | `"true"` accepts any certificate and host name — development only; default `false` |
+
+```yaml
+- id: nightly_spark
+  type: livy
+  config:
+    livy.url:  "https://livy-gw.example:8443"
+    livy.file: "s3a://my-bucket/jobs/etl.jar"
+    livy.className: "com.example.Etl"
+    livy.ssl.trustStore: /etc/kiok/certs/gw.pem
+```
+
+See [HTTPS endpoints with a self-signed certificate](#https-endpoints-with-a-self-signed-certificate).
+
 ## `trino`
 
 Runs the task's `script` as a SQL statement against any Trino coordinator — or a chango trino gateway protected by HTTP Basic auth. The worker uses the Trino REST `/v1/statement` protocol: POST the SQL, follow `nextUri` until terminal, stream rows + state transitions into the task log. Cancel issues a `DELETE /v1/query/{id}`.
@@ -141,10 +160,36 @@ drop the public CAs unless `cacerts` is copied in:
     trino.ssl.trustStore: /etc/kiok/certs/trino-gw.pem   # the gateway's certificate, on every worker
 ```
 
-The same keys work for `ontul.` and `livy.` tasks (`ontul.ssl.trustStore`, `livy.ssl.insecure`, …) and,
-without a prefix, for `http` tasks (`ssl.trustStore`). The SDKs take them too: Python
-`dag.trino(..., ssl_trust_store=..., ssl_trust_store_password=..., ssl_insecure=...)`, Java
-`.trinoTrustStore(path, password)` / `.trinoInsecure(true)` (and the `ontul` / `livy` variants).
+Every HTTPS task type takes the same four keys under its own prefix — they are not trino-only:
+
+| Type | Keys |
+|---|---|
+| `trino` | `trino.ssl.trustStore`, `trino.ssl.trustStorePassword`, `trino.ssl.trustStoreType`, `trino.ssl.insecure` |
+| `ontul` | `ontul.ssl.trustStore`, `ontul.ssl.trustStorePassword`, `ontul.ssl.trustStoreType`, `ontul.ssl.insecure` |
+| `livy`  | `livy.ssl.trustStore`, `livy.ssl.trustStorePassword`, `livy.ssl.trustStoreType`, `livy.ssl.insecure` |
+| `http`  | `ssl.trustStore`, `ssl.trustStorePassword`, `ssl.trustStoreType`, `ssl.insecure` (no prefix) |
+
+The SDKs take them too: Python `dag.trino(...)` / `dag.ontul(...)` / `dag.livy(...)` with
+`ssl_trust_store=..., ssl_trust_store_password=..., ssl_trust_store_type=..., ssl_insecure=...`; Java
+`.trinoTrustStore(path, password)` / `.trinoTrustStoreType("PKCS12")` / `.trinoInsecure(true)` and the
+`ontul…` / `livy…` variants (`.ontulTrustStore(...)`, `.livyTrustStore(...)`, …).
+
+#### Set it once for every task
+
+If all your gateways share one CA, set the trust store once on the **workers** instead of in every task
+(`conf/kiok.properties`, or the matching environment variables):
+
+```properties
+kiok.task.ssl.trust.store=/etc/kiok/certs/company-ca.p12
+kiok.task.ssl.trust.store.password=changeit
+# kiok.task.ssl.trust.store.type=PKCS12   # detected when empty
+```
+
+It applies to `trino`, `ontul`, `livy` and `http` tasks that set neither `<prefix>.ssl.trustStore` nor
+`<prefix>.ssl.insecure`. It is added to the JVM's default CAs (public endpoints keep working), host names
+are still verified, and a task's own keys win. There is deliberately no worker-wide `insecure`. The
+worker checks the file at startup and logs `HTTPS tasks trust … (kiok.task.ssl.trust.store)`, or an error
+if it cannot be read; each task log says which trust store it used.
 
 ## `ontul`
 
@@ -172,6 +217,27 @@ Submits a job to an [ontul](https://cloudcheflabs.github.io/ontul-docs) cluster 
     WHERE date(event_ts) = DATE '#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, "yyyy-MM-dd") }'
     GROUP BY 1, 2
 ```
+
+| Key | Meaning |
+|---|---|
+| `ontul.ssl.trustStore` | For an HTTPS ontul endpoint / gateway with a self-signed or private-CA certificate: a PEM, JKS or PKCS12 file **on the worker** holding the certificate or CA. Trusted in addition to the JVM's default CAs; the host name is still verified |
+| `ontul.ssl.trustStorePassword` | Password of a JKS / PKCS12 trust store (not needed for PEM); can be `${conn.<id>.password}` |
+| `ontul.ssl.trustStoreType` | `PEM` / `JKS` / `PKCS12`; detected when omitted |
+| `ontul.ssl.insecure` | `"true"` accepts any certificate and host name — development only; default `false` |
+
+```yaml
+- id: nightly_rollup
+  type: ontul
+  config:
+    ontul.url:   "https://ontul-gw.example:9443"
+    ontul.token: "${secret.ontulToken}"
+    ontul.ssl.trustStore: /etc/kiok/certs/gw-trust.p12
+    ontul.ssl.trustStorePassword: "${conn.gwTrust.password}"
+  script: |
+    SELECT 1
+```
+
+See [HTTPS endpoints with a self-signed certificate](#https-endpoints-with-a-self-signed-certificate).
 
 ### Spark-style S3 staging for CLASS / PYTHON deps
 

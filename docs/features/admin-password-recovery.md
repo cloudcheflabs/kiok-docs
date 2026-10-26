@@ -42,7 +42,7 @@ rotation.
 | **Socket path marker** | `bin/master.socket` — written when the socket binds, removed on shutdown |
 | **Network surface** | none — Unix domain socket only |
 | **Downtime** | none — applied in-process on the live master |
-| **Cluster sync** | automatic — leader pushes the new state to followers |
+| **Cluster sync** | automatic — run on any master; a follower forwards the reset to the leader, which applies it and pushes it to every master (see [Multi-master clusters](#multi-master-clusters)) |
 | **Audit log** | `data/iam-audit/reset.log` (mode `600`, append-only) |
 | **Post-reset state** | `requirePasswordChange = true` (forced rotation on next login) |
 | **Stored form** | PBKDF2-HMAC-SHA256 — the reset writes the current hash format, never the plaintext |
@@ -57,6 +57,45 @@ admin's next login (the `requirePasswordChange` flag is set automatically).
 # Inside the master host or container:
 bin/kiok-cli.sh iam:reset-password
 ```
+
+## Multi-master clusters
+
+IAM is owned by the leader: the leader applies a change and pushes it to every master. You can run
+the CLI on **any** master host:
+
+- **On the leader** — applied in place and pushed to the followers.
+- **On a follower** — the follower forwards the reset to the leader over the internal protocol, waits
+  for its answer, and checks that its own copy has the new password (pulling it from the leader if
+  the push has not arrived). The CLI notes where it was applied:
+
+    ```text
+    $ docker exec kiok-master-2 /app/bin/kiok-cli.sh iam:reset-password --new-password 'N3w!Pass'
+    note: this master is a follower; the reset was applied on the leader master-master-1-19999 (master-1:19999) and replicated to the cluster.
+    ```
+
+- **No reachable leader** (none elected yet, or the leader is down, frozen or partitioned) — the CLI
+  **fails with exit code 1**, names the leader it tried, and says the password was **not** changed:
+
+    ```text
+    error: this master (master-master-2-19999) is a follower and the leader master-master-1-19999 (master-1:19999)
+    did not apply the reset (no answer within 30000 ms); the password was NOT changed. ...
+    ```
+
+  A forwarded reset carries a deadline (a third of `kiok.admin.socket.forward.timeout.ms`); a leader
+  that only receives it later — for example after a long pause — discards it, so a reset the CLI
+  reported as failed never lands afterwards. Once a new leader is elected (after the ZooKeeper session
+  timeout), run the CLI again; on the new leader it applies in place.
+
+`bin/kiok-cli.sh ping` shows the role of the local master and, on a follower, the leader:
+
+```text
+$ bin/kiok-cli.sh ping
+pong (follower master-master-2-19999; leader: master-master-1-19999 (master-1:19999))
+```
+
+!!! note "kiok 1.0.0 builds before 2026-10-27"
+    Earlier builds applied a reset run on a follower to that follower's copy only and still exited
+    0; the leader's next sync then restored the old password. Upgrade, or run the CLI on the leader.
 
 ## Input modes
 
@@ -88,6 +127,10 @@ kiok.admin.socket.path         = ${kiok.base.data.dir}/admin.sock
 kiok.admin.socket.marker.file  = master.socket
 # Append-only audit trail of socket operations.
 kiok.iam.audit.dir = ${kiok.base.data.dir}/iam-audit
+# How long a follower waits for the leader to confirm a forwarded reset.
+# Keep well above kiok.internal.rpc.timeout.ms; masters' clocks must be in
+# sync (NTP) to within a few seconds.
+kiok.admin.socket.forward.timeout.ms = 30000
 ```
 
 The socket follows `kiok.base.data.dir`. If you launch the master with
@@ -189,12 +232,14 @@ connect. There is no token, no shared secret, no network listener.
 
 **2. The audit log records every reset.**
 Every successful reset appends a JSON line to `data/iam-audit/reset.log`
-(mode `600`). The plaintext password is **never** logged — only the first
-8 characters of its hash, the user, whether it was master-generated, and
-the OS user that invoked the CLI.
+(mode `600`). The plaintext password is **never** logged — only a short
+fingerprint (SHA-256 of the stored hash, 12 hex characters), the user,
+whether it was master-generated, the OS user that invoked the CLI and, in a
+cluster, the route (`forwardedTo=<leader>` on the follower that ran the CLI,
+`forwardedFrom=<follower>` on the leader that applied it).
 
 ```json
-{"ts":"2026-05-23T16:00:46.922Z","event":"iam.reset-password","user":"admin","generated":true,"hashFp":"OYV/Ojf/","invokedAs":"root"}
+{"ts":"2026-10-27T05:12:40.118Z","event":"iam.reset-password","user":"admin","generated":false,"hashFp":"3f9c0a71d2e4","invokedAs":"root","route":"forwardedFrom=master-master-2-19999"}
 ```
 
 **3. The new password is exposed exactly once.**

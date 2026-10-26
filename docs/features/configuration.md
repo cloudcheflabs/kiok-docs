@@ -111,6 +111,7 @@ See [Admin Password Recovery](admin-password-recovery.md).
 |---|---|---|
 | `kiok.admin.socket.enabled` | `true` | Whether the master exposes the local recovery socket. `false` removes the local recovery path entirely. |
 | `kiok.admin.socket.path` | `${kiok.base.data.dir}/admin.sock` | Filesystem path of the socket. Must be on a local filesystem that supports Unix domain sockets (not a networked mount); recreated on every master start. |
+| `kiok.admin.socket.forward.timeout.ms` | `30000` | How long `kiok-cli iam:reset-password` on a **follower** waits for the leader to apply the forwarded reset. No leader, or no answer in time, makes the CLI exit 1 naming the leader; the leader discards a forwarded reset that reaches it after a third of this window. |
 | `kiok.admin.socket.marker.file` | `master.socket` | Name of the file under `<kiok.home>/bin` where the master writes the socket path it actually bound to. `bin/kiok-cli.sh` prefers that published path over re-deriving one from this file, since `kiok.base.data.dir` can be overridden with `-D` at launch or edited after startup. Removed on shutdown. |
 | `kiok.iam.audit.dir` | `${kiok.base.data.dir}/iam-audit` | Directory holding the append-only audit log of socket operations (`reset.log`, mode `600`). The plaintext password is never written there. |
 
@@ -290,6 +291,9 @@ Backup of metadata/KMS/IAM/connection/job-log state to S3 — on demand or on a 
 | Property | Default | Description |
 |---|---|---|
 | `kiok.task.http.connect.timeout.ms` | `10000` | TCP connect timeout (ms) for the HTTP task runner. Bounds only connection establishment; the overall request is still bounded by the DAG/task execution timeout. |
+| `kiok.task.ssl.trust.store` | *(empty)* | Worker-wide trust store (PEM / JKS / PKCS12) for HTTPS `trino`, `ontul`, `livy` and `http` tasks, so tasks need no `<prefix>.ssl.trustStore`. Trusted in addition to the JVM's default CAs; host names are still verified; a task's own `ssl.*` keys override it. Read on the workers. Env `KIOK_TASK_SSL_TRUST_STORE`. |
+| `kiok.task.ssl.trust.store.password` | *(empty)* | Password of a JKS / PKCS12 default trust store. Env `KIOK_TASK_SSL_TRUST_STORE_PASSWORD`. |
+| `kiok.task.ssl.trust.store.type` | *(empty = detect)* | `PEM` / `JKS` / `PKCS12`. |
 
 ## Python (shell + python task execution)
 

@@ -2271,6 +2271,11 @@ See <a href="../admin-password-recovery/">Admin Password Recovery</a>.</p>
 <td>Filesystem path of the socket. Must be on a local filesystem that supports Unix domain sockets (not a networked mount); recreated on every master start.</td>
 </tr>
 <tr>
+<td><code>kiok.admin.socket.forward.timeout.ms</code></td>
+<td><code>30000</code></td>
+<td>How long <code>kiok-cli iam:reset-password</code> on a <strong>follower</strong> waits for the leader to apply the forwarded reset. No leader, or no answer in time, makes the CLI exit 1 naming the leader; the leader discards a forwarded reset that reaches it after a third of this window.</td>
+</tr>
+<tr>
 <td><code>kiok.admin.socket.marker.file</code></td>
 <td><code>master.socket</code></td>
 <td>Name of the file under <code>&lt;kiok.home&gt;/bin</code> where the master writes the socket path it actually bound to. <code>bin/kiok-cli.sh</code> prefers that published path over re-deriving one from this file, since <code>kiok.base.data.dir</code> can be overridden with <code>-D</code> at launch or edited after startup. Removed on shutdown.</td>
@@ -2882,6 +2887,21 @@ the next restart, silently. See <a href="../sso/">Single Sign-On</a>.</p>
 <td><code>kiok.task.http.connect.timeout.ms</code></td>
 <td><code>10000</code></td>
 <td>TCP connect timeout (ms) for the HTTP task runner. Bounds only connection establishment; the overall request is still bounded by the DAG/task execution timeout.</td>
+</tr>
+<tr>
+<td><code>kiok.task.ssl.trust.store</code></td>
+<td><em>(empty)</em></td>
+<td>Worker-wide trust store (PEM / JKS / PKCS12) for HTTPS <code>trino</code>, <code>ontul</code>, <code>livy</code> and <code>http</code> tasks, so tasks need no <code>&lt;prefix&gt;.ssl.trustStore</code>. Trusted in addition to the JVM's default CAs; host names are still verified; a task's own <code>ssl.*</code> keys override it. Read on the workers. Env <code>KIOK_TASK_SSL_TRUST_STORE</code>.</td>
+</tr>
+<tr>
+<td><code>kiok.task.ssl.trust.store.password</code></td>
+<td><em>(empty)</em></td>
+<td>Password of a JKS / PKCS12 default trust store. Env <code>KIOK_TASK_SSL_TRUST_STORE_PASSWORD</code>.</td>
+</tr>
+<tr>
+<td><code>kiok.task.ssl.trust.store.type</code></td>
+<td><em>(empty = detect)</em></td>
+<td><code>PEM</code> / <code>JKS</code> / <code>PKCS12</code>.</td>
 </tr>
 </tbody>
 </table>

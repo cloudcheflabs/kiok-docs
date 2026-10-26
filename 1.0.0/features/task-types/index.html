@@ -956,6 +956,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="HTTPS endpoints with a self-signed certificate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-it-once-for-every-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Set it once for every task
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -1874,26 +1891,61 @@
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nt">livy.numExecutors</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;8&quot;</span>
 </code></pre></div>
 <p>The full Spark stdout (<code>INFO TaskSetManager … (N/M)</code>, the workload's own <code>print(...)</code>, <code>SparkContext is stopping</code>, …) streams into kiok's per-task log view as it arrives. See the <a href="../../tutorials/spark-via-livy/">Spark via Apache Livy</a> tutorial for a self-contained <code>docker compose</code> walkthrough, the YAML / Python / Java authoring of the same task, the full <code>livy.*</code> configuration reference, and a worker-restart resume demo.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>livy.ssl.trustStore</code></td>
+<td>For an HTTPS Livy endpoint / gateway with a self-signed or private-CA certificate: a PEM, JKS or PKCS12 file <strong>on the worker</strong> holding the certificate or CA. Trusted in addition to the JVM's default CAs; the host name is still verified</td>
+</tr>
+<tr>
+<td><code>livy.ssl.trustStorePassword</code></td>
+<td>Password of a JKS / PKCS12 trust store (not needed for PEM); can be <code>${conn.&lt;id&gt;.password}</code></td>
+</tr>
+<tr>
+<td><code>livy.ssl.trustStoreType</code></td>
+<td><code>PEM</code> / <code>JKS</code> / <code>PKCS12</code>; detected when omitted</td>
+</tr>
+<tr>
+<td><code>livy.ssl.insecure</code></td>
+<td><code>"true"</code> accepts any certificate and host name — development only; default <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_spark</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">livy</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">livy.url</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;https://livy-gw.example:8443&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">livy.file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;s3a://my-bucket/jobs/etl.jar&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">livy.className</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;com.example.Etl&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">livy.ssl.trustStore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kiok/certs/gw.pem</span>
+</code></pre></div>
+<p>See <a href="#https-endpoints-with-a-self-signed-certificate">HTTPS endpoints with a self-signed certificate</a>.</p>
 <h2 id="trino"><code>trino</code></h2>
 <p>Runs the task's <code>script</code> as a SQL statement against any Trino coordinator — or a chango trino gateway protected by HTTP Basic auth. The worker uses the Trino REST <code>/v1/statement</code> protocol: POST the SQL, follow <code>nextUri</code> until terminal, stream rows + state transitions into the task log. Cancel issues a <code>DELETE /v1/query/{id}</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_merge</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;https://trino-gw.chango.example/&quot;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;${conn.trinoGw.username}&quot;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">trino.password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${conn.trinoGw.password}&quot;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">trino.catalog</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;iceberg&quot;</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">trino.schema</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;warehouse&quot;</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="no">MERGE INTO warehouse.orders t</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="no">USING (</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="no">SELECT id, customer_id, total</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="no">FROM staging.orders</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">      </span><span class="no">WHERE date(updated_at) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="no">) s</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="no">ON t.id = s.id</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="no">WHEN MATCHED THEN UPDATE SET total = s.total</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="no">WHEN NOT MATCHED THEN INSERT (id, customer_id, total) VALUES (s.id, s.customer_id, s.total)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_merge</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;https://trino-gw.chango.example/&quot;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;${conn.trinoGw.username}&quot;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">trino.password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${conn.trinoGw.password}&quot;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">trino.catalog</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;iceberg&quot;</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nt">trino.schema</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;warehouse&quot;</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="no">MERGE INTO warehouse.orders t</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="no">USING (</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">      </span><span class="no">SELECT id, customer_id, total</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">      </span><span class="no">FROM staging.orders</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">      </span><span class="no">WHERE date(updated_at) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="no">) s</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="no">ON t.id = s.id</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="no">WHEN MATCHED THEN UPDATE SET total = s.total</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="no">WHEN NOT MATCHED THEN INSERT (id, customer_id, total) VALUES (s.id, s.customer_id, s.total)</span>
 </code></pre></div>
 <table>
 <thead>
@@ -1951,18 +2003,57 @@
 certificate fails with <code>PKIX path building failed</code>; the task log then names the keys to set. Set them per
 task instead of <code>-Djavax.net.ssl.trustStore</code> on the kiok JVM, which would affect every TLS call in it and
 drop the public CAs unless <code>cacerts</code> is copied in:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_merge</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">           </span><span class="s">&quot;https://trino-gw.chango.example:443&quot;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w">          </span><span class="s">&quot;${conn.trinoGw.username}&quot;</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">trino.password</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;${conn.trinoGw.password}&quot;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">trino.ssl.trustStore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kiok/certs/trino-gw.pem</span><span class="w">   </span><span class="c1"># the gateway&#39;s certificate, on every worker</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daily_merge</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trino</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">trino.url</span><span class="p">:</span><span class="w">           </span><span class="s">&quot;https://trino-gw.chango.example:443&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">trino.user</span><span class="p">:</span><span class="w">          </span><span class="s">&quot;${conn.trinoGw.username}&quot;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">trino.password</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;${conn.trinoGw.password}&quot;</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">trino.ssl.trustStore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kiok/certs/trino-gw.pem</span><span class="w">   </span><span class="c1"># the gateway&#39;s certificate, on every worker</span>
 </code></pre></div>
-<p>The same keys work for <code>ontul.</code> and <code>livy.</code> tasks (<code>ontul.ssl.trustStore</code>, <code>livy.ssl.insecure</code>, …) and,
-without a prefix, for <code>http</code> tasks (<code>ssl.trustStore</code>). The SDKs take them too: Python
-<code>dag.trino(..., ssl_trust_store=..., ssl_trust_store_password=..., ssl_insecure=...)</code>, Java
-<code>.trinoTrustStore(path, password)</code> / <code>.trinoInsecure(true)</code> (and the <code>ontul</code> / <code>livy</code> variants).</p>
+<p>Every HTTPS task type takes the same four keys under its own prefix — they are not trino-only:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trino</code></td>
+<td><code>trino.ssl.trustStore</code>, <code>trino.ssl.trustStorePassword</code>, <code>trino.ssl.trustStoreType</code>, <code>trino.ssl.insecure</code></td>
+</tr>
+<tr>
+<td><code>ontul</code></td>
+<td><code>ontul.ssl.trustStore</code>, <code>ontul.ssl.trustStorePassword</code>, <code>ontul.ssl.trustStoreType</code>, <code>ontul.ssl.insecure</code></td>
+</tr>
+<tr>
+<td><code>livy</code></td>
+<td><code>livy.ssl.trustStore</code>, <code>livy.ssl.trustStorePassword</code>, <code>livy.ssl.trustStoreType</code>, <code>livy.ssl.insecure</code></td>
+</tr>
+<tr>
+<td><code>http</code></td>
+<td><code>ssl.trustStore</code>, <code>ssl.trustStorePassword</code>, <code>ssl.trustStoreType</code>, <code>ssl.insecure</code> (no prefix)</td>
+</tr>
+</tbody>
+</table>
+<p>The SDKs take them too: Python <code>dag.trino(...)</code> / <code>dag.ontul(...)</code> / <code>dag.livy(...)</code> with
+<code>ssl_trust_store=..., ssl_trust_store_password=..., ssl_trust_store_type=..., ssl_insecure=...</code>; Java
+<code>.trinoTrustStore(path, password)</code> / <code>.trinoTrustStoreType("PKCS12")</code> / <code>.trinoInsecure(true)</code> and the
+<code>ontul…</code> / <code>livy…</code> variants (<code>.ontulTrustStore(...)</code>, <code>.livyTrustStore(...)</code>, …).</p>
+<h4 id="set-it-once-for-every-task">Set it once for every task</h4>
+<p>If all your gateways share one CA, set the trust store once on the <strong>workers</strong> instead of in every task
+(<code>conf/kiok.properties</code>, or the matching environment variables):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="na">kiok.task.ssl.trust.store</span><span class="o">=</span><span class="s">/etc/kiok/certs/company-ca.p12</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="na">kiok.task.ssl.trust.store.password</span><span class="o">=</span><span class="s">changeit</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># kiok.task.ssl.trust.store.type=PKCS12   # detected when empty</span>
+</code></pre></div>
+<p>It applies to <code>trino</code>, <code>ontul</code>, <code>livy</code> and <code>http</code> tasks that set neither <code>&lt;prefix&gt;.ssl.trustStore</code> nor
+<code>&lt;prefix&gt;.ssl.insecure</code>. It is added to the JVM's default CAs (public endpoints keep working), host names
+are still verified, and a task's own keys win. There is deliberately no worker-wide <code>insecure</code>. The
+worker checks the file at startup and logs <code>HTTPS tasks trust … (kiok.task.ssl.trust.store)</code>, or an error
+if it cannot be read; each task log says which trust store it used.</p>
 <h2 id="ontul"><code>ontul</code></h2>
 <p>Submits a job to an <a href="https://cloudcheflabs.github.io/ontul-docs">ontul</a> cluster via its REST API and tails the job status + log until terminal. Four ontul job shapes are supported via <code>ontul.jobType</code>:</p>
 <ul>
@@ -1975,38 +2066,75 @@ without a prefix, for <code>http</code> tasks (<code>ssl.trustStore</code>). The
 <p class="admonition-title">Tip</p>
 <p>This section is a summary. For the full operator guide — S3-hosted vs locally-staged artifacts, the three authoring forms, the ontul job sources, and the complete config reference — see <a href="../ontul-operator/">Ontul Operator</a>.</p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_rollup</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;BATCH&quot;</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="no">INSERT INTO warehouse.daily_rollup</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="no">SELECT date(event_ts), customer_id, sum(amount)</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="no">FROM warehouse.events</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="no">WHERE date(event_ts) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="no">GROUP BY 1, 2</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_rollup</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;BATCH&quot;</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="no">INSERT INTO warehouse.daily_rollup</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="no">SELECT date(event_ts), customer_id, sum(amount)</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="no">FROM warehouse.events</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="no">WHERE date(event_ts) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="no">GROUP BY 1, 2</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontul.ssl.trustStore</code></td>
+<td>For an HTTPS ontul endpoint / gateway with a self-signed or private-CA certificate: a PEM, JKS or PKCS12 file <strong>on the worker</strong> holding the certificate or CA. Trusted in addition to the JVM's default CAs; the host name is still verified</td>
+</tr>
+<tr>
+<td><code>ontul.ssl.trustStorePassword</code></td>
+<td>Password of a JKS / PKCS12 trust store (not needed for PEM); can be <code>${conn.&lt;id&gt;.password}</code></td>
+</tr>
+<tr>
+<td><code>ontul.ssl.trustStoreType</code></td>
+<td><code>PEM</code> / <code>JKS</code> / <code>PKCS12</code>; detected when omitted</td>
+</tr>
+<tr>
+<td><code>ontul.ssl.insecure</code></td>
+<td><code>"true"</code> accepts any certificate and host name — development only; default <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly_rollup</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;https://ontul-gw.example:9443&quot;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nt">ontul.ssl.trustStore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kiok/certs/gw-trust.p12</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nt">ontul.ssl.trustStorePassword</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${conn.gwTrust.password}&quot;</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="no">SELECT 1</span>
+</code></pre></div>
+<p>See <a href="#https-endpoints-with-a-self-signed-certificate">HTTPS endpoints with a self-signed certificate</a>.</p>
 <h3 id="spark-style-s3-staging-for-class-python-deps">Spark-style S3 staging for CLASS / PYTHON deps</h3>
 <p><code>ontul.deps</code> and <code>ontul.scriptPath</code> accept either pre-existing cluster paths or <strong>local file paths on the kiok worker</strong>. When you set <code>ontul.depsConnectionId</code>, the worker uploads the local files to S3 under a content-addressed key (<code>&lt;sha256&gt;-&lt;filename&gt;</code>) before submitting — HEAD-first so an unchanged jar costs one HEAD instead of one PUT. The S3 URI is what ontul sees; ontul's worker then downloads it via its own <code>S3DepFetcher</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrichment_class</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;CLASS&quot;</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">ontul.className</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;com.example.RollupEnrichment&quot;</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="c1"># Mixed local + s3 paths — locals get staged, s3:// passes through.</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nt">ontul.deps</span><span class="p">:</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/home/ci/build/libs/rollup-enrichment-1.0.jar&quot;</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;s3://shared-deps/common-utils-2.1.jar&quot;</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nt">ontul.depsConnectionId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ss-staging&quot;</span><span class="w">     </span><span class="c1"># kiok-side S3 connection for upload</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="nt">ontul.depsS3Prefix</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;staging/ontul-deps&quot;</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="c1"># The ontul worker needs the same connection id to fetch the s3:// URI.</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="c1"># ontul.jobConfig is forwarded verbatim as ontul&#39;s job-level `config`.</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">    </span><span class="nt">ontul.jobConfig</span><span class="p">:</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">      </span><span class="nt">ontul.deps.s3.connectionId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ss-staging&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrichment_class</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;CLASS&quot;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">ontul.className</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;com.example.RollupEnrichment&quot;</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="c1"># Mixed local + s3 paths — locals get staged, s3:// passes through.</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">ontul.deps</span><span class="p">:</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/home/ci/build/libs/rollup-enrichment-1.0.jar&quot;</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;s3://shared-deps/common-utils-2.1.jar&quot;</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nt">ontul.depsConnectionId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ss-staging&quot;</span><span class="w">     </span><span class="c1"># kiok-side S3 connection for upload</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nt">ontul.depsS3Prefix</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;staging/ontul-deps&quot;</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="c1"># The ontul worker needs the same connection id to fetch the s3:// URI.</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="c1"># ontul.jobConfig is forwarded verbatim as ontul&#39;s job-level `config`.</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="nt">ontul.jobConfig</span><span class="p">:</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">      </span><span class="nt">ontul.deps.s3.connectionId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ss-staging&quot;</span>
 </code></pre></div>
 <table>
 <thead>

@@ -32,6 +32,9 @@ bin/stop-worker.sh
 
 `stop-worker.sh` drains in-flight tasks before exiting (up to `kiok.worker.shutdown.drain.timeout.seconds`).
 
+With no argument, `bin/stop-master.sh` stops the Master running from this installation. The start script names the PID file after the instance's port (`bin/master-<port>.pid`, the admin port), and the stop script looks there. When several Masters run from the same installation it does not guess: it lists their ports and exits 1, and you pass the port of the one to stop, e.g. `bin/stop-master.sh 8080`. It reports "not running" only when no Master from this installation is running.
+`bin/stop-worker.sh` works the same way with the Worker's internal port.
+
 ### ZooKeeper
 
 ```bash

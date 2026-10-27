@@ -83,7 +83,7 @@ The built-in KMS performs envelope encryption of at-rest stores and, optionally,
 
 | Property | Default | Description |
 |---|---|---|
-| `kiok.kms.enabled` | `true` | Master switch for the built-in KMS. When `true`, a `KIOK_MASTER_KEY` must be available to unseal it. Disabling turns off encryption of metadata/IAM/connection/job-log/backup data. |
+| `kiok.kms.enabled` | `true` | Master switch for the built-in KMS. When `true`, a `KIOK_MASTER_KEY` must be available to unseal it. Disabling turns off encryption of metadata/IAM/connection/job-log data, and backups are refused (they would carry every secret in the clear). |
 | `kiok.kms.rocksdb.path` | `${kiok.base.data.dir}/kms` | RocksDB directory where the KMS persists wrapped data-encryption keys. Must be persistent and protected. |
 | `kiok.kms.master.key.env` | `KIOK_MASTER_KEY` | Name of the environment variable holding the KMS master-key passphrase (the var name, not the key). Stretched via PBKDF2 to derive the key that unseals the KMS. |
 | `kiok.kms.pbkdf2.iterations` | `200000` | PBKDF2 iteration count for deriving the KMS root key. Higher is stronger but slows unseal at startup; changing it after keys are written may break unsealing of existing data. |
@@ -254,7 +254,7 @@ Backup of metadata/KMS/IAM/connection/job-log state to S3 — on demand or on a 
 |---|---|---|
 | `kiok.backup.enabled` | `false` | Initial default only — the live on/off toggle is persisted in the metadata store and changed at runtime from the admin UI, not by editing this file. |
 | `kiok.backup.s3.prefix` | `backups` | Key prefix (folder) under the shared bucket where backup objects are written. |
-| `kiok.backup.kms.key.id` | `backup-encryption` | KMS key id used to envelope-encrypt backup objects at rest. |
+| `kiok.backup.kms.key.id` | `backup-encryption` | KMS key id used to envelope-encrypt the backed-up stores at rest. The keystore itself (`kms.bin`) is sealed with the master key, so a backup restores onto a new cluster with the same `KIOK_MASTER_KEY`. |
 
 ## Logging
 

@@ -19,6 +19,8 @@ kiok separates the control/coordination plane from the execution plane so the tw
 - A cluster opens to API traffic only when every Master and at least one Worker is ready. Until then, requests are rejected with `503`. There is no timeout — a cluster started without any Worker simply stays closed.
 - The previous leader tends to win re-election after a restart (sticky leadership), so cluster state moves as little as possible.
 - All state changes run on the leader. Admin requests that land on a follower are automatically routed to the leader, so a single source of truth is preserved.
+- A password change sent to a follower is applied on the leader and answered only once that follower accepts the new password too. If it cannot catch up, the answer is `502` and says the old password still works on that master, so you never get a success while the old password is still valid there.
+- A Master or Worker that stalls longer than its ZooKeeper session timeout (a long GC pause, a frozen VM, a network partition) loses its registration with the session. When it reconnects it registers again and fetches IAM, KMS, connections and metadata from the leader, so it is back in every later state push. Its log records `Re-registered … the previous session expired`.
 - Default `admin/admin` credentials are created only on the very first cluster bootstrap. After that the cluster never recreates defaults — protecting against any local issue silently overwriting your real IAM.
 
 ## Two surfaces

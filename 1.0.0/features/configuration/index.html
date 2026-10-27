@@ -2176,7 +2176,7 @@
 <tr>
 <td><code>kiok.kms.enabled</code></td>
 <td><code>true</code></td>
-<td>Master switch for the built-in KMS. When <code>true</code>, a <code>KIOK_MASTER_KEY</code> must be available to unseal it. Disabling turns off encryption of metadata/IAM/connection/job-log/backup data.</td>
+<td>Master switch for the built-in KMS. When <code>true</code>, a <code>KIOK_MASTER_KEY</code> must be available to unseal it. Disabling turns off encryption of metadata/IAM/connection/job-log data, and backups are refused (they would carry every secret in the clear).</td>
 </tr>
 <tr>
 <td><code>kiok.kms.rocksdb.path</code></td>
@@ -2771,7 +2771,7 @@ the next restart, silently. See <a href="../sso/">Single Sign-On</a>.</p>
 <tr>
 <td><code>kiok.backup.kms.key.id</code></td>
 <td><code>backup-encryption</code></td>
-<td>KMS key id used to envelope-encrypt backup objects at rest.</td>
+<td>KMS key id used to envelope-encrypt the backed-up stores at rest. The keystore itself (<code>kms.bin</code>) is sealed with the master key, so a backup restores onto a new cluster with the same <code>KIOK_MASTER_KEY</code>.</td>
 </tr>
 </tbody>
 </table>

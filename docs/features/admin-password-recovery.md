@@ -58,6 +58,36 @@ admin's next login (the `requirePasswordChange` flag is set automatically).
 bin/kiok-cli.sh iam:reset-password
 ```
 
+### Change the password once before using the API
+
+Until the reset password is changed, the account can log in but every other API call answers
+`403 password change required`. The console asks for the change at the first login; scripts must do it
+themselves. The CLI prints the same reminder on stderr after every reset (stdout stays just the
+generated password, so `PW=$(bin/kiok-cli.sh iam:reset-password)` still works):
+
+```bash
+TOKEN=$(curl -s -X POST http://<master>:<port>/api/v1/auth/login -H 'Content-Type: application/json' \
+  -d '{"user":"admin","password":"<reset password>"}' | jq -r .accessToken)
+curl -s -X POST http://<master>:<port>/api/v1/auth/change-password -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"oldPassword":"<reset password>","newPassword":"<new password>"}'
+# log in again with <new password>; the rest of the API now answers
+```
+
+### Which Java the CLI uses
+
+`bin/kiok-cli.sh` (like `start-master.sh`, `start-worker.sh` and `start-zk.sh`) runs
+`$JAVA_HOME/bin/java` when `JAVA_HOME` is set, otherwise `java` from `PATH`. On hosts where the JDK is
+installed outside `PATH`, set `JAVA_HOME` before running the CLI:
+
+```bash
+export JAVA_HOME=/opt/openlogic-openjdk-17.0.7+7-linux-x64
+bin/kiok-cli.sh iam:reset-password
+```
+
+A `JAVA_HOME` that does not contain `bin/java` is refused with a message naming it (exit 1). Earlier
+builds checked `JAVA_HOME` but then ran a bare `java`, failing with `exec: java: not found` (exit 127).
+
 ## Multi-master clusters
 
 IAM is owned by the leader: the leader applies a change and pushes it to every master. You can run
@@ -250,8 +280,10 @@ and shell history accordingly — or use stdin input mode to avoid argv
 exposure entirely.
 
 **4. Forced rotation on next login.**
-After reset, the user is flagged `requirePasswordChange = true`. The next
-successful login forces the user through the change-password flow, so a
+After reset, the user is flagged `requirePasswordChange = true`. Until the
+password is changed, every API call except login, session and change-password
+answers 403 (see [Change the password once](#change-the-password-once-before-using-the-api)).
+The next successful console login forces the user through the change-password flow, so a
 temporary password used by the operator is immediately replaced by a
 password only the user knows.
 

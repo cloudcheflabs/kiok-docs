@@ -1168,6 +1168,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Quick start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#change-the-password-once-before-using-the-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change the password once before using the API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-java-the-cli-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which Java the CLI uses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1845,6 +1873,27 @@ admin's next login (the <code>requirePasswordChange</code> flag is set automatic
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Inside the master host or container:</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
 </code></pre></div>
+<h3 id="change-the-password-once-before-using-the-api">Change the password once before using the API</h3>
+<p>Until the reset password is changed, the account can log in but every other API call answers
+<code>403 password change required</code>. The console asks for the change at the first login; scripts must do it
+themselves. The CLI prints the same reminder on stderr after every reset (stdout stays just the
+generated password, so <code>PW=$(bin/kiok-cli.sh iam:reset-password)</code> still works):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://&lt;master&gt;:&lt;port&gt;/api/v1/auth/login<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;user&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;&lt;reset password&gt;&quot;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.accessToken<span class="k">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://&lt;master&gt;:&lt;port&gt;/api/v1/auth/change-password<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;oldPassword&quot;:&quot;&lt;reset password&gt;&quot;,&quot;newPassword&quot;:&quot;&lt;new password&gt;&quot;}&#39;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># log in again with &lt;new password&gt;; the rest of the API now answers</span>
+</code></pre></div>
+<h3 id="which-java-the-cli-uses">Which Java the CLI uses</h3>
+<p><code>bin/kiok-cli.sh</code> (like <code>start-master.sh</code>, <code>start-worker.sh</code> and <code>start-zk.sh</code>) runs
+<code>$JAVA_HOME/bin/java</code> when <code>JAVA_HOME</code> is set, otherwise <code>java</code> from <code>PATH</code>. On hosts where the JDK is
+installed outside <code>PATH</code>, set <code>JAVA_HOME</code> before running the CLI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_HOME</span><span class="o">=</span>/opt/openlogic-openjdk-17.0.7+7-linux-x64
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
+</code></pre></div>
+<p>A <code>JAVA_HOME</code> that does not contain <code>bin/java</code> is refused with a message naming it (exit 1). Earlier
+builds checked <code>JAVA_HOME</code> but then ran a bare <code>java</code>, failing with <code>exec: java: not found</code> (exit 127).</p>
 <h2 id="multi-master-clusters">Multi-master clusters</h2>
 <p>IAM is owned by the leader: the leader applies a change and pushes it to every master. You can run
 the CLI on <strong>any</strong> master host:</p>
@@ -1854,15 +1903,15 @@ the CLI on <strong>any</strong> master host:</p>
 <p><strong>On a follower</strong> — the follower forwards the reset to the leader over the internal protocol, waits
   for its answer, and checks that its own copy has the new password (pulling it from the leader if
   the push has not arrived). The CLI notes where it was applied:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ docker exec kiok-master-2 /app/bin/kiok-cli.sh iam:reset-password --new-password &#39;N3w!Pass&#39;
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>note: this master is a follower; the reset was applied on the leader master-master-1-19999 (master-1:19999) and replicated to the cluster.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ docker exec kiok-master-2 /app/bin/kiok-cli.sh iam:reset-password --new-password &#39;N3w!Pass&#39;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>note: this master is a follower; the reset was applied on the leader master-master-1-19999 (master-1:19999) and replicated to the cluster.
 </code></pre></div>
 </li>
 <li>
 <p><strong>No reachable leader</strong> (none elected yet, or the leader is down, frozen or partitioned) — the CLI
   <strong>fails with exit code 1</strong>, names the leader it tried, and says the password was <strong>not</strong> changed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>error: this master (master-master-2-19999) is a follower and the leader master-master-1-19999 (master-1:19999)
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>did not apply the reset (no answer within 30000 ms); the password was NOT changed. ...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>error: this master (master-master-2-19999) is a follower and the leader master-master-1-19999 (master-1:19999)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>did not apply the reset (no answer within 30000 ms); the password was NOT changed. ...
 </code></pre></div>
 </li>
 </ul>
@@ -1871,8 +1920,8 @@ the CLI on <strong>any</strong> master host:</p>
   reported as failed never lands afterwards. Once a new leader is elected (after the ZooKeeper session
   timeout), run the CLI again; on the new leader it applies in place.</p>
 <p><code>bin/kiok-cli.sh ping</code> shows the role of the local master and, on a follower, the leader:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ bin/kiok-cli.sh ping
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pong (follower master-master-2-19999; leader: master-master-1-19999 (master-1:19999))
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$ bin/kiok-cli.sh ping
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pong (follower master-master-2-19999; leader: master-master-1-19999 (master-1:19999))
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">kiok 1.0.0 builds before 2026-10-27</p>
@@ -1912,24 +1961,24 @@ the CLI on <strong>any</strong> master host:</p>
 </tbody>
 </table>
 <p>Resetting a different user is also supported:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password<span class="w"> </span>--user<span class="w"> </span>some-user<span class="w"> </span>--new-password<span class="w"> </span><span class="s1">&#39;NewPass123&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password<span class="w"> </span>--user<span class="w"> </span>some-user<span class="w"> </span>--new-password<span class="w"> </span><span class="s1">&#39;NewPass123&#39;</span>
 </code></pre></div>
 <h2 id="configuration">Configuration</h2>
 <p>The recovery socket is enabled by default. Every key below lives in
 <code>conf/kiok.properties</code> and is read at master startup:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># conf/kiok.properties</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># Set false to remove the local recovery path entirely.</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="na">kiok.admin.socket.enabled</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="na">kiok.admin.socket.path</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">${kiok.base.data.dir}/admin.sock</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Name of the file under &lt;kiok.home&gt;/bin that receives the socket path the</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="c1"># master actually bound to (see &quot;How the CLI finds the socket&quot; below).</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="na">kiok.admin.socket.marker.file</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">master.socket</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># Append-only audit trail of socket operations.</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="na">kiok.iam.audit.dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${kiok.base.data.dir}/iam-audit</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># How long a follower waits for the leader to confirm a forwarded reset.</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># Keep well above kiok.internal.rpc.timeout.ms; masters&#39; clocks must be in</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="c1"># sync (NTP) to within a few seconds.</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="na">kiok.admin.socket.forward.timeout.ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30000</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># conf/kiok.properties</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># Set false to remove the local recovery path entirely.</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="na">kiok.admin.socket.enabled</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="na">kiok.admin.socket.path</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">${kiok.base.data.dir}/admin.sock</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1"># Name of the file under &lt;kiok.home&gt;/bin that receives the socket path the</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># master actually bound to (see &quot;How the CLI finds the socket&quot; below).</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="na">kiok.admin.socket.marker.file</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">master.socket</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># Append-only audit trail of socket operations.</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="na">kiok.iam.audit.dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${kiok.base.data.dir}/iam-audit</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c1"># How long a follower waits for the leader to confirm a forwarded reset.</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="c1"># Keep well above kiok.internal.rpc.timeout.ms; masters&#39; clocks must be in</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1"># sync (NTP) to within a few seconds.</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="na">kiok.admin.socket.forward.timeout.ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30000</span>
 </code></pre></div>
 <p>The socket follows <code>kiok.base.data.dir</code>. If you launch the master with
 <code>-Dkiok.base.data.dir=/var/lib/kiok</code> the socket moves to
@@ -1956,8 +2005,8 @@ shutdown. <code>bin/kiok-cli.sh</code> prefers it.</p>
 <code>/data/admin.sock</code> and the properties file still saying <code>./data</code>, only the marker
 knows where to connect.</p>
 <p>To rename the marker, change one key — both ends read it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># conf/kiok.properties</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>kiok.admin.socket.marker.file<span class="w"> </span><span class="o">=</span><span class="w"> </span>kiok-recovery.socket
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># conf/kiok.properties</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>kiok.admin.socket.marker.file<span class="w"> </span><span class="o">=</span><span class="w"> </span>kiok-recovery.socket
 </code></pre></div>
 <p>Restart the master; it publishes <code>bin/kiok-recovery.socket</code>, and the CLI
 picks the new name up from the same properties file.</p>
@@ -1965,42 +2014,42 @@ picks the new name up from the same properties file.</p>
 <p><code>KIOK_MASTER_KEY</code> must be exported for the master process. The start script does not pre-check it, but KMS is enabled by default and the master cannot unseal its keystore without the key, so startup fails during KMS initialisation.
 The variable name itself is configurable — <code>kiok.kms.master.key.env</code> in
 <code>conf/kiok.properties</code> names the variable the master reads:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">KIOK_MASTER_KEY</span><span class="o">=</span><span class="s1">&#39;replace-with-a-32-char-or-longer-secret&#39;</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>bin/start-master.sh
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">KIOK_MASTER_KEY</span><span class="o">=</span><span class="s1">&#39;replace-with-a-32-char-or-longer-secret&#39;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>bin/start-master.sh
 </code></pre></div>
 <p><code>bin/kiok-cli.sh</code> does <strong>not</strong> need it. The CLI only opens the Unix socket and
 hands the request to the running master, which already holds the unsealed key,
 so this works with the variable unset:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">unset</span><span class="w"> </span>KIOK_MASTER_KEY
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>bin/kiok-cli.sh<span class="w"> </span>ping
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># pong</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">unset</span><span class="w"> </span>KIOK_MASTER_KEY
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>bin/kiok-cli.sh<span class="w"> </span>ping
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># pong</span>
 </code></pre></div>
 <p>If a CLI invocation complains about the key rather than the socket, you are
 running a start script, not the CLI.</p>
 <h3 id="worked-examples">Worked examples</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># 1. On the host, as the same OS user that runs the master:</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nb">cd</span><span class="w"> </span>/opt/kiok
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>bin/kiok-cli.sh<span class="w"> </span>ping
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="c1"># 2. The master runs as a service account and you are root:</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>sudo<span class="w"> </span>-u<span class="w"> </span>kiok<span class="w"> </span>/opt/kiok/bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1"># 3. Inside a container:</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>kiok-master-1<span class="w"> </span>/app/bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># 4. Data dir was relocated at launch — no extra flags needed, the CLI</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="c1">#    reads the published marker:</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>cat<span class="w"> </span>/opt/kiok/bin/master.socket
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="c1"># /var/lib/kiok/admin.sock</span>
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>bin/kiok-cli.sh<span class="w"> </span>ping
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="c1"># 5. Socket in a non-standard place and no marker (the master is stopped,</span>
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="c1">#    or you are on a host where the marker was cleaned up):</span>
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>bin/kiok-cli.sh<span class="w"> </span>--socket<span class="w"> </span>/var/lib/kiok/admin.sock<span class="w"> </span>iam:reset-password
-<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>
-<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="c1"># 6. Non-interactive automation, password from stdin so it never reaches argv:</span>
-<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;S0me!Strong!Pass&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password<span class="w"> </span>--new-password<span class="w"> </span>-
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># 1. On the host, as the same OS user that runs the master:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nb">cd</span><span class="w"> </span>/opt/kiok
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>bin/kiok-cli.sh<span class="w"> </span>ping
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># 2. The master runs as a service account and you are root:</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>sudo<span class="w"> </span>-u<span class="w"> </span>kiok<span class="w"> </span>/opt/kiok/bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1"># 3. Inside a container:</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>kiok-master-1<span class="w"> </span>/app/bin/kiok-cli.sh<span class="w"> </span>iam:reset-password
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="c1"># 4. Data dir was relocated at launch — no extra flags needed, the CLI</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="c1">#    reads the published marker:</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>cat<span class="w"> </span>/opt/kiok/bin/master.socket
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="c1"># /var/lib/kiok/admin.sock</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>bin/kiok-cli.sh<span class="w"> </span>ping
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="c1"># 5. Socket in a non-standard place and no marker (the master is stopped,</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="c1">#    or you are on a host where the marker was cleaned up):</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>bin/kiok-cli.sh<span class="w"> </span>--socket<span class="w"> </span>/var/lib/kiok/admin.sock<span class="w"> </span>iam:reset-password
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="c1"># 6. Non-interactive automation, password from stdin so it never reaches argv:</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;S0me!Strong!Pass&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bin/kiok-cli.sh<span class="w"> </span>iam:reset-password<span class="w"> </span>--new-password<span class="w"> </span>-
 </code></pre></div>
 <h2 id="security-model">Security model</h2>
 <p><strong>1. The socket is OS-gated.</strong>
@@ -2014,7 +2063,7 @@ fingerprint (SHA-256 of the stored hash, 12 hex characters), the user,
 whether it was master-generated, the OS user that invoked the CLI and, in a
 cluster, the route (<code>forwardedTo=&lt;leader&gt;</code> on the follower that ran the CLI,
 <code>forwardedFrom=&lt;follower&gt;</code> on the leader that applied it).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span><span class="nt">&quot;ts&quot;</span><span class="p">:</span><span class="s2">&quot;2026-10-27T05:12:40.118Z&quot;</span><span class="p">,</span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="s2">&quot;iam.reset-password&quot;</span><span class="p">,</span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="nt">&quot;generated&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">&quot;hashFp&quot;</span><span class="p">:</span><span class="s2">&quot;3f9c0a71d2e4&quot;</span><span class="p">,</span><span class="nt">&quot;invokedAs&quot;</span><span class="p">:</span><span class="s2">&quot;root&quot;</span><span class="p">,</span><span class="nt">&quot;route&quot;</span><span class="p">:</span><span class="s2">&quot;forwardedFrom=master-master-2-19999&quot;</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span><span class="nt">&quot;ts&quot;</span><span class="p">:</span><span class="s2">&quot;2026-10-27T05:12:40.118Z&quot;</span><span class="p">,</span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="s2">&quot;iam.reset-password&quot;</span><span class="p">,</span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="nt">&quot;generated&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">&quot;hashFp&quot;</span><span class="p">:</span><span class="s2">&quot;3f9c0a71d2e4&quot;</span><span class="p">,</span><span class="nt">&quot;invokedAs&quot;</span><span class="p">:</span><span class="s2">&quot;root&quot;</span><span class="p">,</span><span class="nt">&quot;route&quot;</span><span class="p">:</span><span class="s2">&quot;forwardedFrom=master-master-2-19999&quot;</span><span class="p">}</span>
 </code></pre></div>
 <p><strong>3. The new password is exposed exactly once.</strong>
 For master-generated passwords, the plaintext is returned only on the
@@ -2023,8 +2072,10 @@ audit log, not stored in RocksDB, and not retransmitted. Treat scrollback
 and shell history accordingly — or use stdin input mode to avoid argv
 exposure entirely.</p>
 <p><strong>4. Forced rotation on next login.</strong>
-After reset, the user is flagged <code>requirePasswordChange = true</code>. The next
-successful login forces the user through the change-password flow, so a
+After reset, the user is flagged <code>requirePasswordChange = true</code>. Until the
+password is changed, every API call except login, session and change-password
+answers 403 (see <a href="#change-the-password-once-before-using-the-api">Change the password once</a>).
+The next successful console login forces the user through the change-password flow, so a
 temporary password used by the operator is immediately replaced by a
 password only the user knows.</p>
 <p><strong>5. The master must be running.</strong>

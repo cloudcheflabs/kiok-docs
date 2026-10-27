@@ -17,7 +17,24 @@ A backup run captures five stores under one shared backup id, so a single restor
 - **connections** — the encrypted connection store.
 - **joblog** — per-task and per-run job logs.
 
-Job logs are included because, in the default no-S3-archival configuration, they live only in the leader's RocksDB — without backup, a leader disk loss would lose every completed run's log. Every store is KMS envelope-encrypted before it leaves the cluster.
+Job logs are included because, in the default no-S3-archival configuration, they live only in the leader's RocksDB — without backup, a leader disk loss would lose every completed run's log.
+
+## What Is Encrypted
+
+Nothing secret reaches the bucket in the clear. Each backup id is a folder with up to six objects:
+
+| Object | Contents | Sealed with |
+|---|---|---|
+| `kms.bin` | the KMS keystore | a key derived from the **master key** (`KIOK_MASTER_KEY`, PBKDF2) — the same sealing the keystore has on disk |
+| `metadata.bin`, `iam.bin`, `connections.bin`, `joblog.bin` | DAGs and runs, users / password hashes / access keys / user tokens, connection credentials, job logs | AES-256-GCM envelope encryption; each data key is wrapped with the backup key (`kiok.backup.kms.key.id`, default `backup-encryption`) **from the keystore in `kms.bin`** |
+| `manifest.json` | backup id, time, `"format": 2`, and per store its SHA-256 and which backup id holds its bytes | not encrypted — it holds no secrets, and must be readable before any key is |
+
+So a backup opens with the master key alone: the master key opens `kms.bin`, and the keys in it open the
+other stores. Neither the cluster that made the backup nor its KMS directory is needed.
+
+**The KMS must be on.** With `kiok.kms.enabled=false` there is no key to seal anything with, so a backup
+is refused with `503` and the reason (`backups are encrypted with the KMS, and the KMS is off ...`) rather
+than writing passwords, access keys and connection credentials to S3 in the clear. Nothing is written.
 
 ## Configuration
 
@@ -72,12 +89,29 @@ The flow:
 
 1. The operator clicks **Restore** on a backup row and confirms.
 2. The leader reads that backup's `manifest.json`.
-3. For each of the five stores, it fetches the bytes (following the incremental pointer to whichever backup id actually holds them) and imports them — overwriting the live store.
-4. The leader sends the restored state (KMS first, then IAM, connections and metadata) to every other master and worker, so a user removed by the restore cannot still sign in through a follower.
-5. The restore completes; the cluster is now at the chosen snapshot.
+3. For each of the five stores, it fetches the bytes, following the incremental pointer to whichever backup id actually holds them.
+4. It opens `kms.bin` with its master key and decrypts **every** store with the keys in it — before anything is replaced. A backup that cannot be read leaves the cluster exactly as it was.
+5. It imports the keystore first, then metadata, IAM, connections and job logs (re-encrypted on disk with the restored keys) — overwriting the live stores.
+6. The leader sends the restored state (KMS first, then IAM, connections and metadata) to every other master and worker, so a user removed by the restore cannot still sign in through a follower.
+7. The restore completes; the cluster is now at the chosen snapshot.
 
-A restore that cannot run — no S3 target, a backup id that does not exist or cannot be read — answers
-`500` with an `error` that says so, and the page shows it.
+A restore that cannot run answers `500` with an `error` that says why, and the page shows it — no S3
+target, a backup id that does not exist, a missing store, or a backup this cluster cannot decrypt:
+
+- `the backup's keystore (kms.bin) cannot be opened with this cluster's master key` — the masters run
+  with another `KIOK_MASTER_KEY` than the cluster that made the backup.
+- `this backup is encrypted, and the KMS is off on this cluster` — start the masters with
+  `kiok.kms.enabled=true`.
+- `this backup was made in the older format ... this cluster does not have that key` — see below.
+
+### Backups from earlier versions
+
+Before this layout (backups without `"format": 2` in `manifest.json`), every object — the manifest and
+the keystore included — was sealed with the backup key, which exists only inside the keystore of the
+cluster that made it. Such a backup still restores **on that cluster**, as long as its KMS directory
+(`data/kms`) is intact; on a new cluster it is refused with the reason above, and the master key alone
+cannot open it. Take a new backup after upgrading so that a restorable one exists. Backups written by a
+cluster running without the KMS are plain and restore anywhere.
 
 Because the `joblog` store is restored too, completed-run logs come back along with DAGs, runs, IAM, KMS, and connections.
 
@@ -85,6 +119,24 @@ Because the `joblog` store is restored too, completed-run logs come back along w
 
 ## Disaster Recovery
 
-The intended recovery scenario: a Master loses its local disk. Bring up a fresh Master pointed at the same ZooKeeper and master key, open the **Backup &amp; Restore** page, and restore the latest backup from S3 — DAGs, run history, IAM, KMS, connections, and job logs are all reinstated.
+The intended recovery scenario: the cluster's state is gone — a Master lost its disk, or every Master
+and ZooKeeper had to be rebuilt. What a restore onto a brand-new cluster needs:
 
-Keeping the master key safe is essential: every backed-up store is envelope-encrypted, and without `KIOK_MASTER_KEY` the backup cannot be decrypted.
+1. **The same master key.** Start the Masters (and Workers) with the `KIOK_MASTER_KEY` of the cluster
+   that made the backup. Nothing else from the old cluster is needed — not its KMS directory, not its
+   ZooKeeper data.
+2. **The KMS on** (`kiok.kms.enabled=true`, the default).
+3. **The backup target.** Point the new cluster at the bucket: the default target is the job-log S3
+   settings (`kiok.joblog.s3.*`) with the same `kiok.backup.s3.prefix`; or create an S3
+   [connection](connections.md) to the bucket and select it as the **Backup S3 target**.
+4. Sign in with the new cluster's admin account (rotate the factory password), turn **Enabled** on,
+   pick the latest backup in **Backups in S3**, and **Restore**.
+
+DAGs, run history, users and their passwords, access keys and user tokens, policies, connections, job
+logs and the KMS keys come back, on every Master: sign in again with the **backed-up** admin password —
+the new cluster's own one is replaced. Everything the new cluster wrote before the restore is replaced
+as well, the backup settings included (they come from the backup's metadata).
+
+Keeping the master key safe is essential: it is the one thing that opens a backup. Without the
+`KIOK_MASTER_KEY` the cluster ran with, the backup cannot be decrypted — store it apart from the
+bucket.

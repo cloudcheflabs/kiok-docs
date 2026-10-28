@@ -18,6 +18,7 @@ For every server in `kiok.zk.serverList`:
 | Column | Meaning |
 |---|---|
 | Server | `host:port` from the connect string (a chroot suffix such as `/kiok` is ignored) |
+| Server id | the server's own id (`myid`) as it reports it to `conf`, or `server id unknown (...)` with the reason |
 | Role | `leader`, `follower`, `observer`, or `standalone` for a single-server ZooKeeper |
 | Status | `up` when the server answers and is serving; `down` otherwise, with the reason underneath |
 | Version | the ZooKeeper version the server runs |
@@ -39,7 +40,8 @@ with a timeout of `kiok.zk.topology.probe.timeout.ms` (default 2000 ms), so the 
 one timeout even when servers are unreachable.
 
 `srvr` is on ZooKeeper's default four-letter-word whitelist (`4lw.commands.whitelist`) since
-3.5, so no ZooKeeper configuration is needed. A server is shown `down` when:
+3.5, so the state needs no ZooKeeper configuration (the server id does — see
+[Server ids](#server-ids-myid)). A server is shown `down` when:
 
 - the connection or the read times out, or the connection is refused — the reason is the network
   error, for example `SocketTimeoutException: Connect timed out`;
@@ -50,6 +52,33 @@ one timeout even when servers are unreachable.
   server's state.
 
 The probe is read-only and any Master answers it; it does not go through the leader.
+
+### Server ids (myid)
+
+Every server of an ensemble needs its own id (`myid`). Two servers with the same id — typically
+left behind by a scale-out or a rebuild that reused an instance number — or servers that do not
+agree on who is in the ensemble break it **silently**: ZooKeeper raises no error, and clients just
+see an unstable or split service. The card therefore also asks each server that is up with the
+`conf` four-letter word, which reports the server's own `serverId` and the ensemble membership it
+was configured with (its `server.N=` lines), and shows a red line above the table for each
+problem it finds:
+
+| Warning | Meaning |
+|---|---|
+| `Duplicate ZooKeeper server id 2 on zk2:2181, zk3:2181 — the ensemble is misconfigured; give every server a unique myid` | two or more configured servers report the same id |
+| `ZooKeeper server zk4:2181 reports server id 4, which is not in its own ensemble membership (1, 2, 3) — check its myid` | a server's id is not among the `server.N` entries it was configured with |
+| `ZooKeeper servers disagree about the ensemble membership: zk1:2181, zk2:2181 list server ids 1, 2, 3; zk3:2181 lists server ids 2 — every server must be configured with the same server.N list` | the servers were configured with different ensembles |
+| `ZooKeeper server id unknown on zk1:2181, zk2:2181, zk3:2181 (conf not in 4lw.commands.whitelist) — a duplicate myid cannot be ruled out` | the id could not be read (here `conf` is not whitelisted; also `server is down`, `server is not serving requests`) — the check is never reported as passing for those servers |
+| `ZooKeeper servers zk1:2181, zk2:2181 run standalone — a standalone server is a separate single-server ZooKeeper, not part of one ensemble with the other configured servers` | the connect string lists several servers but some run standalone |
+
+A healthy ensemble shows each server's id and no warning. A single standalone ZooKeeper reports id
+`0` and is not a warning.
+
+`conf` is **not** on ZooKeeper's default whitelist. Add it next to `srvr`, for example
+`4lw.commands.whitelist=srvr,conf` (the `zookeeper` Docker image: `ZOO_4LW_COMMANDS_WHITELIST=srvr,conf`).
+Without it every server's id is shown as `server id unknown (conf not in 4lw.commands.whitelist)`.
+The ZooKeeper bundled with kiok (`conf/zk/zoo.cfg`) whitelists all four-letter words (`*`), so
+`conf` is allowed there.
 
 ### Reading it during an incident
 
@@ -63,6 +92,9 @@ The probe is read-only and any Master answers it; it does not go through the lea
   Restore enough servers for a majority.
 - **Zxids that stay apart.** A follower whose zxid does not converge with the leader's is not
   keeping up; check its disk and network.
+- **A duplicate server id or a membership mismatch.** Fix the `myid` file in the server's data
+  directory (or `ZOO_MY_ID`) and its `server.N=` lines so that every server has a unique id and all
+  of them list the same ensemble, then restart the misconfigured server.
 
 ## Masters and Workers
 
@@ -98,14 +130,25 @@ GET /api/v1/admin/zookeeper    # the ZooKeeper ensemble only
   "servers": [
     { "host": "zk1", "port": 2181, "status": "UP", "mode": "follower", "version": "3.9.6",
       "zxid": "0x200000004", "connections": 2, "latencyMin": 0, "latencyAvg": 5.94, "latencyMax": 57,
-      "received": 1520, "sent": 1533, "outstanding": 0, "nodeCount": 16, "error": null },
+      "received": 1520, "sent": 1533, "outstanding": 0, "nodeCount": 16,
+      "serverId": 1, "serverIdNote": null,
+      "membership": { "1": "zk1:2888:3888:participant;0.0.0.0:2181",
+                      "2": "zk2:2888:3888:participant;0.0.0.0:2181",
+                      "3": "zk3:2888:3888:participant;0.0.0.0:2181" },
+      "error": null },
     { "host": "zk3", "port": 2181, "status": "DOWN", "mode": null, "version": null, "zxid": null,
       "connections": null, "latencyMin": null, "latencyAvg": null, "latencyMax": null,
       "received": null, "sent": null, "outstanding": null, "nodeCount": null,
+      "serverId": null, "serverIdNote": "server id unknown (server is down)", "membership": {},
       "error": "SocketTimeoutException: Connect timed out" }
+  ],
+  "warnings": [
+    "ZooKeeper server id unknown on zk3:2181 (server is down) — a duplicate myid cannot be ruled out"
   ]
 }
 ```
+
+`warnings` is empty when every server reported a unique id and all of them agree on the membership.
 
 `/api/v1/admin/nodes` returns `{ "masters": [...], "workers": [...], "zookeeper": { ... } }` with the
 same `zookeeper` object.
@@ -115,7 +158,7 @@ same `zookeeper` object.
 | Property | Default | Description |
 |---|---|---|
 | `kiok.zk.serverList` | `localhost:2181` | The ensemble the cluster uses — and the servers the card lists. |
-| `kiok.zk.topology.probe.timeout.ms` | `2000` | Connect and read timeout (ms) of the `srvr` probe sent to each server. A server that does not answer within it is shown `down`. |
+| `kiok.zk.topology.probe.timeout.ms` | `2000` | Connect and read timeout (ms) of the `srvr` and `conf` probes sent to each server. A server that does not answer within it is shown `down`. |
 
 ## Verified
 
@@ -124,3 +167,12 @@ ensemble (`tests/docker-compose-zk-ensemble.yml`) and checks: all three servers 
 leader and two followers and every field reported; a stopped server `down` with the reason while
 the other two stay `up` and the Master's session stays connected; the server `up` again after a
 restart; and the Topology page rendering the section in a headless browser.
+
+`tests/e2e-zk-myid.sh` runs a Master on a real three-server ensemble
+(`tests/docker-compose-zk-myid.yml`) and checks, on the API and on the Topology page in Chrome from
+a non-secure origin (`http://kiok-ui.test:<port>`, `tests/ui-e2e/45-zk-myid.mjs`): a healthy
+ensemble shows ids 1, 2, 3 and no warning; a server recreated as a separate ensemble that reuses
+id 2 produces the exact duplicate-id and membership warnings, which clear once it is restored; and
+with `conf` removed from the whitelist every server reads
+`server id unknown (conf not in 4lw.commands.whitelist)` with the unknown-id warning instead of a
+false all-clear.

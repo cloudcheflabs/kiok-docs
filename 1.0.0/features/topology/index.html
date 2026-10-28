@@ -1827,7 +1827,7 @@ problem it finds:</p>
 <td>the servers were configured with different ensembles</td>
 </tr>
 <tr>
-<td><code>ZooKeeper server id unknown on zk1:2181, zk2:2181, zk3:2181 (conf not in 4lw.commands.whitelist) — a duplicate myid cannot be ruled out</code></td>
+<td><code>ZooKeeper server id unknown on zk1:2181, zk2:2181, zk3:2181 (conf not in 4lw.commands.whitelist; add conf there and restart that ZooKeeper server) — a duplicate myid cannot be ruled out</code></td>
 <td>the id could not be read (here <code>conf</code> is not whitelisted; also <code>server is down</code>, <code>server is not serving requests</code>) — the check is never reported as passing for those servers</td>
 </tr>
 <tr>
@@ -1839,10 +1839,11 @@ problem it finds:</p>
 <p>A healthy ensemble shows each server's id and no warning. A single standalone ZooKeeper reports id
 <code>0</code> and is not a warning.</p>
 <p><code>conf</code> is <strong>not</strong> on ZooKeeper's default whitelist. Add it next to <code>srvr</code>, for example
-<code>4lw.commands.whitelist=srvr,conf</code> (the <code>zookeeper</code> Docker image: <code>ZOO_4LW_COMMANDS_WHITELIST=srvr,conf</code>).
-Without it every server's id is shown as <code>server id unknown (conf not in 4lw.commands.whitelist)</code>.
-The ZooKeeper bundled with kiok (<code>conf/zk/zoo.cfg</code>) whitelists all four-letter words (<code>*</code>), so
-<code>conf</code> is allowed there.</p>
+<code>4lw.commands.whitelist=srvr,conf</code> (the <code>zookeeper</code> Docker image: <code>ZOO_4LW_COMMANDS_WHITELIST=srvr,conf</code>),
+and restart that ZooKeeper server: ZooKeeper reads the whitelist only at startup.
+Without it every server's id is shown as <code>server id unknown (conf not in 4lw.commands.whitelist; add conf there and restart that ZooKeeper server)</code>.
+The ZooKeeper bundled with kiok (<code>conf/zk/zoo.cfg</code>) ships with
+<code>4lw.commands.whitelist=srvr,conf,ruok,stat,mntr</code>, so <code>conf</code> is allowed there.</p>
 <h3 id="reading-it-during-an-incident">Reading it during an incident</h3>
 <ul>
 <li><strong>One server <code>down</code>, the rest <code>up</code>, session <code>connected</code>.</strong> A three-server ensemble keeps quorum
@@ -1959,7 +1960,7 @@ a non-secure origin (<code>http://kiok-ui.test:&lt;port&gt;</code>, <code>tests/
 ensemble shows ids 1, 2, 3 and no warning; a server recreated as a separate ensemble that reuses
 id 2 produces the exact duplicate-id and membership warnings, which clear once it is restored; and
 with <code>conf</code> removed from the whitelist every server reads
-<code>server id unknown (conf not in 4lw.commands.whitelist)</code> with the unknown-id warning instead of a
+<code>server id unknown (conf not in 4lw.commands.whitelist; add conf there and restart that ZooKeeper server)</code> with the unknown-id warning instead of a
 false all-clear.</p>
 
 

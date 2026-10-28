@@ -68,17 +68,18 @@ problem it finds:
 | `Duplicate ZooKeeper server id 2 on zk2:2181, zk3:2181 — the ensemble is misconfigured; give every server a unique myid` | two or more configured servers report the same id |
 | `ZooKeeper server zk4:2181 reports server id 4, which is not in its own ensemble membership (1, 2, 3) — check its myid` | a server's id is not among the `server.N` entries it was configured with |
 | `ZooKeeper servers disagree about the ensemble membership: zk1:2181, zk2:2181 list server ids 1, 2, 3; zk3:2181 lists server ids 2 — every server must be configured with the same server.N list` | the servers were configured with different ensembles |
-| `ZooKeeper server id unknown on zk1:2181, zk2:2181, zk3:2181 (conf not in 4lw.commands.whitelist) — a duplicate myid cannot be ruled out` | the id could not be read (here `conf` is not whitelisted; also `server is down`, `server is not serving requests`) — the check is never reported as passing for those servers |
+| `ZooKeeper server id unknown on zk1:2181, zk2:2181, zk3:2181 (conf not in 4lw.commands.whitelist; add conf there and restart that ZooKeeper server) — a duplicate myid cannot be ruled out` | the id could not be read (here `conf` is not whitelisted; also `server is down`, `server is not serving requests`) — the check is never reported as passing for those servers |
 | `ZooKeeper servers zk1:2181, zk2:2181 run standalone — a standalone server is a separate single-server ZooKeeper, not part of one ensemble with the other configured servers` | the connect string lists several servers but some run standalone |
 
 A healthy ensemble shows each server's id and no warning. A single standalone ZooKeeper reports id
 `0` and is not a warning.
 
 `conf` is **not** on ZooKeeper's default whitelist. Add it next to `srvr`, for example
-`4lw.commands.whitelist=srvr,conf` (the `zookeeper` Docker image: `ZOO_4LW_COMMANDS_WHITELIST=srvr,conf`).
-Without it every server's id is shown as `server id unknown (conf not in 4lw.commands.whitelist)`.
-The ZooKeeper bundled with kiok (`conf/zk/zoo.cfg`) whitelists all four-letter words (`*`), so
-`conf` is allowed there.
+`4lw.commands.whitelist=srvr,conf` (the `zookeeper` Docker image: `ZOO_4LW_COMMANDS_WHITELIST=srvr,conf`),
+and restart that ZooKeeper server: ZooKeeper reads the whitelist only at startup.
+Without it every server's id is shown as `server id unknown (conf not in 4lw.commands.whitelist; add conf there and restart that ZooKeeper server)`.
+The ZooKeeper bundled with kiok (`conf/zk/zoo.cfg`) ships with
+`4lw.commands.whitelist=srvr,conf,ruok,stat,mntr`, so `conf` is allowed there.
 
 ### Reading it during an incident
 
@@ -174,5 +175,5 @@ a non-secure origin (`http://kiok-ui.test:<port>`, `tests/ui-e2e/45-zk-myid.mjs`
 ensemble shows ids 1, 2, 3 and no warning; a server recreated as a separate ensemble that reuses
 id 2 produces the exact duplicate-id and membership warnings, which clear once it is restored; and
 with `conf` removed from the whitelist every server reads
-`server id unknown (conf not in 4lw.commands.whitelist)` with the unknown-id warning instead of a
+`server id unknown (conf not in 4lw.commands.whitelist; add conf there and restart that ZooKeeper server)` with the unknown-id warning instead of a
 false all-clear.

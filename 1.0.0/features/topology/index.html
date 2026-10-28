@@ -1245,6 +1245,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#server-ids-myid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server ids (myid)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reading-it-during-an-incident" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1732,6 +1743,10 @@ before that happens.</p>
 <td><code>host:port</code> from the connect string (a chroot suffix such as <code>/kiok</code> is ignored)</td>
 </tr>
 <tr>
+<td>Server id</td>
+<td>the server's own id (<code>myid</code>) as it reports it to <code>conf</code>, or <code>server id unknown (...)</code> with the reason</td>
+</tr>
+<tr>
 <td>Role</td>
 <td><code>leader</code>, <code>follower</code>, <code>observer</code>, or <code>standalone</code> for a single-server ZooKeeper</td>
 </tr>
@@ -1771,7 +1786,8 @@ command over a plain TCP connection to its client port. All servers are asked in
 with a timeout of <code>kiok.zk.topology.probe.timeout.ms</code> (default 2000 ms), so the card costs at most
 one timeout even when servers are unreachable.</p>
 <p><code>srvr</code> is on ZooKeeper's default four-letter-word whitelist (<code>4lw.commands.whitelist</code>) since
-3.5, so no ZooKeeper configuration is needed. A server is shown <code>down</code> when:</p>
+3.5, so the state needs no ZooKeeper configuration (the server id does — see
+<a href="#server-ids-myid">Server ids</a>). A server is shown <code>down</code> when:</p>
 <ul>
 <li>the connection or the read times out, or the connection is refused — the reason is the network
   error, for example <code>SocketTimeoutException: Connect timed out</code>;</li>
@@ -1782,6 +1798,51 @@ one timeout even when servers are unreachable.</p>
   server's state.</li>
 </ul>
 <p>The probe is read-only and any Master answers it; it does not go through the leader.</p>
+<h3 id="server-ids-myid">Server ids (myid)</h3>
+<p>Every server of an ensemble needs its own id (<code>myid</code>). Two servers with the same id — typically
+left behind by a scale-out or a rebuild that reused an instance number — or servers that do not
+agree on who is in the ensemble break it <strong>silently</strong>: ZooKeeper raises no error, and clients just
+see an unstable or split service. The card therefore also asks each server that is up with the
+<code>conf</code> four-letter word, which reports the server's own <code>serverId</code> and the ensemble membership it
+was configured with (its <code>server.N=</code> lines), and shows a red line above the table for each
+problem it finds:</p>
+<table>
+<thead>
+<tr>
+<th>Warning</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Duplicate ZooKeeper server id 2 on zk2:2181, zk3:2181 — the ensemble is misconfigured; give every server a unique myid</code></td>
+<td>two or more configured servers report the same id</td>
+</tr>
+<tr>
+<td><code>ZooKeeper server zk4:2181 reports server id 4, which is not in its own ensemble membership (1, 2, 3) — check its myid</code></td>
+<td>a server's id is not among the <code>server.N</code> entries it was configured with</td>
+</tr>
+<tr>
+<td><code>ZooKeeper servers disagree about the ensemble membership: zk1:2181, zk2:2181 list server ids 1, 2, 3; zk3:2181 lists server ids 2 — every server must be configured with the same server.N list</code></td>
+<td>the servers were configured with different ensembles</td>
+</tr>
+<tr>
+<td><code>ZooKeeper server id unknown on zk1:2181, zk2:2181, zk3:2181 (conf not in 4lw.commands.whitelist) — a duplicate myid cannot be ruled out</code></td>
+<td>the id could not be read (here <code>conf</code> is not whitelisted; also <code>server is down</code>, <code>server is not serving requests</code>) — the check is never reported as passing for those servers</td>
+</tr>
+<tr>
+<td><code>ZooKeeper servers zk1:2181, zk2:2181 run standalone — a standalone server is a separate single-server ZooKeeper, not part of one ensemble with the other configured servers</code></td>
+<td>the connect string lists several servers but some run standalone</td>
+</tr>
+</tbody>
+</table>
+<p>A healthy ensemble shows each server's id and no warning. A single standalone ZooKeeper reports id
+<code>0</code> and is not a warning.</p>
+<p><code>conf</code> is <strong>not</strong> on ZooKeeper's default whitelist. Add it next to <code>srvr</code>, for example
+<code>4lw.commands.whitelist=srvr,conf</code> (the <code>zookeeper</code> Docker image: <code>ZOO_4LW_COMMANDS_WHITELIST=srvr,conf</code>).
+Without it every server's id is shown as <code>server id unknown (conf not in 4lw.commands.whitelist)</code>.
+The ZooKeeper bundled with kiok (<code>conf/zk/zoo.cfg</code>) whitelists all four-letter words (<code>*</code>), so
+<code>conf</code> is allowed there.</p>
 <h3 id="reading-it-during-an-incident">Reading it during an incident</h3>
 <ul>
 <li><strong>One server <code>down</code>, the rest <code>up</code>, session <code>connected</code>.</strong> A three-server ensemble keeps quorum
@@ -1794,6 +1855,9 @@ one timeout even when servers are unreachable.</p>
   Restore enough servers for a majority.</li>
 <li><strong>Zxids that stay apart.</strong> A follower whose zxid does not converge with the leader's is not
   keeping up; check its disk and network.</li>
+<li><strong>A duplicate server id or a membership mismatch.</strong> Fix the <code>myid</code> file in the server's data
+  directory (or <code>ZOO_MY_ID</code>) and its <code>server.N=</code> lines so that every server has a unique id and all
+  of them list the same ensemble, then restart the misconfigured server.</li>
 </ul>
 <h2 id="masters-and-workers">Masters and Workers</h2>
 <table>
@@ -1841,14 +1905,24 @@ again from the end of the file if the log was truncated or rotated.
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;servers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zk1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2181</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UP&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;follower&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3.9.6&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">&quot;zxid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0x200000004&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;connections&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyMin&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyAvg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.94</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyMax&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">57</span><span class="p">,</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">&quot;received&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1520</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1533</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;outstanding&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;nodeCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zk3&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2181</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DOWN&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;zxid&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="nt">&quot;connections&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyMin&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyAvg&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyMax&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">      </span><span class="nt">&quot;received&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sent&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;outstanding&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;nodeCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SocketTimeoutException: Connect timed out&quot;</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="p">}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">&quot;received&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1520</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1533</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;outstanding&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;nodeCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="nt">&quot;serverId&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;serverIdNote&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="nt">&quot;membership&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zk1:2888:3888:participant;0.0.0.0:2181&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">                      </span><span class="nt">&quot;2&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zk2:2888:3888:participant;0.0.0.0:2181&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">                      </span><span class="nt">&quot;3&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zk3:2888:3888:participant;0.0.0.0:2181&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zk3&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2181</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DOWN&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;zxid&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">      </span><span class="nt">&quot;connections&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyMin&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyAvg&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;latencyMax&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">      </span><span class="nt">&quot;received&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sent&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;outstanding&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;nodeCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">      </span><span class="nt">&quot;serverId&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;serverIdNote&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;server id unknown (server is down)&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;membership&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">      </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SocketTimeoutException: Connect timed out&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="nt">&quot;warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="s2">&quot;ZooKeeper server id unknown on zk3:2181 (server is down) — a duplicate myid cannot be ruled out&quot;</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="p">}</span>
 </code></pre></div>
+<p><code>warnings</code> is empty when every server reported a unique id and all of them agree on the membership.</p>
 <p><code>/api/v1/admin/nodes</code> returns <code>{ "masters": [...], "workers": [...], "zookeeper": { ... } }</code> with the
 same <code>zookeeper</code> object.</p>
 <h2 id="configuration">Configuration</h2>
@@ -1869,7 +1943,7 @@ same <code>zookeeper</code> object.</p>
 <tr>
 <td><code>kiok.zk.topology.probe.timeout.ms</code></td>
 <td><code>2000</code></td>
-<td>Connect and read timeout (ms) of the <code>srvr</code> probe sent to each server. A server that does not answer within it is shown <code>down</code>.</td>
+<td>Connect and read timeout (ms) of the <code>srvr</code> and <code>conf</code> probes sent to each server. A server that does not answer within it is shown <code>down</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -1879,6 +1953,14 @@ ensemble (<code>tests/docker-compose-zk-ensemble.yml</code>) and checks: all thr
 leader and two followers and every field reported; a stopped server <code>down</code> with the reason while
 the other two stay <code>up</code> and the Master's session stays connected; the server <code>up</code> again after a
 restart; and the Topology page rendering the section in a headless browser.</p>
+<p><code>tests/e2e-zk-myid.sh</code> runs a Master on a real three-server ensemble
+(<code>tests/docker-compose-zk-myid.yml</code>) and checks, on the API and on the Topology page in Chrome from
+a non-secure origin (<code>http://kiok-ui.test:&lt;port&gt;</code>, <code>tests/ui-e2e/45-zk-myid.mjs</code>): a healthy
+ensemble shows ids 1, 2, 3 and no warning; a server recreated as a separate ensemble that reuses
+id 2 produces the exact duplicate-id and membership warnings, which clear once it is restored; and
+with <code>conf</code> removed from the whitelist every server reads
+<code>server id unknown (conf not in 4lw.commands.whitelist)</code> with the unknown-id warning instead of a
+false all-clear.</p>
 
 
 

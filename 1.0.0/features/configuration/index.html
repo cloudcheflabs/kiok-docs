@@ -2032,7 +2032,7 @@
 <tr>
 <td><code>kiok.zk.topology.probe.timeout.ms</code></td>
 <td><code>2000</code></td>
-<td>Connect and read timeout (ms) of the <code>srvr</code> probe the admin <strong>Topology</strong> page sends to each ZooKeeper server; a server that does not answer within it is shown <code>down</code>. Servers are probed in parallel. See <a href="../topology/#zookeeper-ensemble">Cluster Topology</a>.</td>
+<td>Connect and read timeout (ms) of the <code>srvr</code> / <code>conf</code> probes the admin <strong>Topology</strong> page sends to each ZooKeeper server (<code>conf</code> reads the server id; whitelist it — see <a href="../topology/#server-ids-myid">Server ids</a>); a server that does not answer within it is shown <code>down</code>. Servers are probed in parallel. See <a href="../topology/#zookeeper-ensemble">Cluster Topology</a>.</td>
 </tr>
 </tbody>
 </table>

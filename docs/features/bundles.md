@@ -17,6 +17,9 @@ A bundle therefore holds **source only** — there is no build step on the opera
 
 Upload it from the admin UI's **Settings → DAG Bundles** page. Each compiled DAG is registered with `origin: bundle`, tagged with the bundle name and the source path inside the zip.
 
+!!! note "Bundle DAGs are run by administrators"
+    A bundle registers many DAGs at once, and its owner is whoever uploaded it — not the author of any one DAG. So only an administrator can run, cancel or delete a bundle's DAGs; anyone else gets `403 only an administrator can run DAG '<name>': it came from bundle '<bundle>', not from a single user`, and the console shows no **Trigger run** for them. Everyone who may read the DAG still sees it and its runs. See [Who may operate a DAG](auth-authz.md#dags-and-runs).
+
 ## Upload and overwrite
 
 A bundle is identified by the name you give it on upload. Re-uploading under the **same name overwrites** that bundle — its previous DAGs are dropped and replaced by the new archive's contents. This makes a bundle a single versioned unit you can re-publish.

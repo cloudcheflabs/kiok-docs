@@ -15,7 +15,14 @@ This page is the in-depth reference for the operator. For the one-paragraph summ
 | `CLASS` | `className` + `deps` + `args` | a Java entrypoint in a JAR |
 | `PYTHON` | `scriptPath` + `deps` + `args` | a Python entrypoint script |
 
-The worker then polls `GET /v1/api/job/status/{jobId}` and `GET /v1/api/job/{jobId}/log?from=N`, streaming new log lines as they arrive. The task succeeds only when ontul reports `COMPLETED`; `FAILED` or `KILLED` fail the task. Cancelling the kiok task issues `POST /v1/api/job/kill/{jobId}`.
+The worker then polls `GET /v1/api/job/status/{jobId}` and `GET /v1/api/job/{jobId}/log?from=N`, streaming new log lines as they arrive. The task succeeds only when ontul reports `COMPLETED`; `FAILED` or `KILLED` fail the task. When ontul gives a reason in the status document (`errorMessage`), the task log ends with it as an `[err] Ontul error: …` line and the task's failure message carries it too — a job that fails while planning, before it writes any job log line, is otherwise unexplained:
+
+```
+[out] Ontul job submitted: jobId=a4831c6f-…
+[out] Ontul status: FAILED
+[out] Ontul job a4831c6f-… finished with status=FAILED
+[err] Ontul error: Catalog 'iceberg' is not loaded on this master
+``` Cancelling the kiok task issues `POST /v1/api/job/kill/{jobId}`.
 
 !!! note "Worker-restart resume"
     Like the `livy` and `trino` operators, an `ontul` task records ontul's `jobId` on `TaskRun.externalId`. If the kiok worker driving the task restarts, it **resumes** polling the same ontul job instead of submitting a duplicate. If the ontul master dropped the job (e.g. it too restarted), the resume fails fast rather than polling a 404 forever.

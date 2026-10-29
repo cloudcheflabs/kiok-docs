@@ -9,12 +9,15 @@ Add a repository from the admin UI's **Settings → Git Sync** page, or via conf
 | Field | Meaning |
 |---|---|
 | `name` | A label for the repository, unique within the cluster |
-| `url` | The clone URL (`https://…` or `git@…`) |
+| `url` | The clone URL — `https://…`, `git@…`, or `file:///path/to/repo` for a repository on the leader's own disk (the leader clones it, so the path must exist and be readable by the kiok user on whichever master is leader — put it on every master) |
 | `ref` | A branch (default `main`) or a tag (`tag:<name>`) to check out |
 | `subpath` | A directory within the repo to scan; defaults to the repo root |
 | `credentialConnectionId` | For private repos — the connection holding git credentials |
 
 Multiple repositories are supported, so different teams can each point at their own repo, branch, or tag.
+
+!!! note "Git-synced DAGs are run by administrators"
+    A repository registers all of its DAGs at once, and the owner recorded on them is whoever set the repository up — not who wrote a given file. So only an administrator can run, cancel or delete a git-synced DAG; anyone else gets `403 only an administrator can run DAG '<name>': it came from git '<repo>', not from a single user`. Scheduled runs are unaffected — the scheduler is not a user. See [Who may operate a DAG](auth-authz.md#dags-and-runs).
 
 ## What gets synced
 

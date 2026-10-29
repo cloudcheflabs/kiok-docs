@@ -66,6 +66,8 @@ cancelled and deleted by administrators. A DAG with no recorded owner is treated
 gets `403` with the reason — who owns the DAG, or which repository or bundle it came from — and the
 console does not show the **Trigger run**, **Re-run**, **Cancel run** and delete controls for those DAGs.
 
+Deleting a DAG id that does not exist answers `404 unknown DAG: <id>` (it used to answer `200` as if it had been deleted).
+
 Reading is not affected: listing and viewing DAGs and runs stays governed by `dag:Read` below. The
 policies below still apply on top of this rule — a `Deny` on `dag:Trigger` keeps even the owner from
 running their DAG.

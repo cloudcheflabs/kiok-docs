@@ -181,7 +181,8 @@ The list (secrets as `***`), **Edit** (fills the form; `key=***` keeps a secret,
 credential connection for a private repository; **Cancel** closes the form). Each repository shows its
 ref, subpath and last sync time (*not yet* before the first), **Edit** (prefills the form) and **Remove**
 (asks first; synced DAGs are kept). Files that were not registered in the last sync are listed under the
-repository with the reason. See [Git Sync](git-sync.md).
+repository with the reason. When the masters run with `kiok.gitsync.enabled=false`, a banner says git sync
+is disabled and names the property that turns it on, and **Sync now** is disabled. See [Git Sync](git-sync.md).
 
 ### DAG Bundles
 

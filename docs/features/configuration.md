@@ -222,9 +222,9 @@ When enabled, the leader periodically pulls DAG repositories so DAG definitions 
 
 | Property | Default | Description |
 |---|---|---|
-| `kiok.gitsync.enabled` | `false` | When `true`, the leader runs the git-sync loop pulling DAG repositories. |
+| `kiok.gitsync.enabled` | `false` | When `true`, the leader runs the git-sync loop pulling DAG repositories. When `false` nothing is pulled, **Sync now** (`POST /api/v1/admin/gitsync/sync`) is refused with `409`, and repositories can still be registered. See [Git Sync](git-sync.md#turning-it-on). |
 | `kiok.gitsync.interval.ms` | `60000` | Interval (ms) between git pulls when git sync is enabled. |
-| `kiok.gitsync.repos` | *(empty)* | **Optional.** Comma-separated repos, each `<name>|<url>|<branch>|<subpath>`. Credentials, if needed, are looked up in the connection store by `<name>`. |
+| `kiok.gitsync.repos` | *(empty)* | **Optional, read once.** Seeds the repository list when a leader finds none stored; afterwards repositories are managed in the admin UI / API and this value is ignored. Comma-separated entries `<name>|<url>|<ref>|<subpath>|<credentialConnectionId>` (only name and url required; `ref` may be `tag:<name>`). Without a credential connection id, a connection named `<name>` is used if it exists. See [Git Sync](git-sync.md#seeding-from-kiokproperties). |
 | `kiok.gitsync.checkout.dir` | `${kiok.base.data.dir}/gitsync` | Local directory where synced repositories are checked out. |
 
 ## Job Logs

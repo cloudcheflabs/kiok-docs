@@ -20,8 +20,16 @@ server returns. A missing value shows as `—`, never as an empty cell, `Invalid
 - A link opened while signed out (a run page, say) is restored after signing in.
 
 The header has **DAGs**, **Executions**, **Schedules**, **Settings** (administrators only — a settings
-URL sends anyone else back to DAGs), the user name, and **Sign out**, which revokes the session on the
-server (see [Authentication &amp; Authorization](auth-authz.md)).
+URL sends anyone else back to DAGs), the user name, **Change password**, and **Sign out**, which revokes
+the session on the server (see [Authentication &amp; Authorization](auth-authz.md)).
+
+**Change password** (the key icon, on every page and in Settings) is for every user, administrator or not:
+it changes the signed-in user's own password — current password, then the new one (at least 6
+characters) twice. **Cancel** or Escape closes it.
+
+The **Trigger run**, **Re-run**, **Cancel run** and delete controls appear only on DAGs the signed-in user
+may operate: every DAG for an administrator, otherwise only DAGs that user registered themselves — see
+[Who may operate a DAG](auth-authz.md#dags-and-runs).
 
 ## DAGs
 

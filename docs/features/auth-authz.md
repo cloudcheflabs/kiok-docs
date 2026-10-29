@@ -52,6 +52,26 @@ the group — with `400 ... would leave no administrator`.
 
 ### DAGs and runs
 
+**Who may operate a DAG.** Running a DAG, cancelling or re-running its runs, deleting it, and registering
+a DAG under a name that is already taken are allowed to:
+
+| Caller | DAGs they may operate |
+|---|---|
+| Administrator | every DAG |
+| Any other user | only DAGs **they registered themselves** — origin `manual`, i.e. posted as YAML (`POST /api/v1/dags`, the console's **Register DAG**, or the Python / Java SDK, which send the same YAML) — whose owner is them |
+
+DAGs synced from a **git repository** or loaded from a **bundle** arrive many at once, and their owner is
+whoever set up the repository or uploaded the bundle, not the author of a given DAG. They are run,
+cancelled and deleted by administrators. A DAG with no recorded owner is treated the same way. Anyone else
+gets `403` with the reason — who owns the DAG, or which repository or bundle it came from — and the
+console does not show the **Trigger run**, **Re-run**, **Cancel run** and delete controls for those DAGs.
+
+Deleting a DAG id that does not exist answers `404 unknown DAG: <id>` (it used to answer `200` as if it had been deleted).
+
+Reading is not affected: listing and viewing DAGs and runs stays governed by `dag:Read` below. The
+policies below still apply on top of this rule — a `Deny` on `dag:Trigger` keeps even the owner from
+running their DAG.
+
 Every authenticated request is mapped to an **action** and a **resource**, then evaluated against all policies that apply to the caller — those attached to the user plus those inherited from its groups.
 
 - Evaluation is **default-allow** with **most-specific-match wins**: the policy statement whose resource pattern most closely matches the request decides the outcome.

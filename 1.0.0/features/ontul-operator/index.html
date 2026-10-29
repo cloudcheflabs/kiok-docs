@@ -894,30 +894,8 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#where-the-jar-python-lives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Where the JAR / Python lives
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Where the JAR / Python lives">
+    <nav class="md-nav" aria-label="Job shapes">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-artifacts-already-on-s3-recommended" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A) Artifacts already on S3 (recommended)
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#b-local-files-staged-spark-style" class="md-nav__link">
@@ -1754,77 +1732,87 @@
 </tr>
 </tbody>
 </table>
-<p>The worker then polls <code>GET /v1/api/job/status/{jobId}</code> and <code>GET /v1/api/job/{jobId}/log?from=N</code>, streaming new log lines as they arrive. The task succeeds only when ontul reports <code>COMPLETED</code>; <code>FAILED</code> or <code>KILLED</code> fail the task. Cancelling the kiok task issues <code>POST /v1/api/job/kill/{jobId}</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Worker-restart resume</p>
-<p>Like the <code>livy</code> and <code>trino</code> operators, an <code>ontul</code> task records ontul's <code>jobId</code> on <code>TaskRun.externalId</code>. If the kiok worker driving the task restarts, it <strong>resumes</strong> polling the same ontul job instead of submitting a duplicate. If the ontul master dropped the job (e.g. it too restarted), the resume fails fast rather than polling a 404 forever.</p>
-</div>
-<h2 id="where-the-jar-python-lives">Where the JAR / Python lives</h2>
-<p>This is the operator's central decision. <code>ontul.deps</code> (CLASS/PYTHON) and <code>ontul.scriptPath</code> (PYTHON) each accept <strong>either</strong> an already-remote URI <strong>or</strong> a local path on the kiok worker:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>s3:// jar (already published)   ─▶  kiok submits the s3:// URI as-is, no upload
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>local jar + ontul.depsConnectionId ─▶ kiok PUTs it to S3, then submits the s3:// URI
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>local jar, no depsConnectionId   ─▶  error: nowhere to stage it to
+<p>The worker then polls <code>GET /v1/api/job/status/{jobId}</code> and <code>GET /v1/api/job/{jobId}/log?from=N</code>, streaming new log lines as they arrive. The task succeeds only when ontul reports <code>COMPLETED</code>; <code>FAILED</code> or <code>KILLED</code> fail the task. When ontul gives a reason in the status document (<code>errorMessage</code>), the task log ends with it as an <code>[err] Ontul error: …</code> line and the task's failure message carries it too — a job that fails while planning, before it writes any job log line, is otherwise unexplained:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[out] Ontul job submitted: jobId=a4831c6f-…
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>[out] Ontul status: FAILED
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>[out] Ontul job a4831c6f-… finished with status=FAILED
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>[err] Ontul error: Catalog &#39;iceberg&#39; is not loaded on this master
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>``` Cancelling the kiok task issues `POST /v1/api/job/kill/{jobId}`.
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>!!! note &quot;Worker-restart resume&quot;
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    Like the `livy` and `trino` operators, an `ontul` task records ontul&#39;s `jobId` on `TaskRun.externalId`. If the kiok worker driving the task restarts, it **resumes** polling the same ontul job instead of submitting a duplicate. If the ontul master dropped the job (e.g. it too restarted), the resume fails fast rather than polling a 404 forever.
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>## Where the JAR / Python lives
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>This is the operator&#39;s central decision. `ontul.deps` (CLASS/PYTHON) and `ontul.scriptPath` (PYTHON) each accept **either** an already-remote URI **or** a local path on the kiok worker:
 </code></pre></div>
-<p>A path is treated as <strong>remote</strong> (passed through untouched) when it starts with <code>s3://</code>, <code>s3a://</code>, <code>hdfs://</code>, <code>gs://</code>, <code>http://</code>, or <code>https://</code>. Anything else is a local file.</p>
-<h3 id="a-artifacts-already-on-s3-recommended">A) Artifacts already on S3 (recommended)</h3>
-<p>When your build/CI already publishes the jar and script to S3, just reference the <code>s3://</code> URIs. kiok forwards them verbatim; <strong><code>ontul.depsConnectionId</code> is not set</strong>, and ontul's own deps loader fetches them at submit time.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">dag</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul_s3_jobs</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">4</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">default_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1h</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nt">tasks</span><span class="p">:</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="c1"># BATCH — SQL is the job body; no artifact.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rollup_sql</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20m</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">      </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;BATCH&quot;</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">      </span><span class="no">INSERT INTO warehouse.daily_rollup</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">      </span><span class="no">SELECT date(event_ts) AS day, customer_id, sum(amount) AS total</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">      </span><span class="no">FROM warehouse.events</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">      </span><span class="no">WHERE date(event_ts) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">      </span><span class="no">GROUP BY 1, 2</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="c1"># CLASS — Java entrypoint; jars hosted on S3, referenced as-is.</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrichment_class</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="nt">requires</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">rollup_sql</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40m</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">      </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">       </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">      </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">      </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;CLASS&quot;</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">      </span><span class="nt">ontul.className</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;com.example.RollupEnrichment&quot;</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">      </span><span class="nt">ontul.deps</span><span class="p">:</span>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;s3://ontul-artifacts/jobs/rollup-enrichment-1.0.jar&quot;</span>
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;s3://ontul-artifacts/libs/common-utils-2.1.jar&quot;</span>
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w">      </span><span class="nt">ontul.args</span><span class="p">:</span>
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">        </span><span class="nt">date</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;#{</span><span class="nv"> </span><span class="s">nowMinusFormatted(0,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">1,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">\&quot;yyyy-MM-dd\&quot;)</span><span class="nv"> </span><span class="s">}&quot;</span>
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">        </span><span class="nt">targetTable</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;warehouse.daily_rollup_enriched&quot;</span>
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">      </span><span class="nt">ontul.jobConfig</span><span class="p">:</span>
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="w">        </span><span class="nt">ontul.job.driver.mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;worker&quot;</span>
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="w">  </span><span class="c1"># PYTHON — Python entrypoint hosted on S3, referenced as-is.</span>
-<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_python</span>
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ontul</span>
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="w">    </span><span class="nt">requires</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">enrichment_class</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40m</span>
-<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="w">    </span><span class="nt">config</span><span class="p">:</span>
-<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="w">      </span><span class="nt">ontul.url</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;https://ontul-master.example:9090&quot;</span>
-<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="w">      </span><span class="nt">ontul.token</span><span class="p">:</span><span class="w">      </span><span class="s">&quot;${secret.ontulToken}&quot;</span>
-<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="w">      </span><span class="nt">ontul.jobType</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;PYTHON&quot;</span>
-<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a><span class="w">      </span><span class="nt">ontul.scriptPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;s3://ontul-artifacts/jobs/build_features.py&quot;</span>
-<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a><span class="w">      </span><span class="nt">ontul.deps</span><span class="p">:</span>
-<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;s3://ontul-artifacts/libs/feature_lib.zip&quot;</span>
-<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a><span class="w">      </span><span class="nt">ontul.args</span><span class="p">:</span>
-<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a><span class="w">        </span><span class="nt">date</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;#{</span><span class="nv"> </span><span class="s">nowMinusFormatted(0,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">1,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">\&quot;yyyy-MM-dd\&quot;)</span><span class="nv"> </span><span class="s">}&quot;</span>
-<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a><span class="w">        </span><span class="nt">outputTable</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;warehouse.daily_features&quot;</span>
-<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a><span class="w">      </span><span class="nt">ontul.jobConfig</span><span class="p">:</span>
-<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a><span class="w">        </span><span class="nt">ontul.job.driver.mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;worker&quot;</span>
-</code></pre></div>
+s3:// jar (already published)   ─▶  kiok submits the s3:// URI as-is, no upload
+local jar + ontul.depsConnectionId ─▶ kiok PUTs it to S3, then submits the s3:// URI
+local jar, no depsConnectionId   ─▶  error: nowhere to stage it to
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>A path is treated as **remote** (passed through untouched) when it starts with `s3://`, `s3a://`, `hdfs://`, `gs://`, `http://`, or `https://`. Anything else is a local file.
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>### A) Artifacts already on S3 (recommended)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>When your build/CI already publishes the jar and script to S3, just reference the `s3://` URIs. kiok forwards them verbatim; **`ontul.depsConnectionId` is not set**, and ontul&#39;s own deps loader fetches them at submit time.
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>```yaml
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>dag:
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  id: ontul_s3_jobs
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  schedule: &quot;0 4 * * *&quot;
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  default_timeout: 1h
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>tasks:
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  # BATCH — SQL is the job body; no artifact.
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>  - id: rollup_sql
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    type: ontul
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    timeout: 20m
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    config:
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>      ontul.url:     &quot;https://ontul-master.example:9090&quot;
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>      ontul.token:   &quot;${secret.ontulToken}&quot;
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>      ontul.jobType: &quot;BATCH&quot;
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    script: |
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>      INSERT INTO warehouse.daily_rollup
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>      SELECT date(event_ts) AS day, customer_id, sum(amount) AS total
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>      FROM warehouse.events
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>      WHERE date(event_ts) = DATE &#39;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, &quot;yyyy-MM-dd&quot;) }&#39;
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>      GROUP BY 1, 2
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>  # CLASS — Java entrypoint; jars hosted on S3, referenced as-is.
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>  - id: enrichment_class
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    type: ontul
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>    requires: [rollup_sql]
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    timeout: 40m
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    config:
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>      ontul.url:       &quot;https://ontul-master.example:9090&quot;
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>      ontul.token:     &quot;${secret.ontulToken}&quot;
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>      ontul.jobType:   &quot;CLASS&quot;
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>      ontul.className: &quot;com.example.RollupEnrichment&quot;
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>      ontul.deps:
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>        - &quot;s3://ontul-artifacts/jobs/rollup-enrichment-1.0.jar&quot;
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>        - &quot;s3://ontul-artifacts/libs/common-utils-2.1.jar&quot;
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>      ontul.args:
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>        date:        &quot;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, \&quot;yyyy-MM-dd\&quot;) }&quot;
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>        targetTable: &quot;warehouse.daily_rollup_enriched&quot;
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>      ontul.jobConfig:
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        ontul.job.driver.mode: &quot;worker&quot;
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>  # PYTHON — Python entrypoint hosted on S3, referenced as-is.
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>  - id: feature_python
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>    type: ontul
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>    requires: [enrichment_class]
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>    timeout: 40m
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>    config:
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>      ontul.url:        &quot;https://ontul-master.example:9090&quot;
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>      ontul.token:      &quot;${secret.ontulToken}&quot;
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>      ontul.jobType:    &quot;PYTHON&quot;
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>      ontul.scriptPath: &quot;s3://ontul-artifacts/jobs/build_features.py&quot;
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>      ontul.deps:
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>        - &quot;s3://ontul-artifacts/libs/feature_lib.zip&quot;
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>      ontul.args:
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>        date:        &quot;#{ nowMinusFormatted(0, 0, 1, 0, 0, 0, \&quot;yyyy-MM-dd\&quot;) }&quot;
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>        outputTable: &quot;warehouse.daily_features&quot;
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>      ontul.jobConfig:
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>        ontul.job.driver.mode: &quot;worker&quot;
+</code></pre></div></p>
 <h3 id="b-local-files-staged-spark-style">B) Local files staged Spark-style</h3>
 <p>When the jar/script sits on the kiok worker (a CI checkout, a mounted volume), set <code>ontul.depsConnectionId</code> to a kiok <a href="../connections/">connection store</a> S3 connection. The worker uploads each local file under a content-addressed key (<code>&lt;prefix&gt;/&lt;sha256&gt;-&lt;filename&gt;</code>), HEAD-first so an unchanged jar costs one HEAD instead of one PUT, and submits the resulting <code>s3://</code> URI. <code>s3://</code> paths in the same list still pass through untouched, so mixed lists are fine.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enrichment_class</span>

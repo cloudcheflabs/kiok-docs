@@ -1825,8 +1825,14 @@ server returns. A missing value shows as <code>—</code>, never as an empty cel
 <li>A link opened while signed out (a run page, say) is restored after signing in.</li>
 </ul>
 <p>The header has <strong>DAGs</strong>, <strong>Executions</strong>, <strong>Schedules</strong>, <strong>Settings</strong> (administrators only — a settings
-URL sends anyone else back to DAGs), the user name, and <strong>Sign out</strong>, which revokes the session on the
-server (see <a href="../auth-authz/">Authentication &amp; Authorization</a>).</p>
+URL sends anyone else back to DAGs), the user name, <strong>Change password</strong>, and <strong>Sign out</strong>, which revokes
+the session on the server (see <a href="../auth-authz/">Authentication &amp; Authorization</a>).</p>
+<p><strong>Change password</strong> (the key icon, on every page and in Settings) is for every user, administrator or not:
+it changes the signed-in user's own password — current password, then the new one (at least 6
+characters) twice. <strong>Cancel</strong> or Escape closes it.</p>
+<p>The <strong>Trigger run</strong>, <strong>Re-run</strong>, <strong>Cancel run</strong> and delete controls appear only on DAGs the signed-in user
+may operate: every DAG for an administrator, otherwise only DAGs that user registered themselves — see
+<a href="../auth-authz/#dags-and-runs">Who may operate a DAG</a>.</p>
 <h2 id="dags">DAGs</h2>
 <ul>
 <li><strong>Search</strong> — server-side, case-insensitive, over the DAG name, git repository and source path.</li>

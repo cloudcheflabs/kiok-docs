@@ -1692,6 +1692,10 @@
 <p>The same recommended layout as <a href="../git-sync/">Git Sync</a> — <code>src/main/{yaml,script,python,java}/</code> — applies inside the zip too. The scanner is location-agnostic (it walks the whole archive and picks files by extension), so the directory layout is operator-facing convention rather than a hard requirement.</p>
 <p>A bundle therefore holds <strong>source only</strong> — there is no build step on the operator side; kiok's leader compiles every DAG in-process when it processes the upload, exactly as it does for git-sync.</p>
 <p>Upload it from the admin UI's <strong>Settings → DAG Bundles</strong> page. Each compiled DAG is registered with <code>origin: bundle</code>, tagged with the bundle name and the source path inside the zip.</p>
+<div class="admonition note">
+<p class="admonition-title">Bundle DAGs are run by administrators</p>
+<p>A bundle registers many DAGs at once, and its owner is whoever uploaded it — not the author of any one DAG. So only an administrator can run, cancel or delete a bundle's DAGs; anyone else gets <code>403 only an administrator can run DAG '&lt;name&gt;': it came from bundle '&lt;bundle&gt;', not from a single user</code>, and the console shows no <strong>Trigger run</strong> for them. Everyone who may read the DAG still sees it and its runs. See <a href="../auth-authz/#dags-and-runs">Who may operate a DAG</a>.</p>
+</div>
 <h2 id="upload-and-overwrite">Upload and overwrite</h2>
 <p>A bundle is identified by the name you give it on upload. Re-uploading under the <strong>same name overwrites</strong> that bundle — its previous DAGs are dropped and replaced by the new archive's contents. This makes a bundle a single versioned unit you can re-publish.</p>
 <h2 id="compile-error-reporting">Compile error reporting</h2>

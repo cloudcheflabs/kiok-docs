@@ -1736,7 +1736,7 @@
 </tr>
 <tr>
 <td><code>url</code></td>
-<td>The clone URL (<code>https://…</code> or <code>git@…</code>)</td>
+<td>The clone URL — <code>https://…</code>, <code>git@…</code>, or <code>file:///path/to/repo</code> for a repository on the leader's own disk (the leader clones it, so the path must exist and be readable by the kiok user on whichever master is leader — put it on every master)</td>
 </tr>
 <tr>
 <td><code>ref</code></td>
@@ -1753,6 +1753,10 @@
 </tbody>
 </table>
 <p>Multiple repositories are supported, so different teams can each point at their own repo, branch, or tag.</p>
+<div class="admonition note">
+<p class="admonition-title">Git-synced DAGs are run by administrators</p>
+<p>A repository registers all of its DAGs at once, and the owner recorded on them is whoever set the repository up — not who wrote a given file. So only an administrator can run, cancel or delete a git-synced DAG; anyone else gets <code>403 only an administrator can run DAG '&lt;name&gt;': it came from git '&lt;repo&gt;', not from a single user</code>. Scheduled runs are unaffected — the scheduler is not a user. See <a href="../auth-authz/#dags-and-runs">Who may operate a DAG</a>.</p>
+</div>
 <h2 id="what-gets-synced">What gets synced</h2>
 <p>On each interval (<code>kiok.gitsync.interval.ms</code>, default 60s) the leader checks out the configured ref and scans the subpath for:</p>
 <ul>

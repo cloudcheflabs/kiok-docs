@@ -2655,7 +2655,7 @@ the next restart, silently. See <a href="../sso/">Single Sign-On</a>.</p>
 <tr>
 <td><code>kiok.gitsync.enabled</code></td>
 <td><code>false</code></td>
-<td>When <code>true</code>, the leader runs the git-sync loop pulling DAG repositories.</td>
+<td>When <code>true</code>, the leader runs the git-sync loop pulling DAG repositories. When <code>false</code> nothing is pulled, <strong>Sync now</strong> (<code>POST /api/v1/admin/gitsync/sync</code>) is refused with <code>409</code>, and repositories can still be registered. See <a href="../git-sync/#turning-it-on">Git Sync</a>.</td>
 </tr>
 <tr>
 <td><code>kiok.gitsync.interval.ms</code></td>
@@ -2665,7 +2665,7 @@ the next restart, silently. See <a href="../sso/">Single Sign-On</a>.</p>
 <tr>
 <td><code>kiok.gitsync.repos</code></td>
 <td><em>(empty)</em></td>
-<td><strong>Optional.</strong> Comma-separated repos, each <code>&lt;name&gt;|&lt;url&gt;|&lt;branch&gt;|&lt;subpath&gt;</code>. Credentials, if needed, are looked up in the connection store by <code>&lt;name&gt;</code>.</td>
+<td><strong>Optional, read once.</strong> Seeds the repository list when a leader finds none stored; afterwards repositories are managed in the admin UI / API and this value is ignored. Comma-separated entries <code>&lt;name&gt;|&lt;url&gt;|&lt;ref&gt;|&lt;subpath&gt;|&lt;credentialConnectionId&gt;</code> (only name and url required; <code>ref</code> may be <code>tag:&lt;name&gt;</code>). Without a credential connection id, a connection named <code>&lt;name&gt;</code> is used if it exists. See <a href="../git-sync/#seeding-from-kiokproperties">Git Sync</a>.</td>
 </tr>
 <tr>
 <td><code>kiok.gitsync.checkout.dir</code></td>

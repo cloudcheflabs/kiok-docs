@@ -1967,7 +1967,8 @@ metadata</strong> (entity ID, sign-on URL and certificate are filled from it). S
 credential connection for a private repository; <strong>Cancel</strong> closes the form). Each repository shows its
 ref, subpath and last sync time (<em>not yet</em> before the first), <strong>Edit</strong> (prefills the form) and <strong>Remove</strong>
 (asks first; synced DAGs are kept). Files that were not registered in the last sync are listed under the
-repository with the reason. See <a href="../git-sync/">Git Sync</a>.</p>
+repository with the reason. When the masters run with <code>kiok.gitsync.enabled=false</code>, a banner says git sync
+is disabled and names the property that turns it on, and <strong>Sync now</strong> is disabled. See <a href="../git-sync/">Git Sync</a>.</p>
 <h3 id="dag-bundles">DAG Bundles</h3>
 <p>Upload a <code>.zip</code> of YAML / Python DAGs and/or a Java DAG jar under a bundle name (both are required).
 Each bundle shows its DAG count, jar, upload time and owner; entries that failed to compile or whose id is

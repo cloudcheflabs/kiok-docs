@@ -942,6 +942,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#turning-it-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turning it on
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuring-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -949,6 +960,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuring a repository">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seeding-from-kiokproperties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seeding from kiok.properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1720,8 +1759,23 @@
 
 <h1 id="git-sync">Git Sync</h1>
 <p>Git Sync lets kiok treat a git repository as the source of truth for DAGs. The leader periodically clones/pulls each configured repository, compiles every DAG it finds, and registers them — so a <code>git push</code> is all it takes to deploy a workflow.</p>
+<h2 id="turning-it-on">Turning it on</h2>
+<p>Git Sync is off by default. The leader pulls repositories only when <code>kiok.gitsync.enabled=true</code> is set in <code>kiok.properties</code> (or <code>KIOK_GITSYNC_ENABLED=true</code> in the environment) on the masters; restart them after changing it.</p>
+<p>While it is off:</p>
+<ul>
+<li>the leader pulls nothing — not on the interval, and not when it becomes leader;</li>
+<li><strong>Sync now</strong> is unavailable: the <strong>Git Sync</strong> page shows a banner saying git sync is disabled, and <code>POST /api/v1/admin/gitsync/sync</code> returns <code>409 Conflict</code> with the reason;</li>
+<li>repositories can still be added, edited and removed, so they are ready when you turn it on;</li>
+<li>DAGs registered by an earlier sync stay registered and keep running on their schedules;</li>
+<li>a leader that starts with repositories registered logs a <code>WARN</code> naming how many will not be pulled.</li>
+</ul>
+<p><code>GET /api/v1/admin/gitsync/status</code> returns the leader's setting: <code>{"enabled": true, "intervalMs": 60000}</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Upgrading from a build that ignored the setting</p>
+<p>Before this setting took effect, the leader pulled registered repositories regardless of <code>kiok.gitsync.enabled</code>, and the bundled <code>kiok.properties</code> sets it to <code>false</code>. If you use Git Sync, set <code>kiok.gitsync.enabled=true</code> before upgrading, or the leader stops pulling.</p>
+</div>
 <h2 id="configuring-a-repository">Configuring a repository</h2>
-<p>Add a repository from the admin UI's <strong>Settings → Git Sync</strong> page, or via configuration. Each repository has:</p>
+<p>Add a repository from the admin UI's <strong>Settings → Git Sync</strong> page or the API below. A first cluster can also be seeded from <code>kiok.properties</code> (see <a href="#seeding-from-kiokproperties">Seeding from kiok.properties</a>). Each repository has:</p>
 <table>
 <thead>
 <tr>
@@ -1740,7 +1794,11 @@
 </tr>
 <tr>
 <td><code>ref</code></td>
-<td>A branch (default <code>main</code>) or a tag (<code>tag:&lt;name&gt;</code>) to check out</td>
+<td>The branch (default <code>main</code>) or tag name to check out</td>
+</tr>
+<tr>
+<td><code>tag</code></td>
+<td><code>true</code> when <code>ref</code> names a tag, <code>false</code> (default) for a branch. In the admin UI this is <strong>Ref type</strong></td>
 </tr>
 <tr>
 <td><code>subpath</code></td>
@@ -1748,11 +1806,52 @@
 </tr>
 <tr>
 <td><code>credentialConnectionId</code></td>
-<td>For private repos — the connection holding git credentials</td>
+<td>For private repos — the connection holding git credentials. When empty, a connection whose id equals the repository <code>name</code> is used if one exists</td>
 </tr>
 </tbody>
 </table>
-<p>Multiple repositories are supported, so different teams can each point at their own repo, branch, or tag.</p>
+<p>Multiple repositories are supported, so different teams can each point at their own repo, branch, or tag. Saving under an existing <code>name</code> replaces that repository. Removing a repository stops syncing it; the DAGs it already registered are kept.</p>
+<p>Repositories are stored in the replicated metadata store, so every master sees the same list and a new leader keeps syncing them.</p>
+<h3 id="seeding-from-kiokproperties">Seeding from kiok.properties</h3>
+<p><code>kiok.gitsync.repos</code> seeds the repository list <strong>once</strong>: when a master becomes leader and the metadata store holds no repositories yet, each entry is saved as if it had been added in the UI. After that the stored list is the source of truth — editing <code>kiok.gitsync.repos</code> later changes nothing, so manage repositories in the UI or API.</p>
+<p>The value is a comma-separated list of <code>&lt;name&gt;|&lt;url&gt;|&lt;ref&gt;|&lt;subpath&gt;|&lt;credentialConnectionId&gt;</code> entries; only <code>name</code> and <code>url</code> are required. <code>ref</code> is a branch name, <code>branch:&lt;name&gt;</code>, or <code>tag:&lt;name&gt;</code> for a tag.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="na">kiok.gitsync.enabled</span><span class="o">=</span><span class="s">true</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">kiok.gitsync.repos</span><span class="o">=</span><span class="s">team-dags|https://git.example.com/team/dags.git|main|src/main,</span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="s">release-dags|git@git.example.com:team/dags.git|tag:v1.4.0||team-git-ssh</span>
+</code></pre></div>
+<h3 id="api">API</h3>
+<p>All Git Sync endpoints are administrator-only.</p>
+<table>
+<thead>
+<tr>
+<th>Method and path</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/v1/admin/gitsync/status</code></td>
+<td><code>{"enabled": &lt;kiok.gitsync.enabled&gt;, "intervalMs": &lt;kiok.gitsync.interval.ms&gt;}</code> as the leader has them</td>
+</tr>
+<tr>
+<td><code>GET /api/v1/admin/gitsync/repos</code></td>
+<td>The repositories, each with <code>lastSyncAt</code> (epoch ms, <code>0</code> = never) and <code>errors</code> (files the last sync skipped, with the reason)</td>
+</tr>
+<tr>
+<td><code>POST /api/v1/admin/gitsync/repos</code></td>
+<td>Saves a repository: <code>{"name", "url", "ref", "tag", "subpath", "credentialConnectionId"}</code> → <code>{"saved": "&lt;name&gt;"}</code></td>
+</tr>
+<tr>
+<td><code>DELETE /api/v1/admin/gitsync/repos/&lt;name&gt;</code></td>
+<td>Removes a repository → <code>{"deleted": "&lt;name&gt;"}</code></td>
+</tr>
+<tr>
+<td><code>POST /api/v1/admin/gitsync/sync</code></td>
+<td>Starts a sync of every repository now → <code>{"status": "sync triggered"}</code>; <code>409</code> while git sync is disabled</td>
+</tr>
+</tbody>
+</table>
+<p>A follower forwards these requests to the leader, which runs the sync and holds the last sync's results.</p>
 <div class="admonition note">
 <p class="admonition-title">Git-synced DAGs are run by administrators</p>
 <p>A repository registers all of its DAGs at once, and the owner recorded on them is whoever set the repository up — not who wrote a given file. So only an administrator can run, cancel or delete a git-synced DAG; anyone else gets <code>403 only an administrator can run DAG '&lt;name&gt;': it came from git '&lt;repo&gt;', not from a single user</code>. Scheduled runs are unaffected — the scheduler is not a user. See <a href="../auth-authz/#dags-and-runs">Who may operate a DAG</a>.</p>
@@ -1768,11 +1867,11 @@
 <p>Each compiled DAG is upserted into the metadata store with <code>origin: git</code>, tagged with the repository and source path. A DAG that already exists is updated in place; its run history is preserved.</p>
 <h3 id="recommended-layout">Recommended layout</h3>
 <p>The scanner is location-agnostic — it picks up files by extension wherever they sit under the configured subpath — but the recommended convention mirrors the standard Maven/Gradle source tree:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;repo&gt;/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── src/main/yaml/     # *.yaml DAGs
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── src/main/script/   # also a fine place for *.yaml; *.sh shell DAGs live here
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── src/main/python/   # *.py DAGs (kiok Python SDK)
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── src/main/java/     # *.java DAGs (kiok Java SDK)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&lt;repo&gt;/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── src/main/yaml/     # *.yaml DAGs
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── src/main/script/   # also a fine place for *.yaml; *.sh shell DAGs live here
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── src/main/python/   # *.py DAGs (kiok Python SDK)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>└── src/main/java/     # *.java DAGs (kiok Java SDK)
 </code></pre></div>
 <p>The repo holds <strong>source only</strong> — there is no build step on the operator side. kiok's leader handles every compile in-process when it pulls the repo.</p>
 <h3 id="java-source-compilation">Java source compilation</h3>
@@ -1797,7 +1896,8 @@
 <h2 id="private-repositories">Private repositories</h2>
 <p>Git Sync configuration never holds credentials. For a private repository, store the git credentials in a <a href="../connections/">connection</a> — an SSH <code>privateKey</code>, or <code>username</code> + <code>password</code>/token — and reference it by <code>credentialConnectionId</code>. The credentials live only in the KMS-encrypted connection store.</p>
 <h2 id="manual-sync">Manual sync</h2>
-<p>The sync loop runs on the leader on its interval, but a sync can also be triggered immediately from the admin UI — useful right after a push when you don't want to wait for the next tick.</p>
+<p>The sync loop runs on the leader on its interval, but a sync can also be triggered immediately with <strong>Sync now</strong> in the admin UI or <code>POST /api/v1/admin/gitsync/sync</code> — useful right after a push when you don't want to wait for the next tick. The request returns as soon as the sync has started; check the repository's <strong>Last sync</strong> time (or <code>lastSyncAt</code>) and the skipped-file list for the outcome.</p>
+<p>While git sync is disabled (<code>kiok.gitsync.enabled=false</code>) <strong>Sync now</strong> is unavailable and the API answers <code>409 Conflict</code> with the reason. While the cluster is in <a href="../cluster-maintenance/">maintenance mode</a> a sync, manual or scheduled, registers nothing.</p>
 
 
 

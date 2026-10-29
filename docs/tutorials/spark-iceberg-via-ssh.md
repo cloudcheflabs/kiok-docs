@@ -436,6 +436,8 @@ git remote add origin https://github.com/<your-org>/<your-repo>.git
 git push -u origin main
 ```
 
+Git Sync must be on: set `kiok.gitsync.enabled=true` in `kiok.properties` on the masters and restart them (see [Turning it on](../features/git-sync.md#turning-it-on)). `GET $KIOK/api/v1/admin/gitsync/status` should return `"enabled": true`.
+
 Register the repo with kiok:
 
 ```bash

@@ -2,6 +2,23 @@
 
 Git Sync lets kiok treat a git repository as the source of truth for DAGs. The leader periodically clones/pulls each configured repository, compiles every DAG it finds, and registers them — so a `git push` is all it takes to deploy a workflow.
 
+## Turning it on
+
+Git Sync is off by default. The leader pulls repositories only when `kiok.gitsync.enabled=true` is set in `kiok.properties` (or `KIOK_GITSYNC_ENABLED=true` in the environment) on the masters; restart them after changing it.
+
+While it is off:
+
+- the leader pulls nothing — not on the interval, and not when it becomes leader;
+- **Sync now** is unavailable: the **Git Sync** page shows a banner saying git sync is disabled, and `POST /api/v1/admin/gitsync/sync` returns `409 Conflict` with the reason;
+- repositories can still be added, edited and removed, so they are ready when you turn it on;
+- DAGs registered by an earlier sync stay registered and keep running on their schedules;
+- a leader that starts with repositories registered logs a `WARN` naming how many will not be pulled.
+
+`GET /api/v1/admin/gitsync/status` returns the leader's setting: `{"enabled": true, "intervalMs": 60000}`.
+
+!!! warning "Upgrading from a build that ignored the setting"
+    Before this setting took effect, the leader pulled registered repositories regardless of `kiok.gitsync.enabled`, and the bundled `kiok.properties` sets it to `false`. If you use Git Sync, set `kiok.gitsync.enabled=true` before upgrading, or the leader stops pulling.
+
 ## Configuring a repository
 
 Add a repository from the admin UI's **Settings → Git Sync** page, or via configuration. Each repository has:

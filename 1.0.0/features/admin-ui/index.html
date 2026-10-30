@@ -1979,8 +1979,12 @@ taken are listed under it. <strong>Delete</strong> asks first and removes the bu
 <li><strong>Automatic backup schedule</strong> — a cron (a malformed one is refused with the reason), <strong>Save</strong>, <strong>Clear</strong>,
   and the <strong>Next fire</strong> time.</li>
 <li><strong>Backup S3 target</strong> — the job-log S3 default or a stored S3 connection.</li>
-<li><strong>Backups in S3</strong> — each backup with the time it was taken and <strong>Restore</strong> (browser confirmation; the
-  restored state reaches every master and worker).</li>
+<li><strong>Retention</strong> — <strong>Keep the newest</strong> <em>N</em> and <strong>Delete older than (days)</strong> <em>D</em> (<code>0</code> = no limit, the default),
+  <strong>Save</strong>, and <strong>Apply now</strong> (confirmation dialog; disabled while there is no limit or the fields are
+  unsaved). A summary line shows the saved limits; a negative or non-whole number cannot be saved.</li>
+<li><strong>Backups in S3</strong> — the total count, then 10 backups per page, newest first, with previous / next under
+  the table. Each row has the time it was taken and <strong>Restore</strong> (confirmation dialog; the restored state
+  reaches every master and worker).</li>
 </ul>
 <p>See <a href="../backup/">Backup &amp; Restore</a>.</p>
 

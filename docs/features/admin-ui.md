@@ -196,7 +196,11 @@ taken are listed under it. **Delete** asks first and removes the bundle's DAGs. 
 - **Automatic backup schedule** — a cron (a malformed one is refused with the reason), **Save**, **Clear**,
   and the **Next fire** time.
 - **Backup S3 target** — the job-log S3 default or a stored S3 connection.
-- **Backups in S3** — each backup with the time it was taken and **Restore** (browser confirmation; the
-  restored state reaches every master and worker).
+- **Retention** — **Keep the newest** *N* and **Delete older than (days)** *D* (`0` = no limit, the default),
+  **Save**, and **Apply now** (confirmation dialog; disabled while there is no limit or the fields are
+  unsaved). A summary line shows the saved limits; a negative or non-whole number cannot be saved.
+- **Backups in S3** — the total count, then 10 backups per page, newest first, with previous / next under
+  the table. Each row has the time it was taken and **Restore** (confirmation dialog; the restored state
+  reaches every master and worker).
 
 See [Backup &amp; Restore](backup.md).

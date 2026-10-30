@@ -43,6 +43,7 @@ The **Backup &amp; Restore** page in the admin UI exposes:
 - **Enabled** — master switch (default: off). The live toggle is persisted in the metadata store.
 - **Backup S3 target** — either the default (the job-log S3 configuration) or a stored S3 [connection](connections.md) selected by id.
 - **Automatic backup schedule** — a 5-field UNIX cron expression (e.g. `0 2 * * *` for daily at 02:00). Same grammar as the DAG [scheduler](scheduler.md). Leave empty to disable.
+- **Retention** — keep the newest *N* backups and/or delete backups older than *D* days. Both default to `0`, which means no limit: nothing is ever deleted until an operator sets one. See [Retention](#retention).
 
 The page also has a **Back up now** button that triggers an immediate backup.
 
@@ -79,11 +80,76 @@ Each store is content-hashed (SHA-256). If a store's bytes are unchanged since t
 
 Each backup writes a `manifest.json` recording, per store, its hash and which backup id holds its bytes — so the incremental chain is always resolvable from any single manifest.
 
+## Retention
+
+Without a limit, every backup stays in the bucket forever. Retention deletes old backups automatically.
+It has two limits, set together in the **Retention** card of the Backup &amp; Restore page:
+
+| Field | API field | Meaning |
+|---|---|---|
+| **Keep the newest** | `keepLast` | Keep this many of the newest backups; older ones are deleted. `0` = no count limit. |
+| **Delete older than (days)** | `maxAgeDays` | Delete backups taken more than this many days ago (the age comes from the backup id, which is its UTC creation time). `0` = no age limit. |
+
+Both default to **`0` — no limit**, so a cluster that has never set retention keeps every backup, exactly as
+before retention existed. When both are set, a backup is deleted if it falls outside **either** limit.
+
+**When it runs.** Retention is applied by the leader right after every successful backup — **Back up now**,
+`POST /api/v1/admin/backup`, and every cron-scheduled backup. Saving the limits deletes nothing by itself;
+the page's **Apply now** button (with a confirmation dialog) or `POST /api/v1/admin/backup/retention`
+applies them immediately. **Apply now** is disabled while there is no limit, or while the fields hold
+unsaved changes. The response of a backup lists what retention deleted (`"pruned"`), and the page says so:
+`Backup stored: 20261031T020000.123Z (retention deleted 1 old backup)`. If retention fails (for example
+an S3 delete error), the backup is still reported as stored and the error is logged on the leader.
+
+**What is always kept.**
+
+- The **newest backup** is never deleted, whatever the limits say — even `maxAgeDays` on a cluster whose
+  last backup is old. Retention never leaves the bucket without a backup to restore.
+- Because backups are [incremental](#incremental-by-design), a kept backup's manifest can point at store
+  objects that live in an older backup's folder. Retention deletes a dropped backup's `manifest.json`
+  first — it disappears from **Backups in S3** at once — and deletes its store objects (`*.bin`) only
+  when no kept backup's manifest points at them. Folders that keep such objects are not listed (they have
+  no manifest) and are cleaned up by a later run, once nothing points at them any more.
+- If any kept backup's manifest cannot be read (for example a backup in the older format sealed with a
+  key this cluster lacks), retention still deletes the dropped manifests but leaves every store object in
+  place, and logs a warning.
+- Only objects shaped like a backup (`<prefix>/<backup id>/<file>`) are ever touched; other objects
+  under the prefix are left alone.
+
+**Where it is stored.** Like the schedule, the limits live in the replicated metadata store
+(`backup.retention.keepLast`, `backup.retention.maxAgeDays`), not in `kiok.properties`, so every Master
+answers with the same values and a new leader after a failover applies the same limits. Because they are
+part of the metadata, a [restore](#restore) brings back the limits that were in effect when that backup was
+taken — check the Retention card after a restore.
+
+```bash
+# Read the limits
+curl -H "Authorization: Bearer $TOKEN" \
+  http://kiok-master:8080/api/v1/admin/backup/retention
+# {"keepLast":0,"maxAgeDays":0}
+
+# Keep the newest 14 backups and nothing older than 30 days
+curl -X PUT -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"keepLast": 14, "maxAgeDays": 30}' \
+  http://kiok-master:8080/api/v1/admin/backup/retention
+
+# Apply them now; returns the deleted backup ids
+curl -X POST -H "Authorization: Bearer $TOKEN" \
+  http://kiok-master:8080/api/v1/admin/backup/retention
+# {"deleted":["20261001T020000.004Z","20260930T020000.011Z"]}
+```
+
+A negative or non-whole value is refused with `400` and the reason. A field left out of the `PUT` body is
+set to `0`. `POST` answers `409` when no S3 target is configured.
+
 ## Restore
 
-The same admin page lists every backup in S3, newest first, with the time each was taken (a backup id is its UTC creation time, e.g. `20261025T095700.401301630Z`, shown in the browser's zone). Each row has a **Restore** button.
+The same admin page lists the backups in S3, newest first, **10 per page** with previous / next and page
+buttons under the table; the header shows the total count. Each row shows the time the backup was taken
+(a backup id is its UTC creation time, e.g. `20261025T095700.401301630Z`, shown in the browser's zone) and
+has a **Restore** button.
 
-> Restore is **destructive** — it overwrites current cluster state. The UI asks for confirmation first.
+> Restore is **destructive** — it overwrites current cluster state. The UI asks for confirmation in a dialog first; **Cancel** restores nothing.
 
 The flow:
 
@@ -116,6 +182,23 @@ cluster running without the KMS are plain and restore anywhere.
 Because the `joblog` store is restored too, completed-run logs come back along with DAGs, runs, IAM, KMS, and connections.
 
 > The **Restore** button is per-backup-row — it appears only once at least one backup exists in S3. On a cluster with no backups yet, the list shows "No backups" and there is nothing to restore. Enable backup and run **Back up now** first.
+
+## REST API
+
+Every route is administrator-only. Writes sent to a follower Master are forwarded to the leader; reads
+are answered by any Master from the replicated metadata store.
+
+| Method and path | Body | Answer |
+|---|---|---|
+| `GET /api/v1/admin/backup` | — | `{"enabled": true}` |
+| `PUT /api/v1/admin/backup` | `{"enabled": true}` | `{"enabled": true}` |
+| `POST /api/v1/admin/backup` | — | `{"backupId": "...", "pruned": [ids]}`; `503` with `error` if the backup did not run |
+| `GET /api/v1/admin/backup/list` | — | every backup id in S3, newest first (a JSON array; the admin UI pages it) |
+| `POST /api/v1/admin/backup/restore` | `{"backupId": "..."}` | `{"restored": true}`; `500` with `error` if it did not |
+| `GET` / `PUT /api/v1/admin/backup/connection` | `{"connectionId": "my-s3"}` (`null` = default) | `{"connectionId": ...}` |
+| `GET` / `PUT /api/v1/admin/backup/cron` | `{"cron": "0 2 * * *"}` (`null` / `""` clears) | `{"cron": ..., "nextFireMillis": ...}`; `400` for a malformed cron |
+| `GET` / `PUT /api/v1/admin/backup/retention` | `{"keepLast": 14, "maxAgeDays": 30}` (`0` = no limit) | `{"keepLast": ..., "maxAgeDays": ...}`; `400` for an invalid value |
+| `POST /api/v1/admin/backup/retention` | — | `{"deleted": [ids]}`; `409` with no S3 target |
 
 ## Disaster Recovery
 

@@ -256,6 +256,8 @@ Backup of metadata/KMS/IAM/connection/job-log state to S3 — on demand or on a 
 | `kiok.backup.s3.prefix` | `backups` | Key prefix (folder) under the shared bucket where backup objects are written. |
 | `kiok.backup.kms.key.id` | `backup-encryption` | KMS key id used to envelope-encrypt the backed-up stores at rest. The keystore itself (`kms.bin`) is sealed with the master key, so a backup restores onto a new cluster with the same `KIOK_MASTER_KEY`. |
 
+The schedule, the S3 target and [retention](backup.md#retention) (keep the newest *N* / delete older than *D* days, both `0` = no limit by default) have no keys here: they are set on the Backup &amp; Restore page and stored in the replicated metadata store.
+
 ## Logging
 
 | Property | Default | Description |
